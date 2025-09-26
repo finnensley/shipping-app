@@ -16,7 +16,7 @@ function App() {
   return (
       <BrowserRouter>
       <div>
-        <div>
+        <div className="flex flex-col m-2 bg-blue-500 border rounded-lg">
         <h1>Shipping App</h1>
         </div>
         <NavBar />
