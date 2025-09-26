@@ -1,6 +1,6 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js vite tailwindcss
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom
 
 # Pages:  
 ## 1. Store Front (potentially) or sync to Shopify
