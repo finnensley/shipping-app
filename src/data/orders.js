@@ -21,7 +21,7 @@ export const orders = [
         id: 2,
         sku: 222222,
         description: "bowl",
-        quantity: 1,
+        quantity: 2,
         subtotal: 30,
         taxes: 3,
         shipping_paid: 10,

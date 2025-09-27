@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { orders } from "../../data/orders";
 import { items } from "../../data/inventory";
 
 const PickingPage = () => {
   //use flatMap to create a single array of all the items
-  const pickList = orders.flatMap((order) => order.items);
-  // const itemLocation = items.flatMap(item => item.locations.location);
+  const itemsList = orders.flatMap((order) => order.items);
+  console.log(itemsList);
 
-  // const getItemLocation = () => {
-  //   const itemLocations = items.filter(items.locations.location)
+  // groups by id and adds quantities of the same item.id together, Object.values converts object of grouped items inot an array of values
+  const pickList = Object.values(
+    itemsList.reduce((acc, item) => {
+      if (acc[item.id]) {
+        // checks if acc object has the item.id already
+        acc[item.id].quantity += item.quantity; // if it does add the current item's quantity to the existing total quantity for that id
+      } else {
+        acc[item.id] = { ...item }; //if entry doesn't exist, create a new entry and copy all properties from item
+      }
+      return acc;
+    }, {})
+  );
 
   return (
     <div>
@@ -26,9 +36,10 @@ const PickingPage = () => {
           placeholder="defaults to staged location"
         />
         {/* Picklist has an associated id number */}
-        {/* All picklist items go to staged location, packer chooses picklist, orders display  */}
+        {/* All picklist items go to staged location by default, packer chooses picklist, orders display  */}
         {/* items.locations.location */}
       </div>
+      {/* filter locations for each item quantity, then find the one with the lowest location id */}
       <ul>
         {pickList.map((item) => (
           <li key={item.id} className="border rounded-lg m-4 p-2">
