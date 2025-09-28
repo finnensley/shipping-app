@@ -5,9 +5,9 @@ import { items } from "../../data/inventory";
 const PickingPage = () => {
   //use flatMap to create a single array of all the items
   const itemsList = orders.flatMap((order) => order.items);
-  console.log(itemsList);
+  console.log(itemsList); // []
 
-  // groups by id and adds quantities of the same item.id together, Object.values converts object of grouped items inot an array of values
+  // groups by id and adds quantities of the same item.id together, Object.values converts object of grouped items into an array of values
   const pickList = Object.values(
     itemsList.reduce((acc, item) => {
       if (acc[item.id]) {
@@ -20,6 +20,9 @@ const PickingPage = () => {
     }, {})
   );
 
+  const [pickListId] = useState(() => Math.floor(Math.random() * 100) + 1);
+ 
+
   return (
     <div>
       <div className="m-4">
@@ -29,10 +32,10 @@ const PickingPage = () => {
       {/* Create interactivity -> ability to move items to a staging location*/}
       {/* Add picture that can be touched or selected */}
       <div>
-        <label>Choose a location:</label>
+        <label className="text-xl">Choose a transfer location for all items: </label>
         <input
           type="text"
-          className="border rounded-lg p-1"
+          className="border rounded-lg p-1 text-xl"
           placeholder="defaults to staged location"
         />
         {/* Picklist has an associated id number */}
@@ -53,7 +56,18 @@ const PickingPage = () => {
         {pickList.map((item) => {
           // Find the matching inventory item by SKU
           const inventoryItem = items.find((inv) => inv.sku === item.sku);
-
+          const picture = (
+            <img
+              src={inventoryItem ? inventoryItem.picture : ""}
+              alt={item.description}
+              style={{
+                width: "50px",
+                height: "50px",
+                objectFit: "cover",
+                marginRight: "1rem",
+              }}
+            />
+          );
           // Filter locations with enough quantity
           const eligibleLocations = inventoryItem
             ? inventoryItem.locations.filter(
@@ -76,15 +90,25 @@ const PickingPage = () => {
           }
 
           return (
-            <li key={item.id} className="border rounded-lg m-4 p-2">
-              Location: {chosenLocation ? chosenLocation.location : "N/A"} |
-              Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-              {item.quantity} | <label>transfer to </label>
-              <input type="text" placeholder="new location" className="p-1" />
+            <div className="place-content-center">
+            <li key={item.id} className="flex border rounded-lg m-4 p-2 text-xl place-items-center">
+              {picture} Location:{" "}
+              {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
+              {item.sku} | Item: {item.description} | Quantity: {item.quantity}{" "}
+              | <label name="locationTransfer" className="ml-2">transfer to </label>
+              <input
+                id="locationTransfer"
+                type="text"
+                placeholder=" type new location"
+                className="p-1 ml-2 border rounded-lg"
+              />
             </li>
+            </div>
           );
         })}
       </ul>
+      <div className="text-xl">Pick List #: {pickListId} </div>
+      <button className="text-xl">Transfer</button>
     </div>
   );
 };
