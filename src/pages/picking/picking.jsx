@@ -37,17 +37,53 @@ const PickingPage = () => {
         />
         {/* Picklist has an associated id number */}
         {/* All picklist items go to staged location by default, packer chooses picklist, orders display  */}
-        {/* items.locations.location */}
+        {/* items.locations.location doesn't work */}
       </div>
       {/* filter locations for each item quantity, then find the one with the lowest location id */}
       <ul>
-        {pickList.map((item) => (
+        {/* // Original code, without locations logic */}
+        {/* {pickList.map((item) => (
           <li key={item.id} className="border rounded-lg m-4 p-2">
             Location: | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
             {item.quantity} | <label>transfer to </label>
             <input type="text" placeholder="new location" className="p-1" />
           </li>
-        ))}
+        ))} */}
+
+        {pickList.map((item) => {
+          // Find the matching inventory item by SKU
+          const inventoryItem = items.find((inv) => inv.sku === item.sku);
+
+          // Filter locations with enough quantity
+          const eligibleLocations = inventoryItem
+            ? inventoryItem.locations.filter(
+                (loc) => loc.quantity >= item.quantity
+              )
+            : [];
+
+          // Choose location logic
+          let chosenLocation = null;
+          if (eligibleLocations.length === 1) {
+            chosenLocation = eligibleLocations[0];
+          } else if (eligibleLocations.length > 1) {
+            // Sort by quantity ascending, then by location number ascending
+            eligibleLocations.sort((a, b) =>
+              a.quantity !== b.quantity
+                ? a.quantity - b.quantity
+                : a.location - b.location
+            );
+            chosenLocation = eligibleLocations[0];
+          }
+
+          return (
+            <li key={item.id} className="border rounded-lg m-4 p-2">
+              Location: {chosenLocation ? chosenLocation.location : "N/A"} |
+              Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
+              {item.quantity} | <label>transfer to </label>
+              <input type="text" placeholder="new location" className="p-1" />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

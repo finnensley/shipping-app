@@ -1,6 +1,5 @@
 import React from "react";
-import {items} from "../../data/inventory";
-
+import { items } from "../../data/inventory";
 
 const InventoryPage = () => {
   return (

@@ -13,7 +13,7 @@ export const items = [
     total_quantity: 10,
     locations: [
       { id: 2, location: 2, quantity: 5 },
-      { id: 3, location: 3, quantity: 5 },
+      { id: 3, location: 3, quantity: 4 },
     ],
   },
   {
