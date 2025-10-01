@@ -32,8 +32,9 @@ const PickingPage = () => {
       {/* Create interactivity -> ability to move items to a staging location*/}
       {/* Add picture that can be touched or selected */}
       <div>
-        <label className="text-xl">Choose a transfer location for all items: </label>
+        <label htmlFor ="allItemsTransfer" className="text-xl">Choose a transfer location for all items: </label>
         <input
+        id="allItemsTransfer"
           type="text"
           className="border rounded-lg p-1 text-xl"
           placeholder="defaults to staged location"
@@ -95,7 +96,7 @@ const PickingPage = () => {
               {picture} Location:{" "}
               {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
               {item.sku} | Item: {item.description} | Quantity: {item.quantity}{" "}
-              | <label name="locationTransfer" className="ml-2">transfer to </label>
+              | <label htmlFor="locationTransfer" className="ml-2">transfer to </label>
               <input
                 id="locationTransfer"
                 type="text"

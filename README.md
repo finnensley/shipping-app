@@ -15,6 +15,12 @@
 ## 10. AI character - Ollama, trained on documentation
 ## 11. Training sandbox - using AI character
 
+# Logic:
+## Picking Page - choose the number of orders use a modal?, when submits puts items in staging location with associated order number, packing screen pulls up orders/items from picklistId, items transfer to packing status/packing location,.
+
+## Staging location is a list of pickinglistIds ?
+
+
 # Database:
 ## Tables: inventory, orders, user sign in
 ## Api - endpoints 

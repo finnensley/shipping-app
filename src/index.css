@@ -41,8 +41,8 @@ h1 {
 button {
   border-radius: 15px;
   border: 1px solid white;
-  padding: 0.2em 1em;
-  font-size: 1.3em;
+  padding: 0.1em .5em;
+  font-size: 1.2em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
