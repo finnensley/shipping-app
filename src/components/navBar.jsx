@@ -6,9 +6,9 @@
 
     return (
         <>
-        
-        <nav>
-          <Link to="/">Dashboard</Link> | {" "}
+       <div className="flex justify-center">
+        <nav className="inline-block bg-[rgba(0,0,0,0.38)] m-4 text-xl font-bold rounded-lg">
+          <Link to="/">Dashboard</Link>  | {" "}
           <Link to="/inventory">Inventory</Link> | {" "}
           <Link to="/orders">Orders</Link> | {" "}
           <Link to="/picking">Picking</Link> | {" "}
@@ -16,7 +16,7 @@
           <Link to="/storeFront">Store</Link> | {" "}
           <Link to="users">Users</Link> 
         </nav>
-    
+      </div> 
         </>
     );
  };

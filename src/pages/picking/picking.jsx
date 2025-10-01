@@ -21,22 +21,28 @@ const PickingPage = () => {
   );
 
   const [pickListId] = useState(() => Math.floor(Math.random() * 100) + 1);
- 
 
   return (
-    <div>
-      <div className="m-4">
-        <h1>Picking Page</h1>
+    <div className="m-5">
+      <div className="flex justify-center my-4">
+        <h1 className="inline-block text-xl rounded-lg text-shadow-lg font-medium">
+          Picking
+        </h1>
       </div>
       {/* Display list of items and locations for one order or a group of orders, order the list by location */}
       {/* Create interactivity -> ability to move items to a staging location*/}
       {/* Add picture that can be touched or selected */}
       <div>
-        <label htmlFor ="allItemsTransfer" className="text-xl">Choose a transfer location for all items: </label>
+        <label
+          htmlFor="allItemsTransfer"
+          className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]"
+        >
+          Choose a transfer location for all items or leave blank:{" "}
+        </label>
         <input
-        id="allItemsTransfer"
+          id="allItemsTransfer"
           type="text"
-          className="border rounded-lg p-1 text-xl"
+          className="border rounded-lg p-1 text-xl bg-[rgba(0,0,0,0.38)] text-white font-semibold placeholder-white"
           placeholder="defaults to staged location"
         />
         {/* Picklist has an associated id number */}
@@ -92,24 +98,34 @@ const PickingPage = () => {
 
           return (
             <div className="place-content-center">
-            <li key={item.id} className="flex border rounded-lg m-4 p-2 text-xl place-items-center">
-              {picture} Location:{" "}
-              {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
-              {item.sku} | Item: {item.description} | Quantity: {item.quantity}{" "}
-              | <label htmlFor="locationTransfer" className="ml-2">transfer to </label>
-              <input
-                id="locationTransfer"
-                type="text"
-                placeholder=" type new location"
-                className="p-1 ml-2 border rounded-lg"
-              />
-            </li>
+              <li
+                key={item.id}
+                className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center"
+              >
+                {picture} Location:{" "}
+                {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
+                {item.sku} | Item: {item.description} | Quantity:{" "}
+                {item.quantity} |{" "}
+                <label htmlFor="locationTransfer" className="ml-2">
+                  transfer to{" "}
+                </label>
+                <input
+                  id="locationTransfer"
+                  type="text"
+                  placeholder=" type new location"
+                  className="p-1 ml-2 border rounded-lg placeholder-white"
+                />
+              </li>
             </div>
           );
         })}
       </ul>
-      <div className="text-xl">Pick List #: {pickListId} </div>
-      <button className="text-xl">Transfer</button>
+      <button className="text-xl mb-4">Transfer</button>
+      <div className="flex justify-end">
+        <div className="inline-block text-xl bg-[rgba(0,0,0,0.38)] rounded-lg px-1">
+          Pick List #: {pickListId}{" "}
+        </div>
+      </div>
     </div>
   );
 };

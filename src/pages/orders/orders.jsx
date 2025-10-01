@@ -4,18 +4,18 @@ import { orders } from "../../data/orders";
 
 const OrdersPage = () => {
   return (
-    <div className="m-4">
-      <h1>Orders Page</h1>
+    <div className="m-4 font-medium text-shadow-lg">
+      <h1>Orders</h1>
       {/* Display orders in a list */}
       <div>
         <ul>
           {orders.map((order) => (
-            <li key={order.order_number} className="border rounded-lg m-4 p-2">
-              <strong>Order #{order.order_number}</strong>
+            <li key={order.order_number} className="border-y rounded-lg m-4 p-2 flex bg-[rgba(0,0,0,0.38)] text-white w-fit text-xl text-shadow-lg">
+              <strong>Order # {order.order_number}</strong>
               <ul>
                 {order.items.map((item) => (
-                  <li key={item.id}>
-                     Sku: {item.sku} | Item: {item.description} | Quantity: {item.quantity} | SubTotal: ${item.subtotal} | Shipping: ${item.shipping_paid}
+                  <li key={item.id} className="ml-2 font-semibold">
+                    Sku: {item.sku} | Item: {item.description} | Quantity: {item.quantity} | SubTotal: ${item.subtotal} | Shipping: ${item.shipping_paid}
                   </li>
                 ))}
               </ul>
