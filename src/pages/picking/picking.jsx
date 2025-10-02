@@ -1,6 +1,19 @@
 import React, { useState } from "react";
 import { orders } from "../../data/orders";
 import { items } from "../../data/inventory";
+import { stagedOrders } from "../../data/staged";
+
+//Helper function for unique pickListId
+const generateRandomId = (max = 1000000) => Math.floor(Math.random() * max) + 1;
+const getUniquePickListId = (existingIds, max = 1000000) => {
+  const id = generateRandomId(max);
+  if (existingIds.includes(id)) {
+    return getUniquePickListId(existingIds, max);
+  } else {
+    return id;
+  }
+};
+
 
 const PickingPage = () => {
   //use flatMap to create a single array of all the items
@@ -20,7 +33,8 @@ const PickingPage = () => {
     }, {})
   );
 
-  const [pickListId] = useState(() => Math.floor(Math.random() * 100) + 1);
+  const stagedPickListIds = stagedOrders.map((order) => order.pickListId);
+  const [pickListId] = useState(() => getUniquePickListId(stagedPickListIds)); // argument that passes to the existingIds parameter
 
   return (
     <div className="m-5">
