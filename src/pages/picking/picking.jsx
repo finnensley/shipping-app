@@ -14,27 +14,68 @@ const getUniquePickListId = (existingIds, max = 1000000) => {
   }
 };
 
-
 const PickingPage = () => {
-  //use flatMap to create a single array of all the items
-  const itemsList = orders.flatMap((order) => order.items);
-  console.log(itemsList); // []
+  const stagedPickListIds = stagedOrders.map((order) => order.pickListId);
+  const [pickListId] = useState(() => getUniquePickListId(stagedPickListIds)); // argument that passes to the existingIds parameter
+  const [inventory, setInventory] = useState(items);
+  const [staged, setStaged] = useState(stagedOrders);
+  //use flatMap to create a single array of all the items and the order_numbers
+  const itemsList = orders.flatMap((order) =>
+    order.items.map((item) => ({ ...item, order_number: order.order_number }))
+  );
+  // console.log(itemsList); // []
 
   // groups by id and adds quantities of the same item.id together, Object.values converts object of grouped items into an array of values
   const pickList = Object.values(
     itemsList.reduce((acc, item) => {
       if (acc[item.id]) {
-        // checks if acc object has the item.id already
-        acc[item.id].quantity += item.quantity; // if it does add the current item's quantity to the existing total quantity for that id
+        acc[item.id].quantity += item.quantity;
+        //Add order number if not already present
+        if (!acc[item.id].order_numbers.includes(item.order_number)) {
+          acc[item.id].order_numbers.push(item.order_number);
+        }
       } else {
-        acc[item.id] = { ...item }; //if entry doesn't exist, create a new entry and copy all properties from item
+        acc[item.id] = { ...item, order_numbers: [item.order_number] };
       }
       return acc;
     }, {})
   );
+  const handlePickListTransfer = () => {
+    const updatedInventory = inventory.map((invItem) => {
+      //delete quantity of each item from inventory location specified on pickinglist
+      pickList.forEach((item) => {
+        const inventoryItem = items.find((inv) => inv.id === item.id);
+        if (inventoryItem) {
+          const locationObj = inventoryItem.locations.find(
+            (loc) => loc.location === item.chosenLocation
+          );
+          if (locationObj) {
+            locationObj.quantity = Math.max(
+              0,
+              locationObj.quantity - item.quantity
+            );
+          }
+        }
+      });
+      return invItem;
+    });
+    setInventory(updatedInventory);
 
-  const stagedPickListIds = stagedOrders.map((order) => order.pickListId);
-  const [pickListId] = useState(() => getUniquePickListId(stagedPickListIds)); // argument that passes to the existingIds parameter
+    setStaged([
+      ...staged,
+      {
+        pickListId: pickListId,
+        order_numbers: pickList.flatMap((item) => item.order_numbers),
+        items: pickList.map((item) => ({
+          id: item.id,
+          sku: item.sku,
+          description: item.description,
+          quantity: item.quantity,
+        })),
+      },
+    ]);
+    alert("Pick list transferred and inventory updated!");
+  };
 
   return (
     <div className="m-5">
@@ -59,21 +100,9 @@ const PickingPage = () => {
           className="border rounded-lg p-1 text-xl bg-[rgba(0,0,0,0.38)] text-white font-semibold placeholder-white"
           placeholder="defaults to staged location"
         />
-        {/* Picklist has an associated id number */}
-        {/* All picklist items go to staged location by default, packer chooses picklist, orders display  */}
-        {/* items.locations.location doesn't work */}
+        {/* packer chooses picklist, orders display  */}
       </div>
-      {/* filter locations for each item quantity, then find the one with the lowest location id */}
       <ul>
-        {/* // Original code, without locations logic */}
-        {/* {pickList.map((item) => (
-          <li key={item.id} className="border rounded-lg m-4 p-2">
-            Location: | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-            {item.quantity} | <label>transfer to </label>
-            <input type="text" placeholder="new location" className="p-1" />
-          </li>
-        ))} */}
-
         {pickList.map((item) => {
           // Find the matching inventory item by SKU
           const inventoryItem = items.find((inv) => inv.sku === item.sku);
@@ -116,7 +145,7 @@ const PickingPage = () => {
                 key={item.id}
                 className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center"
               >
-                {picture} Location:{" "}
+                {picture} Order #: {item.order_numbers.join(", ")} | Location:{" "}
                 {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
                 {item.sku} | Item: {item.description} | Quantity:{" "}
                 {item.quantity} |{" "}
@@ -134,7 +163,9 @@ const PickingPage = () => {
           );
         })}
       </ul>
-      <button className="text-xl mb-4">Transfer</button>
+      <button className="text-xl mb-4" onClick={handlePickListTransfer}>
+        Transfer
+      </button>
       <div className="flex justify-end">
         <div className="inline-block text-xl bg-[rgba(0,0,0,0.38)] rounded-lg px-1">
           Pick List #: {pickListId}{" "}
