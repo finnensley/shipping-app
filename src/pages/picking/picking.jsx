@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { orders } from "../../data/orders";
 import { items } from "../../data/inventory";
 import { stagedOrders } from "../../data/staged";
+import ItemPicture from "../../components/picture";
 
 //Helper function for unique pickListId
 const generateRandomId = (max = 1000000) => Math.floor(Math.random() * max) + 1;
@@ -106,18 +107,7 @@ const PickingPage = () => {
         {pickList.map((item) => {
           // Find the matching inventory item by SKU
           const inventoryItem = items.find((inv) => inv.sku === item.sku);
-          const picture = (
-            <img
-              src={inventoryItem ? inventoryItem.picture : ""}
-              alt={item.description}
-              style={{
-                width: "50px",
-                height: "50px",
-                objectFit: "cover",
-                marginRight: "1rem",
-              }}
-            />
-          );
+          
           // Filter locations with enough quantity
           const eligibleLocations = inventoryItem
             ? inventoryItem.locations.filter(
@@ -145,7 +135,8 @@ const PickingPage = () => {
                 key={item.id}
                 className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center"
               >
-                {picture} Order #: {item.order_numbers.join(", ")} | Location:{" "}
+                 <ItemPicture sku={item.sku} description={item.description} />
+                Order #: {item.order_numbers.join(", ")} | Location:{" "}
                 {chosenLocation ? chosenLocation.location : "N/A"} | Sku:{" "}
                 {item.sku} | Item: {item.description} | Quantity:{" "}
                 {item.quantity} |{" "}

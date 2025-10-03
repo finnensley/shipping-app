@@ -36,22 +36,6 @@ const InventoryPage = () => {
             </li>
           ))}
         </ul>
-
-        {/* Using divs works but is not semantic, keep ul/li from above */}
-        {/* <div>
-        {items.map((item) => (
-         <div key={item.id} className="border rounded-lg m-4">
-          SKU: {item.sku} | Item: {item.description} | Total OH: {item.total_quantity} |
-          <div>
-            {item.locations.map((location) => (
-              <div key={location.id}>
-                Location: {location.location} | Quantity: {location.quantity}
-              </div> 
-        ))}
-      </div>
-      </div>
-        ))}
-      </div> */}
       </div>
     </div>
   );
