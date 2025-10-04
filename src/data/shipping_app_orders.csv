@@ -1,0 +1,4 @@
+order_number,subtotal,taxes,total,shipping_paid,address_line1,address_line2,city,state,zip,country,carrier,customer_id
+100,40,3,43,10,56 Wiley Dr,,Asheville,NC,28804,USA,UPS,
+101,30,3,33,10,11080 Newland St,,Westminster,CO,80020,USA,UPS,
+102,40,3,43,10,11085 Newland St,,Westminster,CO,80020,USA,UPS,

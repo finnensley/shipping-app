@@ -1,0 +1,5 @@
+order_id,item_id,sku,description,quantity
+4,1,111111,Plate,1
+5,2,222222,Bowl,2
+6,2,222222,Bowl,1
+6,3,333333,Mug,1
