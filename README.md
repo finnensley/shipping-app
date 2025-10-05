@@ -1,6 +1,6 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, 
 
 # Tables for testing, 
 # Using psql: psql -U finnensley -d postgres, CREATE DATABASE shipping_app; To connect to database: \c shipping_app
@@ -52,5 +52,6 @@
 # Challenge:
 ## Add localStorage - picking/packing pages
 ## Theme dark - remove background pic, light - remove background pick and text-black bg-white, default - picture or change picture url like in dashboard
+## Order numbers can be strings or numbers (table is set up as INT and .post validates for .isNumeric() )
 
 

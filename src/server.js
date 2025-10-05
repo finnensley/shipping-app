@@ -1,6 +1,7 @@
-import express from 'express';
-import pkg from 'pg';
-import cors from 'cors';
+import express from "express";
+import pkg from "pg";
+import cors from "cors";
+import { body, validationResult } from "express-validator";
 
 const { Pool } = pkg;
 const app = express();
@@ -11,59 +12,537 @@ app.use(express.json()); // to parse JSON request bodies
 
 //Database connection pool
 const pool = new Pool({
-    user: 'finnensley',
-    host: 'localhost',
-    database: 'shipping_app',
-    password: 'Finnigan2020!',
-    port: 5432, //Default PostgreSQL port
+  user: "finnensley",
+  host: "localhost",
+  database: "shipping_app",
+  password: "Finnigan2020!",
+  port: 5432, //Default PostgreSQL port
 });
 
-// API endpoint to fetch data
-
-app.get('/inventory', async (req, res) => {
+// API endpoint for CRUD (Create, Read, Update, Delete).
+//items
+// Get all items
+app.get("/items", async (req, res) => {
   try {
-    const inventory = await pool.query('SELECT * FROM inventory');
-    res.json({ inventory: inventory.rows });
+    const items = await pool.query("SELECT * FROM items");
+    res.json({ items: items.rows });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
+  }
+});
+//Create a new item
+app.post(
+  "/items",
+  [
+    body("sku").isNumeric(),
+    body("description").isString().trim().notEmpty(),
+    body("total_quantity").isInt({ min: 0 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { image_path, sku, description, total_quantity } = req.body;
+      const result = await pool.query(
+        "INSERT INTO items (image_path, sku, description, total_quantity) VALUES ($1, $2, $3, $4) RETURNING *",
+        [image_path, sku, description, total_quantity]
+      );
+      res.status(201).json({ items: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+//Update an item
+app.put("/items/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { image_path, sku, description, total_quantity } = req.body;
+    const result = await pool.query(
+      "UPDATE items SET image_path=$1, sku=$2, description=$3, total_quantity=$4 WHERE id=$5 RETURNING *",
+      [image_path, sku, description, total_quantity, id]
+    );
+    res.json({ item: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
   }
 });
 
-app.get('/orders', async (req, res) => {
+//Delete an item
+app.delete("/items/:id", async (req, res) => {
   try {
-    const orders = await pool.query('SELECT * FROM orders');
+    const { id } = req.params;
+    await pool.query("DELETE FROM items WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//item_locations
+app.get("/item_locations", async (req, res) => {
+  try {
+    const itemLocations = await pool.query("SELECT * FROM item_locations");
+    res.json({ itemLocations: itemLocations.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post(
+  "/item_locations",
+  [
+    body("item_id").isNumeric(),
+    body("location_id").isInt({ min: 0 }),
+    body("quantity").isInt({ min: 0 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { item_id, location_id, quantity } = req.body;
+      const result = await pool.query(
+        "INSERT INTO item_locations (item_id, location_id, quantity) VALUES ($1, $2, $3) RETURNING *",
+        [item_id, location_id, quantity]
+      );
+      res.status(201).json({ item_location: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/item_locations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { item_id, location_id, quantity } = req.body;
+    const result = await pool.query(
+      "UPDATE item_locations SET item_id=$1, location_id=$2, quantity=$3 WHERE id=$4 RETURNING *",
+      [item_id, location_id, quantity, id]
+    );
+    res.json({ item_locations: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/item_locations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM item_locations WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//Orders
+app.get("/orders", async (req, res) => {
+  try {
+    const orders = await pool.query("SELECT * FROM orders");
     res.json({ orders: orders.rows });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
-app.get('/locations', async (req, res) => {
+app.post(
+  "/orders",
+  [
+    body("order_number").isNumeric(),
+    body("subtotal").isNumeric(),
+    body("taxes").isNumeric(),
+    body("total").isNumeric(),
+    body("shipping_paid").isNumeric(),
+    body("address_line1").isString().notEmpty(),
+    body("address_line2").optional.isString().trim(),
+    body("city").isString().trim().notEmpty(),
+    body("state").isString().trim().notEmpty(),
+    body("zip").isString().trim().notEmpty(),
+    body("country").isString().trim().notEmpty(),
+    body("carrier").isString().trim().notEmpty(),
+    body("carrier_speed").isString().trim().notEmpty(),
+    body("customer_id").isInt().notEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const {
+        order_number,
+        subtotal,
+        taxes,
+        total,
+        shipping_paid,
+        address_line1,
+        address_line2,
+        city,
+        state,
+        zip,
+        country,
+        carrier,
+        carrier_speed,
+        customer_id,
+      } = req.body;
+      const result = await pool.query(
+        "INSERT INTO orders (order_number, subtotal, taxes, total, shipping_paid, address_line1, address_line2, city, state, zip, country, carrier, carrier_speed, customer_id ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *",
+        [
+          order_number,
+          subtotal,
+          taxes,
+          total,
+          shipping_paid,
+          address_line1,
+          address_line2,
+          city,
+          state,
+          zip,
+          country,
+          carrier,
+          carrier_speed,
+          customer_id,
+        ]
+      );
+      res.status(201).json({ orders: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/orders/:id", async (req, res) => {
   try {
-    const locations = await pool.query('SELECT * FROM locations');
+    const { id } = req.params;
+    const {
+      order_number,
+      subtotal,
+      taxes,
+      total,
+      shipping_paid,
+      address_line1,
+      address_line2,
+      city,
+      state,
+      zip,
+      country,
+      carrier,
+      carrier_speed,
+      customer_id,
+    } = req.body;
+    const result = await pool.query(
+      "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14 WHERE id=$15 RETURNING *",
+      [
+        order_number,
+        subtotal,
+        taxes,
+        total,
+        shipping_paid,
+        address_line1,
+        address_line2,
+        city,
+        state,
+        zip,
+        country,
+        carrier,
+        carrier_speed,
+        customer_id,
+        id,
+      ]
+    );
+    res.json({ orders: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/orders/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM orders WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//order-items
+app.get("/order_items", async (req, res) => {
+  try {
+    const orderItems = await pool.query("SELECT * FROM order_items");
+    res.json({ orderItems: orderItems.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post(
+  "/order_items",
+  [
+    body("order_id").isInt({ min: 0 }),
+    body("item_id").isInt({ min: 0 }),
+    body("sku").isNumeric(),
+    body("description").isString().trim().notEmpty(),
+    body("quantity").isInt({ min: 0 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { order_id, item_id, sku, description, quantity } = req.body;
+      const result = await pool.query(
+        "INSERT INTO order_items (order_id, item_id, sku, description, quantity ) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [order_id, item_id, sku, description, quantity]
+      );
+      res.status(201).json({ order_items: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/order_items/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { order_id, item_id, sku, description, quantity } = req.body;
+    const result = await pool.query(
+      "UPDATE order_items SET order_id=$1, item_id=$2, sku=$3, description=$4, quantity=$5 WHERE id=$6 RETURNING *",
+      [order_id, item_id, sku, description, quantity, id]
+    );
+    res.json({ order_items: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/order_items/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM order_items WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//locations
+app.get("/locations", async (req, res) => {
+  try {
+    const locations = await pool.query("SELECT * FROM locations");
     res.json({ locations: locations.rows });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
-app.get('/users', async (req, res) => {
+app.post(
+  "/locations",
+  [
+    body("location_number").isNumeric(),
+    body("location_name").isString().trim(),
+    body("description").isString().trim(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { location_number, location_name, description } = req.body;
+      const result = await pool.query(
+        "INSERT INTO locations (location_number, location_name, description) VALUES ($1, $2, $3) RETURNING *",
+        [location_number, location_name, description]
+      );
+      res.status(201).json({ locations: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/locations/:id", async (req, res) => {
   try {
-    const users = await pool.query('SELECT * FROM users');
+    const { id } = req.params;
+    const { location_number, location_name, description } = req.body;
+    const result = await pool.query(
+      "UPDATE locations SET location_number=$1, location_name=$2, description=$3 WHERE id=$4 RETURNING *",
+      [location_number, location_name, description, id]
+    );
+    res.json({ locations: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/locations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM locations WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//customers
+app.get("/customers", async (req, res) => {
+  try {
+    const customers = await pool.query("SELECT * FROM customers");
+    res.json({ customers: customers.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post(
+  "/customers",
+  [
+    body("name").isString().trim().notEmpty(),
+    body("email").isString().trim(),
+    body("phone").isString().trim(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { name, email, phone } = req.body;
+      const result = await pool.query(
+        "INSERT INTO customers (name, email, phone ) VALUES ($1, $2, $3) RETURNING *",
+        [name, email, phone]
+      );
+      res.status(201).json({ customers: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/customers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phone } = req.body;
+    const result = await pool.query(
+      "UPDATE customers SET name=$1, email=$2, phone=$3 WHERE id=$4 RETURNING *",
+      [name, email, phone, id]
+    );
+    res.json({ customers: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/customers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM customers WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+//users
+app.get("/users", async (req, res) => {
+  try {
+    const users = await pool.query("SELECT * FROM users");
     res.json({ users: users.rows });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post(
+  "/users",
+  [
+    body("username").isString().trim().notEmpty(),
+    body("email").isString().trim().notEmpty(),
+    body("password_hash").isString().trim().notEmpty(),
+    body("permissions").isString().trim().notEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const { username, email, password_hash, permissions } = req.body;
+      const result = await pool.query(
+        "INSERT INTO users (username, email, password_hash, permissions ) VALUES ($1, $2, $3, $4) RETURNING *",
+        [username, email, password_hash, permissions]
+      );
+      res.status(201).json({ users: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+app.put("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, password_hash, permissions } = req.body;
+    const result = await pool.query(
+      "UPDATE users SET username=$1, email=$2, password_hash=$3, permissions=$4 WHERE id=$5 RETURNING *",
+      [username, email, password_hash, permissions, id]
+    );
+    res.json({ users: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM users WHERE id=$1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
   }
 });
 
 //Start the server
 app.listen(port, () => {
-    console.log(`Backend server running on port ${port}`);
-})
+  console.log(`Backend server running on port ${port}`);
+});
 
-// In termainl to run server: 
+// In terminal to run server:
 // node src/server.js
