@@ -12,6 +12,13 @@
 # SELECT * FROM locations; -> to see data in table after upload
 # UPDATE orders SET customer_id = 2 WHERE id = 1; -> to update a field
 
+# Server:
+## Node.js, express.js. to run: node src/server.js
+## using Express API (provides the endpoints set up in server.js)
+
+# Custom Hook: use axios to get data from backend (postgres tables)
+
+
 # Pages:  
 ## 1. Store Front (potentially) or sync to Shopify
 ## 2. Inventory Management
@@ -53,5 +60,16 @@
 ## Add localStorage - picking/packing pages
 ## Theme dark - remove background pic, light - remove background pick and text-black bg-white, default - picture or change picture url like in dashboard
 ## Order numbers can be strings or numbers (table is set up as INT and .post validates for .isNumeric() )
+## Question - did I need to set up CRUD for every table and column (maybe some didn't need to be included)
 
 
+# Notes:
+## If update quantities in the app, backend updates happen correct;u
+## If update database directly, need to run this update manually to sync UI and backend.
+<!-- UPDATE items
+    SET total_quantity = (
+  SELECT COALESCE(SUM(quantity), 0)
+  FROM item_locations
+  WHERE item_id = 1
+)
+WHERE id = 1;  -->

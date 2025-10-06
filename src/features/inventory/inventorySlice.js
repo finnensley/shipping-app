@@ -6,17 +6,20 @@ export const inventorySlice = createSlice({
   reducers: {
     setInventory: (state, action) => action.payload,
     updateItemQuantity: (state, action) => {
-      const { id, location, quantity } = action.payload;
-      const item = state.find((item) => item.id === id);
-      if (item) {
-        const loc = item.location.find((loc) => loc.location === location);
+      const { itemId, locationId, delta } = action.payload;
+      const item = state.find((item) => item.id === itemId);
+      if (item && item.locations) {
+        const loc = item.locations.find((loc) => loc.id === locationId);
         if (loc) {
-          loc.quantity = quantity;
-        }
+          loc.quantity += delta;
+          item.total_quantity = item.locations.reduce((sum, l) => sum + (Number(l.quantity) || 0),
+      0);
+      console.log(state, item.sku, action.payload)
       }
-    },
+    }
+  },
     addItem: (state, action) => {
-        state.push(action.payload);
+        state.push(action.payload); // adds a new item 
     },
     removeItem: (state, action) => {
         return state.filter(item => item.id !== action.payload); //creates a new array without the item

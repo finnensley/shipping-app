@@ -21,16 +21,62 @@ const pool = new Pool({
 
 // API endpoint for CRUD (Create, Read, Update, Delete).
 //items
-// Get all items
+// Get all items joined with locations
 app.get("/items", async (req, res) => {
   try {
-    const items = await pool.query("SELECT * FROM items");
-    res.json({ items: items.rows });
+    const result = await pool.query(`
+      SELECT
+        i.id AS item_id,
+        i.sku,
+        i.description,
+        i.total_quantity,
+        i.image_path,
+        il.id AS item_location_id,
+        il.location_id,
+        il.quantity,
+        l.location_number,
+        l.location_name,
+        l.description AS location_description
+      FROM items i
+      LEFT JOIN item_locations il ON i.id = il.item_id
+      LEFT JOIN locations l ON il.location_id = l.id
+      ORDER BY i.id, il.location_id
+    `);
+
+    //Group locations by item
+    const itemsMap = {};
+    result.rows.forEach((row) => {
+      if (!itemsMap[row.item_id]) {
+        itemsMap[row.item_id] = {
+          id: row.item_id,
+          image_path: row.image_path,
+          sku: row.sku,
+          description: row.description,
+          total_quantity: row.total_quantity,
+          locations: [],
+        };
+      }
+      // Only push location if it exists
+      if (row.item_location_id) {
+        itemsMap[row.item_id].locations.push({
+          id: row.item_location_id,
+          location_id: row.location_id,
+          location_number: row.location_number,
+          location_name: row.location_name,
+          location_description: row.location_description,
+          quantity: row.quantity,
+        });
+      }
+    });
+
+    const items = Object.values(itemsMap);
+    res.json({ items });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
   }
 });
+
 //Create a new item
 app.post(
   "/items",
@@ -131,6 +177,12 @@ app.put("/item_locations/:id", async (req, res) => {
       "UPDATE item_locations SET item_id=$1, location_id=$2, quantity=$3 WHERE id=$4 RETURNING *",
       [item_id, location_id, quantity, id]
     );
+
+    await pool.query(
+      "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity),0) FROM item_locations WHERE item_id = $1) WHERE id= $1",
+      [item_id]
+    );
+
     res.json({ item_locations: result.rows[0] });
   } catch (err) {
     console.error(err);
@@ -169,7 +221,7 @@ app.post(
     body("total").isNumeric(),
     body("shipping_paid").isNumeric(),
     body("address_line1").isString().notEmpty(),
-    body("address_line2").optional.isString().trim(),
+    body("address_line2").optional,
     body("city").isString().trim().notEmpty(),
     body("state").isString().trim().notEmpty(),
     body("zip").isString().trim().notEmpty(),
