@@ -202,10 +202,52 @@ app.delete("/item_locations/:id", async (req, res) => {
 });
 
 //Orders
-app.get("/orders", async (req, res) => {
+app.get("/orders_with_items", async (req, res) => {
   try {
-    const orders = await pool.query("SELECT * FROM orders");
-    res.json({ orders: orders.rows });
+    const result = await pool.query(`
+      SELECT
+        o.id AS order_id,
+        o.order_number,
+        o.subtotal,
+        o.taxes,
+        o.total,
+        o.shipping_paid,
+        oi.id AS order_item_id,
+        oi.item_id,
+        oi.sku,
+        oi.description,
+        oi.quantity
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      ORDER BY o.id, oi.id
+    `);
+
+    // Group items by order
+    const ordersMap = {};
+    result.rows.forEach((row) => {
+      if (!ordersMap[row.order_id]) {
+        ordersMap[row.order_id] = {
+          order_number: row.order_number,
+          subtotal: row.subtotal,
+          taxes: row.taxes,
+          total: row.total,
+          shipping_paid: row.shipping_paid,
+          items: [],
+        };
+      }
+      if (row.order_item_id) {
+        ordersMap[row.order_id].items.push({
+          id: row.order_item_id,
+          item_id: row.item_id,
+          sku: row.sku,
+          description: row.description,
+          quantity: row.quantity,
+        });
+      }
+    });
+
+    const orders = Object.values(ordersMap);
+    res.json({ orders });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");

@@ -22,7 +22,7 @@ export const inventorySlice = createSlice({
         state.push(action.payload); // adds a new item 
     },
     removeItem: (state, action) => {
-        return state.filter(item => item.id !== action.payload); //creates a new array without the item
+        return state.filter(item => item.id !== action.payload); //creates a new array without the removed item
     }
   },
 });
