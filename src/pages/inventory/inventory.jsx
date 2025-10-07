@@ -18,7 +18,7 @@ const InventoryPage = () => {
     if (inventory) {
       const initial = {};
       inventory.forEach((item) => {
-        (item.locations || []).forEach((locations) => {
+        (item.locations || []).forEach((location) => {
           initial[location.id] = location.quantity;
         });
       });
@@ -97,7 +97,7 @@ const InventoryPage = () => {
                     <button
                       aria-label="Increment value"
                       className="ml-2"
-                      onClick={() => {
+                      onClick={async () => {
                         dispatch(
                           updateItemQuantity({
                             itemId: item.id,
@@ -105,9 +105,9 @@ const InventoryPage = () => {
                             delta: 1,
                           })
                         );
-                        updateData(
+                        await updateData(
                           location.id,
-                          location.quantity + 1,
+                          quantities[location.id] ?? location.quantity + 1,
                           item.id,
                           location.location_id
                         );
@@ -118,7 +118,7 @@ const InventoryPage = () => {
                     <button
                       aria-label="Decrement value"
                       className="ml-2"
-                      onClick={() => {
+                      onClick={async () => {
                         dispatch(
                           updateItemQuantity({
                             itemId: item.id,
@@ -126,9 +126,9 @@ const InventoryPage = () => {
                             delta: -1,
                           })
                         );
-                        updateData(
+                        await updateData(
                           location.id,
-                          location.quantity - 1,
+                          quantities[location.id] ?? location.quantity - 1,
                           item.id,
                           location.location_id
                         );
@@ -139,10 +139,24 @@ const InventoryPage = () => {
                     <button
                       className="ml-2"
                       onClick={async () => {
-                        await axios.post(`http://localhost:3000/item_locations/${location.id}/undo`);
-                        window.location.reload();
-                        }}
-                      
+                        await axios.post(
+                          `http://localhost:3000/item_locations/${location.id}/undo`
+                        );
+                        // Re-fetch inventory data and update Redux state
+                        const response = await fetch(
+                          "http://localhost:3000/items"
+                        );
+                        const data = await response.json();
+                        dispatch(setInventory(data.items));
+                        // Update local quantities state
+                        const initial = {};
+                        data.items.forEach((item) => {
+                          (item.locations || []).forEach((location) => {
+                            initial[location.id] = location.quantity;
+                          });
+                        });
+                        setQuantities(initial);
+                      }}
                     >
                       Undo
                     </button>

@@ -214,7 +214,7 @@ app.put("/item_locations/:id", async (req, res) => {
 
     // Log the change in history
     await pool.query(
-      "INSERT INTO item_locations_history (item_location_id, old_quantity, new_quantity) VALUE ($1, $2, $3)",
+      "INSERT INTO item_location_history (item_location_id, old_quantity, new_quantity) VALUES ($1, $2, $3)",
       [id, oldQuantity, quantity]
     );
 
@@ -303,7 +303,7 @@ app.post(
     body("total").isNumeric(),
     body("shipping_paid").isNumeric(),
     body("address_line1").isString().notEmpty(),
-    body("address_line2").optional,
+    body("address_line2").optional(),
     body("city").isString().trim().notEmpty(),
     body("state").isString().trim().notEmpty(),
     body("zip").isString().trim().notEmpty(),
