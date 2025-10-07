@@ -2,16 +2,16 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setInventory,
-  updateItemQuantity,
+  updateItemQuantity
 } from "/src/features/inventory/inventorySlice";
 import useFetchData from "../../components/useFetchData";
-import useUpdateData from "../../components/useUpdateData";
+import useUpdateInventoryData from "../../components/useUpdateInventoryData";
 
 const InventoryPage = () => {
   const inventory = useSelector((state) => state.inventory);
   const dispatch = useDispatch();
   const { data, loading, error } = useFetchData("items");
-  const { updateData } = useUpdateData();
+  const { updateData } = useUpdateInventoryData();
 
   // When API data loads, update Redux state
   useEffect(() => {
@@ -46,7 +46,7 @@ const InventoryPage = () => {
                     {location.location_name} | Quantity:{" "}
                     <input
                       type="number"
-                      className="ml-1 w-16 text-white bg-[rgba(0,0,0,0.38)]"
+                      className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
                       value={location.quantity}
                       min={0}
                       onChange={(e) => {

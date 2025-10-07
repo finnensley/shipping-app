@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const useUpdateData = () => {
+const useUpdateInventoryData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,4 +25,4 @@ const useUpdateData = () => {
   return { updateData, loading, error };
 };
 
-export default useUpdateData;
+export default useUpdateInventoryData;

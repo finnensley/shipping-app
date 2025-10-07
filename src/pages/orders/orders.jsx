@@ -1,21 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setOrders,
-  updateItemQuantities,
-} from "/src/features/orders/ordersSlice";
+import { setOrder, updateItemQuantity } from "/src/features/orders/orderSlice";
 import useFetchData from "../../components/useFetchData";
+import useUpdateOrderData from "../../components/useUpdateOrderData";
 
 const OrdersPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
   const orders = data?.orders || [];
   const order = useSelector((state) => state.order);
   const dispatch = useDispatch();
+  const { updateData } = useUpdateOrderData();
 
   // When API data loads, update Redux state
   useEffect(() => {
-    if (data && data.items) {
-      dispatch(setOrders(data.items));
+    if (data && data.orders) {
+      dispatch(setOrder(data.orders));
     }
   }, [data, dispatch]);
 
@@ -38,7 +37,31 @@ const OrdersPage = () => {
                 {order.items.map((item) => (
                   <li key={item.id} className="ml-2 font-semibold">
                     Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-                    {item.quantity} |
+                    <input
+                      type="number"
+                      className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
+                      value={item.quantity}
+                      min={0}
+                      onChange={(e) => {
+                        const orderItemNewQuantity = Number(e.target.value);
+                        dispatch(
+                          updateItemQuantity({
+                            orderId: order.order_id || order.id,
+                            itemId: item.id,
+                            delta: orderItemNewQuantity - item.quantity,
+                          })
+                        );
+                      }}
+                      onBlur={(e) => {
+                        const orderItemNewQuantity = Number(e.target.value);
+                        updateData(
+                          item.id,
+                          order.order_id || order.id,
+                          item.item_id,
+                          orderItemNewQuantity
+                        );
+                      }}
+                    />
                   </li>
                 ))}
               </ul>
