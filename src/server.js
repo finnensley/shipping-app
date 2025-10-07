@@ -169,13 +169,53 @@ app.post(
   }
 );
 
+app.post("/item_locations/:id/undo", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get the last history entry for this item location
+    const history = await pool.query(
+      "SELECT * FROM item_location_history WHERE item_location_id=$1 ORDER BY changed_at DESC LIMIT 1",
+      [id]
+    );
+    const lastChange = history.rows[0];
+    if (!lastChange) return res.status(404).send("No history found");
+
+    // Revert the quantity
+    const result = await pool.query(
+      "UPDATE item_locations SET quantity=$1 WHERE id=$2 RETURNING *",
+      [lastChange.old_quantity, id]
+    );
+
+    res.json({ item_location: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
 app.put("/item_locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { item_id, location_id, quantity } = req.body;
+
+    // Get the current quantity before updating
+    const current = await pool.query(
+      "SELECT quantity FROM item_locations WHERE id=$1",
+      [id]
+    );
+    const oldQuantity = current.rows[0]?.quantity;
+
+    // Update the quantity
     const result = await pool.query(
       "UPDATE item_locations SET item_id=$1, location_id=$2, quantity=$3 WHERE id=$4 RETURNING *",
       [item_id, location_id, quantity, id]
+    );
+
+    // Log the change in history
+    await pool.query(
+      "INSERT INTO item_locations_history (item_location_id, old_quantity, new_quantity) VALUE ($1, $2, $3)",
+      [id, oldQuantity, quantity]
     );
 
     await pool.query(
@@ -417,14 +457,56 @@ app.post(
   }
 );
 
+// Revert last change, order item change undo button
+app.post("/order_items/:id/undo", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get the last history entry for this order item
+    const history = await pool.query(
+      "SELECT * FROM order_item_history WHERE order_item_id=$1 ORDER BY changed_at DESC LIMIT 1",
+      [id]
+    );
+    const lastChange = history.rows[0];
+    if (!lastChange) return res.status(404).send("No history found");
+
+    // Revert the quantity
+    const result = await pool.query(
+      "UPDATE order_items SET quantity=$1 WHERE id=$2 RETURNING *",
+      [lastChange.old_quantity, id]
+    );
+
+    res.json({ order_item: result.rows[0] });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Server Error");
+  }
+});
+
 app.put("/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { order_id, item_id, sku, description, quantity } = req.body;
-    const result = await pool.query(
-      "UPDATE order_items SET order_id=$1, item_id=$2, sku=$3, description=$4, quantity=$5 WHERE id=$6 RETURNING *",
-      [order_id, item_id, sku, description, quantity, id]
+    const { quantity } = req.body;
+
+    // Get the current quantity before updating
+    const current = await pool.query(
+      "SELECT quantity FROM order_items WHERE id=$1",
+      [id]
     );
+    const oldQuantity = current.rows[0]?.quantity;
+
+    // Update the quantity
+    const result = await pool.query(
+      "UPDATE order_items SET quantity=$1 WHERE id=$2 RETURNING *",
+      [quantity, id]
+    );
+
+    // Log the change in history
+    await pool.query(
+      "INSERT INTO order_item_history (order_item_id, old_quantity, new_quantity) VALUES ($1, $2, $3)",
+      [id, oldQuantity, quantity]
+    );
+
     res.json({ order_items: result.rows[0] });
   } catch (err) {
     console.error(err);

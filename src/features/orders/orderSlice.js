@@ -11,24 +11,27 @@ export const orderSlice = createSlice({
         (order) => order.id === orderId || order.order_id === orderId
       );
       if (order && order.items) {
-        const item = order.item.find((item) => item.id === itemId);
+        const item = order.items.find((item) => item.id === itemId);
         if (item) {
+          console.log("Before:", item.quantity, "Delta:", delta);
           item.quantity += delta;
+          console.log("After:", item.quantity);
+      
 
           console.log(state, action.payload);
         }
       }
     },
-    addItem: (state, action) => {
-      state.push(action.payload); // adds a new item
+    addOrder: (state, action) => {
+      state.push(action.payload); // adds a new order to array
     },
-    removeItem: (state, action) => {
-      return state.filter((item) => item.id !== action.payload); //creates a new array without the removed item
+    removeOrder: (state, action) => {
+      return state.filter((item) => item.id !== action.payload); //creates a new array without the removed order
     },
   },
 });
 
-export const { setOrder, updateItemQuantity, addItem, removeItem } =
+export const { setOrder, updateItemQuantity, addOrder, removeOrder } =
   orderSlice.actions;
 
 export default orderSlice.reducer;

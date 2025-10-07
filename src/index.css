@@ -44,10 +44,10 @@ h1 {
 }
 
 button {
-  border-radius: 15px;
+  border-radius: 10px;
   border: 1px solid white;
-  padding: 0.1em .5em;
-  font-size: 1.2em;
+  padding: 0.1em .2em;
+  font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;

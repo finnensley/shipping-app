@@ -1,15 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setOrder, updateItemQuantity } from "/src/features/orders/orderSlice";
+import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
 import useFetchData from "../../components/useFetchData";
 import useUpdateOrderData from "../../components/useUpdateOrderData";
+import axios from "axios";
 
 const OrdersPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
-  const orders = data?.orders || [];
-  const order = useSelector((state) => state.order);
+  const orders = useSelector((state) => state.order);
   const dispatch = useDispatch();
   const { updateData } = useUpdateOrderData();
+  const [quantities, setQuantities] = useState({});
+
+  useEffect(() => {
+    if (orders) {
+      const initial = {};
+      orders.forEach((order) => {
+        order.items.forEach((item) => {
+          initial[item.id] = item.quantity;
+        });
+      });
+      setQuantities(initial);
+    }
+  }, [orders]);
 
   // When API data loads, update Redux state
   useEffect(() => {
@@ -20,6 +33,13 @@ const OrdersPage = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading inventory.</div>;
+
+  // fetch the latest orders and update Redux, use in onBlur
+  const fetchOrders = async () => {
+    const response = await fetch("http://localhost:3000/orders_with_items");
+    const data = await response.json();
+    dispatch(setOrder(data.orders));
+  };
 
   return (
     <div className="m-4 font-medium text-shadow-lg">
@@ -35,33 +55,61 @@ const OrdersPage = () => {
               <strong>Order # {order.order_number} |</strong>
               <ul>
                 {order.items.map((item) => (
+                  // local state for each input
+
                   <li key={item.id} className="ml-2 font-semibold">
                     Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
                     <input
-                      type="number"
+                      type="text"
                       className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
-                      value={item.quantity}
+                      value={quantities[item.id] ?? item.quantity}
                       min={0}
                       onChange={(e) => {
-                        const orderItemNewQuantity = Number(e.target.value);
+                        setQuantities((q) => ({
+                          ...q,
+                          [item.id]: Number(e.target.value),
+                        }));
+                      }}
+                    />
+                    <button
+                      className="ml-2"
+                      onClick={async () => {
+                        //Update Redux for instant UI feedback
                         dispatch(
                           updateItemQuantity({
                             orderId: order.order_id || order.id,
                             itemId: item.id,
-                            delta: orderItemNewQuantity - item.quantity,
+                            delta:
+                              (quantities[item.id] ?? item.quantity) -
+                              item.quantity,
                           })
                         );
-                      }}
-                      onBlur={(e) => {
-                        const orderItemNewQuantity = Number(e.target.value);
-                        updateData(
+                        // Update backend
+
+                        await updateData(
                           item.id,
                           order.order_id || order.id,
                           item.item_id,
-                          orderItemNewQuantity
+                          quantities[item.id] ?? item.quantity
                         );
+                        //Re-fetch to sync UI
+                        await fetchOrders();
                       }}
-                    />
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="ml-2"
+                      onClick={() => {
+                        axios
+                          .post(
+                            `http://localhost:3000/order_items/${item.id}/undo`
+                          )
+                          .then(() => window.location.reload());
+                      }}
+                    >
+                      Undo
+                    </button>
                   </li>
                 ))}
               </ul>
