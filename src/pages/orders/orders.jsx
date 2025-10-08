@@ -58,9 +58,9 @@ const OrdersPage = () => {
                   // local state for each input
 
                   <li key={item.id} className="ml-2 font-semibold">
-                    Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
+                    Sku: {item.sku} | Item: {item.description} | Total: ${order.total} | Shipping: ${order.shipping_paid} | Quantity:
                     <input
-                      type="text"
+                      type="number"
                       className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
                       value={quantities[item.id] ?? item.quantity}
                       min={0}
@@ -113,10 +113,10 @@ const OrdersPage = () => {
                   </li>
                 ))}
               </ul>
-              <div className="ml-1 flex items-center justify-center">
+              {/* <div className="ml-1 flex items-center justify-center">
                 <span>Total: ${order.total} | </span>
                 <span className="ml-1">Shipping: ${order.shipping_paid}</span>
-              </div>
+              </div> */}
             </li>
           ))}
         </ul>

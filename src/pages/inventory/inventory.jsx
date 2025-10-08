@@ -58,7 +58,7 @@ const InventoryPage = () => {
                     Location: {location.location_number}{" "}
                     {location.location_name} | Quantity:{" "}
                     <input
-                      type="text"
+                      type="number"
                       className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
                       value={quantities[location.id] ?? location.quantity}
                       min={0}
@@ -94,7 +94,7 @@ const InventoryPage = () => {
                       {" "}
                       Save{" "}
                     </button>
-                    <button
+                    {/* <button
                       aria-label="Increment value"
                       className="ml-2"
                       onClick={async () => {
@@ -135,27 +135,30 @@ const InventoryPage = () => {
                       }}
                     >
                       -
-                    </button>
+                    </button> */}
                     <button
                       className="ml-2"
                       onClick={async () => {
-                        await axios.post(
-                          `http://localhost:3000/item_locations/${location.id}/undo`
-                        );
+                        await axios
+                          .post(
+                            `http://localhost:3000/item_locations/${location.id}/undo`
+                          )
+                          .then(() => window.location.reload());
+
                         // Re-fetch inventory data and update Redux state
-                        const response = await fetch(
-                          "http://localhost:3000/items"
-                        );
-                        const data = await response.json();
-                        dispatch(setInventory(data.items));
-                        // Update local quantities state
-                        const initial = {};
-                        data.items.forEach((item) => {
-                          (item.locations || []).forEach((location) => {
-                            initial[location.id] = location.quantity;
-                          });
-                        });
-                        setQuantities(initial);
+                        // const response = await fetch(
+                        //   "http://localhost:3000/items"
+                        // );
+                        // const data = await response.json();
+                        // dispatch(setInventory(data.items));
+                        // // Update local quantities state
+                        // const initial = {};
+                        // data.items.forEach((item) => {
+                        //   (item.locations || []).forEach((location) => {
+                        //     initial[location.id] = location.quantity;
+                        //   });
+                        // });
+                        // setQuantities(initial);
                       }}
                     >
                       Undo
