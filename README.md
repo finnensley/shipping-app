@@ -64,7 +64,7 @@
 
 
 # Notes:
-## If update quantities in the app, backend updates happen correct;u
+## If update quantities in the app, backend updates happen correctly
 ## If update database directly, need to run this update manually to sync UI and backend.
 <!-- UPDATE items
     SET total_quantity = (

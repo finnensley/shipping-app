@@ -6,6 +6,7 @@ import {
 } from "/src/features/inventory/inventorySlice";
 import useFetchData from "../../components/useFetchData";
 import useUpdateInventoryData from "../../components/useUpdateInventoryData";
+import axios from "axios";
 
 const InventoryPage = () => {
   const inventory = useSelector((state) => state.inventory);
@@ -139,18 +140,17 @@ const InventoryPage = () => {
                     <button
                       className="ml-2"
                       onClick={async () => {
-                        await axios
-                          .post(
-                            `http://localhost:3000/item_locations/${location.id}/undo`
-                          )
-                          .then(() => window.location.reload());
+                        await axios.post(
+                          `http://localhost:3000/item_locations/${location.id}/undo`
+                        );
+                        // .then(() => window.location.reload());
 
                         // Re-fetch inventory data and update Redux state
-                        // const response = await fetch(
-                        //   "http://localhost:3000/items"
-                        // );
-                        // const data = await response.json();
-                        // dispatch(setInventory(data.items));
+                        const response = await fetch(
+                          "http://localhost:3000/items"
+                        );
+                        const data = await response.json();
+                        dispatch(setInventory(data.items));
                         // // Update local quantities state
                         // const initial = {};
                         // data.items.forEach((item) => {

@@ -5,7 +5,7 @@ import { body, validationResult } from "express-validator";
 
 const { Pool } = pkg;
 const app = express();
-const port = 3000; //choose a port for backend
+const port = 3000; //port for backend
 
 app.use(cors());
 app.use(express.json()); // to parse JSON request bodies
@@ -183,8 +183,23 @@ app.post("/item_locations/:id/undo", async (req, res) => {
 
     // Revert the quantity
     const result = await pool.query(
-      "UPDATE item_locations SET quantity=$1 WHERE id=$2 RETURNING *",
+      "UPDATE item_locations SET quantity=$1 WHERE id=$2 RETURNING id, item_id, location_id, quantity",
       [lastChange.old_quantity, id]
+    );
+
+    console.log("Undo results:", result.rows[0]);
+
+    // Make sure result.rows[0].item_id exists
+    if (!result.rows[0] || !result.rows[0].item_id) {
+      return res
+        .status(500)
+        .send("Could not determine item_id for total_quantity update");
+    }
+
+    // Recalculate and update total_quantity for the item
+    await pool.query(
+      "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity),0) FROM item_locations WHERE item_id = $1) WHERE id = $1",
+      [result.rows[0].item_id]
     );
 
     res.json({ item_location: result.rows[0] });
@@ -218,6 +233,7 @@ app.put("/item_locations/:id", async (req, res) => {
       [id, oldQuantity, quantity]
     );
 
+    // Recalculates the total for the item based on all its locations
     await pool.query(
       "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity),0) FROM item_locations WHERE item_id = $1) WHERE id= $1",
       [item_id]

@@ -105,7 +105,8 @@ const OrdersPage = () => {
                           .post(
                             `http://localhost:3000/order_items/${item.id}/undo`
                           )
-                          .then(() => window.location.reload());
+                          // .then(() => window.location.reload());
+                          .then(fetchOrders);
                       }}
                     >
                       Undo
@@ -113,10 +114,6 @@ const OrdersPage = () => {
                   </li>
                 ))}
               </ul>
-              {/* <div className="ml-1 flex items-center justify-center">
-                <span>Total: ${order.total} | </span>
-                <span className="ml-1">Shipping: ${order.shipping_paid}</span>
-              </div> */}
             </li>
           ))}
         </ul>
