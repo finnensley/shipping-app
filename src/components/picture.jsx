@@ -1,12 +1,14 @@
 import React from "react";
-import { items } from "../data/inventory";
+// import { items } from "../data/inventory";
 
-const ItemPicture = ({ sku, description }) => {
-  const inventoryItem = items.find((inv) => inv.sku === sku);
-  
-  return (
+const ItemPicture = ({ sku, description, image_path }) => {
+  if (!sku || !description) return null;
+  // const inventoryItem = items.find((inv) => inv.sku === sku);
+  const src = image_path || "";
+  return src ? (
     <img
-      src={inventoryItem ? inventoryItem.picture : ""}
+      src={src}
+      // src={inventoryItem ? inventoryItem.picture : ""}
       alt={description}
       style={{
         width: "50px",
@@ -15,8 +17,7 @@ const ItemPicture = ({ sku, description }) => {
         marginRight: "1rem",
       }}
     />
-  );
- 
+  ) : null;
 };
 
 export default ItemPicture;

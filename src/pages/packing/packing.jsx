@@ -10,6 +10,14 @@ const PackingPage = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+//   useEffect(() => {
+//   async function fetchPicklists() {
+//     const response = await axios.get("/picklists_with_order_info");
+//     setPicklists(response.data.picklists);
+//   }
+//   fetchPicklists();
+// }, []);
+
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };

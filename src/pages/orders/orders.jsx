@@ -34,7 +34,7 @@ const OrdersPage = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading inventory.</div>;
 
-  // fetch the latest orders and update Redux, use in onBlur
+  // fetch the latest orders and update Redux
   const fetchOrders = async () => {
     const response = await fetch("http://localhost:3000/orders_with_items");
     const data = await response.json();

@@ -272,9 +272,11 @@ app.get("/orders_with_items", async (req, res) => {
         oi.item_id,
         oi.sku,
         oi.description,
-        oi.quantity
+        oi.quantity,
+        i.image_path
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN items i ON oi.item_id = i.id
       ORDER BY o.id, oi.id
     `);
 
@@ -298,6 +300,7 @@ app.get("/orders_with_items", async (req, res) => {
           sku: row.sku,
           description: row.description,
           quantity: row.quantity,
+          image_path: row.image_path,
         });
       }
     });
@@ -598,6 +601,66 @@ app.delete("/locations/:id", async (req, res) => {
     const { id } = req.params;
     await pool.query("DELETE FROM locations WHERE id=$1", [id]);
     res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+// pickLists
+app.get("/picklists_with_order_info", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        p.id AS picklist_db_id,
+        p.pick_list_id,
+        p.order_numbers,
+        p.items,
+        p.created_at,
+        p.status,
+        o.*
+      FROM picked_orders_staged_for_packing p
+      JOIN orders o ON o.order_number = ANY(p.order_numbers)
+      ORDER BY p.created_at DESC, o.order_number
+    `);
+
+    res.json({ picklists: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.post("/picked_orders_staged_for_packing", async (req, res) => {
+  try {
+    const { pickListId, order_numbers, items, createdAt, status } = req.body;
+    // Insert into your new table
+    await pool.query(
+      "INSERT INTO picked_orders_staged_for_packing (pick_list_id, order_numbers, items, created_at, status) VALUES ($1, $2, $3, $4, $5)",
+      [
+        pickListId,
+        JSON.stringify(order_numbers),
+        JSON.stringify(items),
+        createdAt,
+        status,
+      ]
+    );
+    res.status(201).send("Pick list staged for packing");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+// PickList items transferred out of chosen location
+app.post("/inventory/transfer", async (req, res) => {
+  try {
+    const { itemId, quantity, location } = req.body;
+    await pool.query(
+      "UPDATE item_locations SET quantity = quantity - $1 WHERE item_id = $2 AND location = $3",
+      [quantity, itemId, location]
+    );
+    res.status(200).send("Inventory updated");
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
