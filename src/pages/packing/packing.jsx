@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { orders } from "../../data/orders";
 import { items } from "../../data/inventory";
 import { locations } from "../../data/locations";
-import ItemPicture from "../../components/picture";
+import ItemPicture from "../../components/itemPicture";
 // from the staging location, pull a pickinglist - separated by orders
 // choose order to pack
 
