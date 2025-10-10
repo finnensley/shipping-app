@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from "./components/navBar";
 import DashboardPage from "./pages/dashboard/dashboard";
 import InventoryPage from "./pages/inventory/inventory";

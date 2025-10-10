@@ -670,6 +670,12 @@ app.post("/inventory/transfer", async (req, res) => {
     );
     console.log("Transfer result:", result.rowCount, req.body);
 
+    //Update total_quantity for the item (sum of all locations)
+    await pool.query(
+      "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity), 0) FROM item_locations WHERE item_id = $1) WHERE id = $1",
+      [itemId]
+    );
+
     res.status(200).send("Inventory updated");
   } catch (err) {
     console.error(err);

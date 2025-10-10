@@ -53,7 +53,7 @@ const PickingPage = () => {
     }
   }, [data, dispatch]);
 
-  console.log("selectedOrders before creating picklist:", selectedOrders);
+  // console.log("selectedOrders before creating picklist:", selectedOrders);
   const handleCreatePickList = () => {
     createPickList();
     setPickListGenerated(true);

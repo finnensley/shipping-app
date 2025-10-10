@@ -15,6 +15,7 @@ const InventoryPage = () => {
   const { updateData } = useUpdateInventoryData();
   const [quantities, setQuantities] = useState({});
 
+    // Inventory loads
   useEffect(() => {
     if (inventory) {
       const initial = {};
@@ -61,11 +62,11 @@ const InventoryPage = () => {
                     <input
                       type="number"
                       className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
-                      value={quantities[location.id] ?? location.quantity}
+                      value={quantities[location.id] ?? location.quantity} // ?? is nullish coalescing operator. if left side is null or undefined use right side
                       min={0}
                       onChange={(e) => {
                         setQuantities((q) => ({
-                          ...q,
+                          ...q, // spread operator allows update only to the current location
                           [location.id]: Number(e.target.value),
                         }));
                       }}
