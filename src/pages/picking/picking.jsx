@@ -46,7 +46,7 @@ const PickingPage = () => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
       axios.get("/items").then((res) => {
-        console.log("Fetched inventory:", res.data);
+        // console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));
       });
@@ -114,6 +114,8 @@ const PickingPage = () => {
           item.chosenLocation = "N/A";
         }
       }
+
+      // Remove order from 
 
       const newPickList = {
         pickListId,

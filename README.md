@@ -61,6 +61,7 @@
 ## Theme dark - remove background pic, light - remove background pick and text-black bg-white, default - picture or change picture url like in dashboard
 ## Order numbers can be strings or numbers (table is set up as INT and .post validates for .isNumeric() )
 ## Question - did I need to set up CRUD for every table and column (maybe some didn't need to be included)
+## Update each table with a .get if need it for reporting/dashboard
 
 
 # Notes:

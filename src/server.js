@@ -258,6 +258,16 @@ app.delete("/item_locations/:id", async (req, res) => {
 });
 
 //Orders
+app.get("/orders", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM orders ORDER BY id DESC");
+    res.json({ orders: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
 app.get("/orders_with_items", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -276,6 +286,7 @@ app.get("/orders_with_items", async (req, res) => {
         o.country,
         o.carrier,
         o.carrier_speed,
+        o.status,
         oi.id AS order_item_id,
         oi.item_id,
         oi.sku,
@@ -285,6 +296,7 @@ app.get("/orders_with_items", async (req, res) => {
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN items i ON oi.item_id = i.id
+      WHERE o.status = 'open'
       ORDER BY o.id, oi.id
     `);
 
@@ -408,7 +420,7 @@ app.put("/orders/:id", async (req, res) => {
       customer_id,
     } = req.body;
     const result = await pool.query(
-      "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14 WHERE id=$15 RETURNING *",
+      "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14, updated_at=$15 WHERE id=$16 RETURNING *",
       [
         order_number,
         subtotal,
@@ -424,9 +436,11 @@ app.put("/orders/:id", async (req, res) => {
         carrier,
         carrier_speed,
         customer_id,
+        updated_at,
         id,
       ]
     );
+
     res.json({ orders: result.rows[0] });
   } catch (err) {
     console.error(err);
@@ -639,6 +653,18 @@ app.get("/picklists_with_order_info", async (req, res) => {
   }
 });
 
+app.get("/picked_orders_staged_for_packing", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM picked_orders_staged_for_packing ORDER BY created_at DESC"
+    );
+    res.json({ picklists: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
 app.post("/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const { pickListId, order_numbers, items, createdAt, status } = req.body;
@@ -653,6 +679,13 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
         status,
       ]
     );
+
+    // Update order status to 'staged'
+    await pool.query(
+      "UPDATE orders SET status = 'staged' WHERE order_number = ANY($1)",
+      [order_numbers]
+    );
+
     res.status(201).send("Pick list staged for packing");
   } catch (err) {
     console.error(err);
