@@ -647,8 +647,8 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
       "INSERT INTO picked_orders_staged_for_packing (pick_list_id, order_numbers, items, created_at, status) VALUES ($1, $2, $3, $4, $5)",
       [
         pickListId,
-        JSON.stringify(order_numbers),
-        JSON.stringify(items),
+        order_numbers,
+        JSON.stringify(items), // items is an array of objects with chosenLocation (set as a jsonb column)
         createdAt,
         status,
       ]
@@ -660,14 +660,16 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
   }
 });
 
-// PickList items transferred out of chosen location
+// PickList items transferred out of chosen location, this is an action endpoint
 app.post("/inventory/transfer", async (req, res) => {
   try {
     const { itemId, quantity, location } = req.body;
-    await pool.query(
-      "UPDATE item_locations SET quantity = quantity - $1 WHERE item_id = $2 AND location = $3",
+    const result = await pool.query(
+      "UPDATE item_locations SET quantity = quantity - $1 WHERE item_id = $2 AND location_id = $3",
       [quantity, itemId, location]
     );
+    console.log("Transfer result:", result.rowCount, req.body);
+
     res.status(200).send("Inventory updated");
   } catch (err) {
     console.error(err);

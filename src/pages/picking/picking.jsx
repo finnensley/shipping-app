@@ -45,7 +45,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
-      axios.get("http://localhost:3000/items").then((res) => {
+      axios.get("/items").then((res) => {
         console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));
@@ -69,67 +69,86 @@ const PickingPage = () => {
 
   // Transfer picklist: deduct inventory and stage picklist
   const handlePickListTransfer = async () => {
-    for (const item of pickList) {
-      // Find inventory item and eligible locations
-      const inventoryItem = items.find((inv) => inv.sku === item.sku);
-      let chosenLocation = null;
-      if (locationOverrides[item.sku]) {
-        chosenLocation = { location_number: locationOverrides[item.sku] };
-      } else if (inventoryItem) {
-        const eligibleLocations = inventoryItem.locations.filter(
-          (loc) => loc.quantity >= item.quantity
-        );
-        if (eligibleLocations.length === 1) {
-          chosenLocation = eligibleLocations[0];
-        } else if (eligibleLocations.length > 1) {
-          eligibleLocations.sort((a, b) =>
-            a.quantity !== b.quantity
-              ? a.quantity - b.quantity
-              : a.location - b.location
+    try {
+      for (const item of pickList) {
+        // Find inventory item and eligible locations
+        const inventoryItem = items.find((inv) => inv.sku === item.sku);
+        let chosenLocation = null;
+
+        // Manual override
+        if (locationOverrides[item.sku] && inventoryItem) {
+          const overrideLocation = inventoryItem.location.find(
+            (loc) =>
+              String(loc.location_number) ===
+              String(locationOverrides[item.sku])
           );
-          chosenLocation = eligibleLocations[0];
+          if (overrideLocation) {
+            chosenLocation = overrideLocation;
+          }
+          // chosenLocation = { location_number: locationOverrides[item.sku] };
+        } else if (inventoryItem) {
+          const eligibleLocations = inventoryItem.locations.filter(
+            (loc) => loc.quantity >= item.quantity
+          );
+          if (eligibleLocations.length === 1) {
+            chosenLocation = eligibleLocations[0];
+          } else if (eligibleLocations.length > 1) {
+            eligibleLocations.sort((a, b) =>
+              a.quantity !== b.quantity
+                ? a.quantity - b.quantity
+                : a.location - b.location
+            );
+            chosenLocation = eligibleLocations[0];
+          }
+        }
+
+        // Deduct inventory from chosen location
+        if (chosenLocation) {
+          item.chosenLocation = chosenLocation; // Saves the whole object
+          await axios.post("/inventory/transfer", {
+            itemId: item.item_id,
+            quantity: item.quantity,
+            location: item.chosenLocation.location_id, // Set by the pickList logic
+          });
+        } else {
+          item.chosenLocation = "N/A";
         }
       }
 
-      // Deduct inventory from chosen location
-      if (chosenLocation) {
-        await axios.post("/inventory/transfer", {
-          itemId: item.id,
+      const newPickList = {
+        pickListId,
+        order_numbers: pickList.flatMap((item) => item.order_numbers),
+        items: pickList.map((item) => ({
+          id: item.id,
+          sku: item.sku,
+          description: item.description,
           quantity: item.quantity,
-          location: chosenLocation.location_number,
-        });
-        item.chosenLocation = chosenLocation.location_number;
-      } else {
-        item.chosenLocation = "N/A";
-      }
+          chosenLocation: item.chosenLocation,
+        })),
+        createdAt: new Date().toISOString(),
+        status: "staged",
+      };
+
+      await axios.post("/picked_orders_staged_for_packing", newPickList);
+
+      // Add to Redux
+      dispatch(addPickList(newPickList));
+
+      // Re-fetch inventory
+      const inventoryRes = await axios.get("/items");
+      dispatch(
+        setItems(
+          inventoryRes.data.items ? inventoryRes.data.items : inventoryRes.data
+        )
+      );
+
+      alert("Pick list transferred and inventory updated!");
+      setPickListGenerated(false);
+      setSelectedOrders([]);
+    } catch (err) {
+      console.error("Transfer error:", err);
+      alert("Transfer failed. See console for details.");
     }
-
-    const newPickList = {
-      pickListId,
-      order_numbers: pickList.flatMap((item) => item.order_numbers),
-      items: pickList.map((item) => ({
-        id: item.id,
-        sku: item.sku,
-        description: item.description,
-        quantity: item.quantity,
-        chosenLocation: item.chosenLocation,
-      })),
-      createdAt: new Date().toISOString(),
-      status: "staged",
-    };
-
-    await axios.post("/picked_orders_staged_for_packing", newPickList);
-
-    // Add to Redux
-    dispatch(addPickList(newPickList));
-
-    // Re-fetch inventory
-    const inventoryRes = await axios.get("/items");
-    dispatch(setItems(inventoryRes.data));
-
-    alert("Pick list transferred and inventory updated!");
-    setPickListGenerated(false);
-    setSelectedOrders([]);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -164,7 +183,7 @@ const PickingPage = () => {
             Back
           </button>
           {/* Picklist UI */}
-          <div>
+          {/*<div>
             <label
               htmlFor="allItemsTransfer"
               className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]"
@@ -177,7 +196,7 @@ const PickingPage = () => {
               className="border rounded-lg p-1 text-xl bg-[rgba(0,0,0,0.38)] text-white font-semibold placeholder-white"
               placeholder="defaults to staged location"
             />
-          </div>
+          </div>*/}
           <ul>
             {pickList.map((item) => {
               // Find the matching inventory item by SKU
@@ -234,13 +253,13 @@ const PickingPage = () => {
                       htmlFor={`locationTransfer-${item.sku}`}
                       className="ml-2"
                     >
-                      transfer to{" "}
+                      Picked From Location:{" "}
                     </label>
                     <input
                       id={`locationTransfer-${item.sku}`}
                       type="text"
-                      placeholder=" type new location"
-                      className="p-1 ml-2 border rounded-lg placeholder-white"
+                      placeholder={chosenLocation.location_number}
+                      className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
                       value={locationOverrides[item.sku] || ""}
                       onChange={(e) =>
                         handleLocationChange(item.sku, e.target.value)
