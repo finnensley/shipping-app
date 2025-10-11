@@ -3,8 +3,8 @@ import { orders } from "../../data/orders";
 import { items } from "../../data/inventory";
 import { locations } from "../../data/locations";
 import ItemPicture from "../../components/itemPicture";
-// from the staging location, pull a pickinglist - separated by orders
-// choose order to pack
+// from the staging table, pull a pickinglist - separated by orders
+// choose order to pack, order status changes to packing, then to shipped
 
 const PackingPage = () => {
   const [inputValue, setInputValue] = useState("");

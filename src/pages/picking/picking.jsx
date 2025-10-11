@@ -170,8 +170,6 @@ const PickingPage = () => {
           onCreatePickList={handleCreatePickList}
         />
       )}
-      {/* Display list of items and locations for one order or a group of orders, order the list by location */}
-      {/* Create interactivity -> ability to move items to a staging location*/}
       {/* Add picture that can be touched or selected */}
       {pickListGenerated && pickList.length > 0 && items.length > 0 && (
         <>
