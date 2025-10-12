@@ -158,11 +158,12 @@ const PickingPage = () => {
 
   return (
     <div className="m-5">
-      <div className="flex justify-center my-4">
-        <h1 className="inline-block text-xl rounded-lg text-shadow-lg font-medium">
+      {/* <div className="flex justify-center my-4">
+        <h2 className="inline-block text-4xl rounded-lg text-shadow-lg font-medium">
           Picking
-        </h1>
-      </div>
+        </h2>
+      </div> */}
+      <div className="flex flex-col">
       {!pickListGenerated && (
         <OrderSelector
           orders={orders}
@@ -170,6 +171,7 @@ const PickingPage = () => {
           onCreatePickList={handleCreatePickList}
         />
       )}
+      </div>
       {/* Add picture that can be touched or selected */}
       {pickListGenerated && pickList.length > 0 && items.length > 0 && (
         <>

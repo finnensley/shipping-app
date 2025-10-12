@@ -15,7 +15,7 @@ const InventoryPage = () => {
   const { updateData } = useUpdateInventoryData();
   const [quantities, setQuantities] = useState({});
 
-    // Inventory loads
+  // Inventory loads
   useEffect(() => {
     if (inventory) {
       const initial = {};
@@ -40,11 +40,11 @@ const InventoryPage = () => {
 
   return (
     <div className="m-5">
-      <div className="flex justify-center my-4">
+      {/* <div className="flex justify-center my-4">
         <h1 className="inline-block text-xl rounded-lg text-shadow-lg font-medium">
           Inventory
         </h1>
-      </div>
+      </div> */}
       <div className="flex">
         <ul>
           {inventory.map((item) => (

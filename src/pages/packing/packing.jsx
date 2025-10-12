@@ -32,7 +32,7 @@ const PackingPage = () => {
 
   return (
     <div className="m-4 font-medium">
-      <h1>Packing</h1>
+      {/* <h1>Packing</h1> */}
       <div className="m-4 text-xl">
         <label
           htmlFor="singleOrderPacking"

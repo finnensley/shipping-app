@@ -43,9 +43,8 @@ const OrdersPage = () => {
 
   return (
     <div className="m-4 font-medium text-shadow-lg">
-      <h1>Orders</h1>
-      {/* Display orders in a list */}
-      <div>
+      {/* <h1>Orders</h1>*/}
+      <div> 
         <ul>
           {orders.map((order) => (
             <li
