@@ -5,8 +5,8 @@ import React, { useState } from "react";
 const usePickListCreator = (orders) => {
   const [pickList, setPickList] = useState([]);
 
-  const createPickList = () => {
-    const itemsList = orders.flatMap((order) =>
+  const createPickList = (ordersArg = orders) => { // passing ordersArg so can call with correct single order instead of [] because state hasn't updated
+    const itemsList = ordersArg.flatMap((order) =>
       order.items.map((item) => ({ ...item, order_number: order.order_number }))
     );
     console.log(itemsList); // []

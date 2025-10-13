@@ -22,6 +22,8 @@ const PickingPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
   const [selectedOrders, setSelectedOrders] = useState([]);
   const { pickList, createPickList } = usePickListCreator(selectedOrders);
+  // const { singleOrderPickList, createSingleOrderPickList } = usePickListCreator([orderToPick]);
+
   const dispatch = useDispatch();
   const staged = useSelector((state) => state.picking.staged) || [];
   const stagedPickListIds = staged.map((order) => order.pickListId);
@@ -29,7 +31,6 @@ const PickingPage = () => {
   const [pickListGenerated, setPickListGenerated] = useState(false);
   const orders = useSelector((state) => state.picking.orders);
   const items = useSelector((state) => state.picking.items) || [];
-
   const [locationOverrides, setLocationOverrides] = useState({});
 
   // When API data loads, update Redux state
@@ -37,7 +38,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       data.orders.forEach((order) => {
-        console.log("Order:", order.order_number, "Items array:", order.items);
+        // console.log("Order:", order.order_number, "Items array:", order.items);
       });
     }
   }, [data]);
@@ -54,8 +55,9 @@ const PickingPage = () => {
   }, [data, dispatch]);
 
   // console.log("selectedOrders before creating picklist:", selectedOrders);
-  const handleCreatePickList = () => {
-    createPickList();
+  const handleCreatePickList = (ordersArray) => {
+    setSelectedOrders(ordersArray);
+    createPickList(ordersArray); //uses the current selectedOrders, pass the array directly
     setPickListGenerated(true);
   };
 
@@ -85,7 +87,6 @@ const PickingPage = () => {
           if (overrideLocation) {
             chosenLocation = overrideLocation;
           }
-          // chosenLocation = { location_number: locationOverrides[item.sku] };
         } else if (inventoryItem) {
           const eligibleLocations = inventoryItem.locations.filter(
             (loc) => loc.quantity >= item.quantity
@@ -117,7 +118,7 @@ const PickingPage = () => {
 
       // Remove order from 
 
-      const newPickList = {
+      const completedPickList = {
         pickListId,
         order_numbers: pickList.flatMap((item) => item.order_numbers),
         items: pickList.map((item) => ({
@@ -131,10 +132,10 @@ const PickingPage = () => {
         status: "staged",
       };
 
-      await axios.post("/picked_orders_staged_for_packing", newPickList);
+      await axios.post("/picked_orders_staged_for_packing", completedPickList);
 
       // Add to Redux
-      dispatch(addPickList(newPickList));
+      dispatch(addPickList(completedPickList));
 
       // Re-fetch inventory
       const inventoryRes = await axios.get("/items");
@@ -185,20 +186,6 @@ const PickingPage = () => {
             Back
           </button>
           {/* Picklist UI */}
-          {/*<div>
-            <label
-              htmlFor="allItemsTransfer"
-              className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]"
-            >
-              Choose a transfer location for all items or leave blank:{" "}
-            </label>
-            <input
-              id="allItemsTransfer"
-              type="text"
-              className="border rounded-lg p-1 text-xl bg-[rgba(0,0,0,0.38)] text-white font-semibold placeholder-white"
-              placeholder="defaults to staged location"
-            />
-          </div>*/}
           <ul>
             {pickList.map((item) => {
               // Find the matching inventory item by SKU

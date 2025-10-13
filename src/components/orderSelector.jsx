@@ -24,19 +24,25 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
     setInputValue(event.target.value);
   };
 
-  // Use handleClick to show pickList for single order(logic not written out yet)
-  const handleClick = () => {
-    const orderToPick = orders.find(
-      (order) => order.order_number === Number(inputValue)
-    );
-    setSelectedOrder(orderToPick);
-  };
+  // Use handleClick to show pickList for single order - use in onClick so it doesn't run on render
+  // const handleClick = () => {
+  //   const orderToPick = orders.find(
+  //     (order) => order.order_number === Number(inputValue)
+  //   );
+  //   console.log("Trying to pick order:", inputValue, orderToPick);
+  //   if (orderToPick) {
+  //     onSelect([orderToPick]); // pass as an array for consistency
+  //     setSelectedOrder(orderToPick); // selectedOrder = order entered into input
+  //   } else {
+  //     alert("Order not found!");
+  //   }
+  // };
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex items-center mb-4">
+      <div className="items-center mb-4">
         <label
-          className="text-2xl m-2 rounded-lg pl-1 pr-1 bg-[rgba(0,0,0,0.38)]"
+          className="text-xl m-2 rounded-lg pl-1 pr-1 bg-[rgba(0,0,0,0.38)]"
           htmlFor="orderQuantity"
         >
           Choose number of orders:
@@ -50,9 +56,13 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           value={quantity}
           onChange={handleChange}
         />
-        {/* <button className="m-2" onClick={onCreatePickList}>
+        {/* <button className="m-2" onClick={onCreatePickList}> */}
+        <button
+          className="m-2"
+          onClick={() => onCreatePickList(sortedOrders.slice(0, quantity))}
+        >
           Create Pick List
-        </button> */}
+        </button>
       </div>
       <div className="flex m-2 gap-x-4 text-xl">
         <select
@@ -75,10 +85,10 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           <option value="same-item">Same-item</option>
         </select>
       </div>
-      <div className="items-center m-4">
+      <div className="flex items-center justify-center m-4">
         <label
           htmlFor="singleOrderPacking"
-          className="text-2xl m-2 pl-1 pr-1 bg-[rgba(0,0,0,0.38)] rounded-lg"
+          className="text-xl m-2 pl-2 pr-2 bg-[rgba(0,0,0,0.38)] rounded-lg"
         >
           Order number:
         </label>
@@ -88,17 +98,25 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           onChange={handleInputChange}
           id="singleOrderPacking"
           // "m-2 text-2xl text-center
-          className=" ml-2 border rounded-lg text-2xl bg-[rgba(0,0,0,0.38)] text-white text-center"
-          placeholder="enter an order"
+          className=" ml-2 border rounded-lg text-xl bg-[rgba(0,0,0,0.38)] text-white text-center w-40"
+          placeholder="enter order #"
         ></input>
-        <div>
-          <button
-            className="mt-5 justify-center items-center"
-            onClick={onCreatePickList}
-          >
-            Create Pick List
-          </button>
-        </div>
+        <button
+          className="ml-4 px-4 py-2 rounded justify-center items-center"
+          onClick={() => {
+            const orderToPick = orders.find(
+              (order) => order.order_number === Number(inputValue)
+            );
+            if (orderToPick) {
+              onCreatePickList([orderToPick]);
+              setSelectedOrder(orderToPick);
+            } else {
+              alert("Order not found!");
+            }
+          }}
+        >
+          Pick Single Order
+        </button>
       </div>
     </div>
   );

@@ -68,7 +68,7 @@ const PackingPage = () => {
                     Sku: {item.sku} | Item: {item.description} |
                     Quantity: {item.quantity}
                     <button
-                      aria-label="Increment value"
+                      aria-label="add item"
                       className="ml-3"
                       onClick={() => dispatch(addItem())}
                     >
