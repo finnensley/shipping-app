@@ -24,20 +24,6 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
     setInputValue(event.target.value);
   };
 
-  // Use handleClick to show pickList for single order - use in onClick so it doesn't run on render
-  // const handleClick = () => {
-  //   const orderToPick = orders.find(
-  //     (order) => order.order_number === Number(inputValue)
-  //   );
-  //   console.log("Trying to pick order:", inputValue, orderToPick);
-  //   if (orderToPick) {
-  //     onSelect([orderToPick]); // pass as an array for consistency
-  //     setSelectedOrder(orderToPick); // selectedOrder = order entered into input
-  //   } else {
-  //     alert("Order not found!");
-  //   }
-  // };
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="items-center mb-4">
@@ -56,7 +42,6 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           value={quantity}
           onChange={handleChange}
         />
-        {/* <button className="m-2" onClick={onCreatePickList}> */}
         <button
           className="m-2"
           onClick={() => onCreatePickList(sortedOrders.slice(0, quantity))}
