@@ -22,7 +22,6 @@ const PickingPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
   const [selectedOrders, setSelectedOrders] = useState([]);
   const { pickList, createPickList } = usePickListCreator(selectedOrders);
-  // const { singleOrderPickList, createSingleOrderPickList } = usePickListCreator([orderToPick]);
 
   const dispatch = useDispatch();
   const staged = useSelector((state) => state.picking.staged) || [];
@@ -55,14 +54,16 @@ const PickingPage = () => {
   }, [data, dispatch]);
 
   // console.log("selectedOrders before creating picklist:", selectedOrders);
-  const handleCreatePickList = (ordersArray) => { //ordersArray is passed from OrderSelector's onCreatePickList
-    setSelectedOrders(ordersArray);//updates local state
+  const handleCreatePickList = (ordersArray) => {
+    //ordersArray is passed from OrderSelector's onCreatePickList
+    setSelectedOrders(ordersArray); //updates local state
     createPickList(ordersArray); //generates the pick list from the current selectedOrders, pass the array directly
     setPickListGenerated(true); // shows the pick list UI
   };
 
   // Handle manual location input
-  const handleLocationChange = (sku, value) => { // sku = sku of item to override, value = changed pick location
+  const handleLocationChange = (sku, value) => {
+    // sku = sku of item to override, value = changed pick location
     setLocationOverrides((prev) => ({
       ...prev,
       [sku]: value,
@@ -118,7 +119,7 @@ const PickingPage = () => {
         }
       }
 
-      // Adds order to staged table and redux store 
+      // Adds order to staged table and redux store
 
       const completedPickList = {
         pickListId,
@@ -156,7 +157,6 @@ const PickingPage = () => {
     } catch (err) {
       console.error("Transfer error:", err);
       alert("Transfer failed. See console for details.");
-      
     }
   };
 
@@ -165,21 +165,18 @@ const PickingPage = () => {
 
   return (
     <div className="m-5">
-      {/* <div className="flex justify-center my-4">
-        <h2 className="inline-block text-4xl rounded-lg text-shadow-lg font-medium">
-          Picking
-        </h2>
-      </div> */}
       <div className="flex items-center justify-center">
-      {!pickListGenerated && (
-        <OrderSelector
-          orders={orders}
-          onSelect={setSelectedOrders}
-          onCreatePickList={handleCreatePickList}
-        />
-      )}
+        {!pickListGenerated && (
+          <OrderSelector
+            orders={orders}
+            onSelect={setSelectedOrders}
+            onCreatePickList={handleCreatePickList}
+          />
+        )}
       </div>
       {/* Add picture that can be touched or selected */}
+
+      {/* Picklist UI */}
       {pickListGenerated && pickList.length > 0 && items.length > 0 && (
         <>
           <button
@@ -191,7 +188,6 @@ const PickingPage = () => {
           >
             Back
           </button>
-          {/* Picklist UI */}
           <ul>
             {pickList.map((item) => {
               // Find the matching inventory item by SKU
@@ -203,14 +199,6 @@ const PickingPage = () => {
                     (loc) => loc.quantity >= item.quantity
                   )
                 : [];
-              // console.log("Rendering item:", item);
-              // console.log("Inventory item:", inventoryItem);
-              // console.log("Eligible locations:", eligibleLocations);
-              // console.log("pickList item.sku:", item.sku);
-              // console.log(
-              //   "inventory skus:",
-              //   items.map((inv) => inv.sku)
-              // );
 
               // Choose location logic
               let chosenLocation = null;

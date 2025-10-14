@@ -40,11 +40,6 @@ const InventoryPage = () => {
 
   return (
     <div className="m-5">
-      {/* <div className="flex justify-center my-4">
-        <h1 className="inline-block text-xl rounded-lg text-shadow-lg font-medium">
-          Inventory
-        </h1>
-      </div> */}
       <div className="flex items-center justify-center">
         <ul>
           {inventory.map((item) => (

@@ -1,0 +1,81 @@
+Order Logic Flow
+
+1. Data Fetching:
+    - useFetchData("orders_with_items") loads order data from the API.
+    - on data load, Redux is updated via dispatch(setOrder(data.orders))
+
+2. Order Sync:
+    - when Redux orders change, local quantities state is initialized or updated to match the orders
+
+3. Quantity Editing::
+    - user edits a quantity in an input field 
+    - onChange updates the corresponding value in the quantities state.
+
+4. Saving Changes:
+    - user clicks Save:
+        * dispatch(updateItemQuantity({...})) updates Redux state with the delta
+        * updateData(...) updates the backend with the new quantity.
+        * fetchOrders() re-fetches orders to sync UI
+
+5. Undo Changes:
+    - user clicks Undo:
+        * sends a request to the backend to revert the change
+        * calls fetchOrders() to re-fetch and update Redux state
+
+---------------------------------------------------------
+
+UseState (React local state)
+
+1. quantities:
+    - stores the quantity for each item in each order, keyed by Item ID
+    - used to control the value of each input field for item quantities.
+
+----------------------------------------------------------
+
+Redux Slice (Global state via Redux)
+
+1. orders:  
+    - gets the orders array from the Redux store
+
+2. dispatch:
+    - used to update Redux state    
+        * dispatch(setOrder(data.orders)) - sets the orders from API data
+        * dispatch(updateItemQuantity({...})) - updates the quantity for a specific item in an order
+
+-----------------------------------------------------------
+
+Custom hooks
+
+1. useFetchData:
+    - fetches order data (with items) from the API, using "orders_with_items"
+    - returns the data, loading, and error states
+
+2. useUpdateOrderData:
+    - provides a function to update order item data in the backend
+
+------------------------------------------------------------
+
+Helper Functions
+
+1. useEffect (orders sync)
+    - syncs local quantities state with Redux orders whenever order changes
+
+2. useEffect (API data to Redux)
+    - updates redux orders when new API data is loaded
+
+3. fetchOrders
+    - fetches the latest orders from the backend and updates Redux
+
+-------------------------------------------------------------
+
+Components
+
+1. OrdersPage:
+    - main page component for order management
+    - renders a list of orders and their items
+
+2. Input fields and buttons
+    - for each item in each order, renders:
+        * an input field for quantity (controlled by quantities state)
+        * a Save button to update Redux and backend
+        * an Undo buton to revert changes

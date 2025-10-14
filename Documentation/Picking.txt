@@ -1,0 +1,101 @@
+Picking Logic Flow
+
+1. Data Fetching:
+    - useFetchData loads orders with items from the API.
+    - On data load, Redux is updated with orders and items.
+
+2. Order Selection:
+    - OrderSelector lets the user select orders and batch/priority.
+    - When "Create Pick List" is clicked, handleCreatePickList is called with the selected orders.
+
+3. Pick List Generation:
+    - usePickListCreator creates the pick list from selected orders.
+    - pickListGenerated toggles the UI between selection and pick list view.
+
+4. Manual Location Override:
+    - User can override pick location for each SKU via an input.
+    - handleLocationChange updates locationOverrides.
+
+5. Transfer Logic:
+    - When "Transfer" is clicked, handlePickListTransfer:
+        * Recalculates chosen locations (using overrides or inventory logic).
+        * Deducts inventory via API.
+        * Stages the pick list in backend and Redux.
+        * Refreshes inventory and resets UI.
+
+---------------------------------------------------------
+
+UseState (React local state)
+
+1. selectedOrders:
+    - stores the currently selected orders for the pick list
+
+2. pickListId:
+    - stores a unique ID for the current pick list.
+
+3. pickListGenerated:
+    - tracks whether the pick list UI should be shown.
+
+4. locationOverrides:    
+    - stores manual location overrides for each sku
+
+----------------------------------------------------------
+
+Redux Slice (Global state via Redux)
+
+1. orders:  
+    - gets the list of orders from the Redux picking slice
+
+2. items:
+    - gets the inventory items from the Redux picking slice
+
+3. staged:
+    - gets staged pick lists from Redux
+
+4. dispatch:
+    - used to update Redux state    
+        * dispatch(setOrders(data.orders))
+        * dispatch(setItems(...))
+        * dispatch(addPickList(completedPickList))
+
+-----------------------------------------------------------
+
+Custom hooks
+
+1. useFetchData:
+    - fetches order data from the API, using "orders_with_items"
+
+2. usePickListCreator:
+    - generates the pick list from selected orders
+
+------------------------------------------------------------
+
+Helper Functions
+
+1. generateRandomId/ getUniquePickListId:
+    - used to generate a unique pick list ID not already in use
+
+2. handleCreatePickList:
+    - called when the user creates a pick list (from OrderSelector)
+    - updates local state and triggers pick list creation
+
+3. handleLocationChange:
+    - updates manual location overrides for skus
+
+4. handlePickListTransfer:
+    - handles the transfer of the pick list
+        * deducts inventory
+        * stages the pick list
+        * updates Redux
+        * updates the backend
+
+-------------------------------------------------------------
+
+Components
+
+1. Order Selector:
+    - renders the UI for selected orders and priority/batch options
+    - calls onCreatePickList (which is handleCreatePickList in PickingPage)
+
+2. ItemPicture:
+    - displays an image for each item in the pick list.
