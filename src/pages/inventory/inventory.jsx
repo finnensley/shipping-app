@@ -15,7 +15,7 @@ const InventoryPage = () => {
   const { updateData } = useUpdateInventoryData();
   const [quantities, setQuantities] = useState({});
 
-  // Inventory loads
+  // initializes or updates inventory 
   useEffect(() => {
     if (inventory) {
       const initial = {};
@@ -80,7 +80,7 @@ const InventoryPage = () => {
                           updateItemQuantity({
                             itemId: item.id,
                             locationId: location.id,
-                            delta: newQuantity - location.quantity,
+                            delta: newQuantity - location.quantity, //Redux applies a change(called delta) to the stored value (not a replacement)
                           })
                         );
 

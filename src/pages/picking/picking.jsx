@@ -38,7 +38,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       data.orders.forEach((order) => {
-        // console.log("Order:", order.order_number, "Items array:", order.items);
+        console.log("Order:", order.order_number, "Items array:", order.items);
       });
     }
   }, [data]);
@@ -55,14 +55,14 @@ const PickingPage = () => {
   }, [data, dispatch]);
 
   // console.log("selectedOrders before creating picklist:", selectedOrders);
-  const handleCreatePickList = (ordersArray) => {
-    setSelectedOrders(ordersArray);
-    createPickList(ordersArray); //uses the current selectedOrders, pass the array directly
-    setPickListGenerated(true);
+  const handleCreatePickList = (ordersArray) => { //ordersArray is passed from OrderSelector's onCreatePickList
+    setSelectedOrders(ordersArray);//updates local state
+    createPickList(ordersArray); //generates the pick list from the current selectedOrders, pass the array directly
+    setPickListGenerated(true); // shows the pick list UI
   };
 
   // Handle manual location input
-  const handleLocationChange = (sku, value) => {
+  const handleLocationChange = (sku, value) => { // sku = sku of item to override, value = changed pick location
     setLocationOverrides((prev) => ({
       ...prev,
       [sku]: value,
@@ -91,6 +91,8 @@ const PickingPage = () => {
           const eligibleLocations = inventoryItem.locations.filter(
             (loc) => loc.quantity >= item.quantity
           );
+          // recalculates chosenLocation before transfer and makes changes if no longer enough inventory there, will take inventory from lowest qty site or lowest location number
+          // Is this the logic I want to use? It could keep from having inv issues and allow changes during picking (like cyclecounts)
           if (eligibleLocations.length === 1) {
             chosenLocation = eligibleLocations[0];
           } else if (eligibleLocations.length > 1) {
@@ -99,7 +101,7 @@ const PickingPage = () => {
                 ? a.quantity - b.quantity
                 : a.location - b.location
             );
-            chosenLocation = eligibleLocations[0];
+            chosenLocation = eligibleLocations[0]; // saves the entire location object to use in transfer
           }
         }
 
@@ -116,7 +118,7 @@ const PickingPage = () => {
         }
       }
 
-      // Remove order from 
+      // Adds order to staged table and redux store 
 
       const completedPickList = {
         pickListId,
@@ -146,11 +148,15 @@ const PickingPage = () => {
       );
 
       alert("Pick list transferred and inventory updated!");
+
+      // Add to alert an undo option that reloads the pickList saved as it was before transfer.
+
       setPickListGenerated(false);
       setSelectedOrders([]);
     } catch (err) {
       console.error("Transfer error:", err);
       alert("Transfer failed. See console for details.");
+      
     }
   };
 
