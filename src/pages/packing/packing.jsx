@@ -31,7 +31,7 @@ const PackingPage = () => {
   };
 
   return (
-    <div className="m-4 font-medium">
+    <div className="flex flex-col items-center justify-center m-4 font-medium">
       {/* <h1>Packing</h1> */}
       <div className="m-4 text-xl">
         <label

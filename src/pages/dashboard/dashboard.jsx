@@ -7,10 +7,10 @@ const DashboardPage = () => {
         <h1>Dashboard</h1>
         </div> */}
       
-      <div className="flex flex-col ml-2 mr-2 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
+      <div className="flex flex-col ml-2 mr-2 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center justify-center">
         <div>Daily Output, with week/month/year toggle: </div>
       </div>
-        <div className="flex flex-col ml-2 mr-2 mt-4 mb-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
+        <div className="flex items-center justify-center ml-2 mr-2 mt-4 mb-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
           <div>
             Dashboard Charts
             <p>Items appear here at render</p>

@@ -170,7 +170,7 @@ const PickingPage = () => {
           Picking
         </h2>
       </div> */}
-      <div className="flex flex-col">
+      <div className="flex items-center justify-center">
       {!pickListGenerated && (
         <OrderSelector
           orders={orders}

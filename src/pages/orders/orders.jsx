@@ -42,7 +42,7 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="m-4 font-medium text-shadow-lg">
+    <div className="flex items-center justify-center m-4 font-medium text-shadow-lg">
       {/* <h1>Orders</h1>*/}
       <div> 
         <ul>

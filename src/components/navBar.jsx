@@ -6,7 +6,7 @@
 
     return (
         <>
-       <div className="flex justify-center">
+       <div className="flex items-center justify-center">
         <nav className="inline-block bg-[rgba(0,0,0,0.38)] m-4 text-xl font-bold rounded-lg">
           <Link to="/">Dashboard</Link>  | {" "}
           <Link to="/inventory">Inventory</Link> | {" "}
