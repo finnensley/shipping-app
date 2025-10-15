@@ -114,7 +114,6 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           value={inputValue}
           onChange={handleInputChange}
           id="singleOrderPacking"
-          // "m-2 text-2xl text-center
           className=" ml-2 border rounded-lg text-xl bg-[rgba(0,0,0,0.38)] text-white text-center w-40"
           placeholder="enter order #"
         ></input>

@@ -11,6 +11,7 @@
 # upload a csv - \copy inventory(sku, description, total_quantity) FROM '/path/to/your/file.csv' DELIMITER ',' CSV HEADER; -> edit in vscode, no spaces and delete id column and unused ,
 # SELECT * FROM locations; -> to see data in table after upload
 # UPDATE orders SET customer_id = 2 WHERE id = 1; -> to update a field
+#
 
 # Server:
 ## Node.js, express.js. to run: node src/server.js
