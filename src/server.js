@@ -3,11 +3,11 @@ import pkg from "pg";
 import cors from "cors";
 import { body, validationResult } from "express-validator";
 
-const { Pool } = pkg;
+const { Pool } = pkg; // to use database
 const app = express();
 const port = 3000; //port for backend
 
-app.use(cors());
+app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
 
 //Database connection pool
@@ -287,6 +287,9 @@ app.get("/orders_with_items", async (req, res) => {
         o.carrier,
         o.carrier_speed,
         o.status,
+        c.name AS customer_name,
+        c.email AS customer_email,
+        c.phone AS customer_phone,
         oi.id AS order_item_id,
         oi.item_id,
         oi.sku,
@@ -294,6 +297,7 @@ app.get("/orders_with_items", async (req, res) => {
         oi.quantity,
         i.image_path
       FROM orders o
+      LEFT JOIN customers c ON o.customer_id = c.id
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN items i ON oi.item_id = i.id
       WHERE o.status = 'open'
@@ -310,6 +314,17 @@ app.get("/orders_with_items", async (req, res) => {
           taxes: row.taxes,
           total: row.total,
           shipping_paid: row.shipping_paid,
+          address_line1: row.address_line1,
+          address_line2: row.address_line2,
+          city: row.city,
+          state: row.state,
+          zip: row.zip,
+          country: row.country,
+          carrier: row.carrier,
+          carrier_speed: row.carrier_speed,
+          customer_name: row.customer_name,
+          customer_email: row.customer_email,
+          customer_phone: row.customer_phone,
           items: [],
         };
       }
@@ -655,9 +670,25 @@ app.get("/picklists_with_order_info", async (req, res) => {
 
 app.get("/picked_orders_staged_for_packing", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM picked_orders_staged_for_packing ORDER BY created_at DESC"
-    );
+    const result = await pool.query(`
+        SELECT 
+        p.*,
+        o.address_line1,
+        o.address_line2,
+        o.city,
+        o.state,
+        o.zip,
+        o.country,
+        o.carrier,
+        o.carrier_speed,
+        c.name AS customer_name
+      FROM picked_orders_staged_for_packing p
+      LEFT JOIN orders o ON o.order_number = ANY(p.order_numbers)
+      LEFT JOIN customers c ON o.customer_id = c.id
+      ORDER BY p.created_at DESC
+    `);
+    //        "SELECT * FROM picked_orders_staged_for_packing ORDER BY created_at DESC"
+
     res.json({ picklists: result.rows });
   } catch (err) {
     console.error(err);

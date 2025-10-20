@@ -5,6 +5,7 @@ import useFetchData from "../../components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import axios from "axios";
 import SingleOrderPacking from "../../components/singleOrderPacking";
+import useCustomerInfo from "../../components/useCustomerInfo";
 
 // from the staging table, pull a pickinglist ID - separated by orders - "picked_orders_staged_for_packing" table
 // choose order to pack, order status changes to packing, then to shipped
@@ -19,6 +20,7 @@ const PackingPage = () => {
   const dispatch = useDispatch();
   const pickLists = useSelector((state) => state.pickLists);
   const [quantities, setQuantities] = useState({});
+  const { customerInfo, loading: customerLoading } = useCustomerInfo(selectedOrder?.order_number);
 
   // initialize or update pickLists
   useEffect(() => {
@@ -58,7 +60,7 @@ const PackingPage = () => {
                 <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
                   Order # {selectedOrder.order_number}
                 </h2>
-                <ul>
+                <ul className="flex flex-col items-center">
                   {selectedOrder.items.map((item) => (
                     <li
                       key={item.id}
@@ -82,7 +84,26 @@ const PackingPage = () => {
                 </ul>
               </div>
               <div className="flex-1 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold">
-                Address and Carriers Screen:
+                <div>
+                  <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
+                    Address And Carrier Verification:
+                  </h2>
+                  {customerLoading ? (
+                    <p>Loading...</p>
+                  ) : customerInfo ? (
+                  <div className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
+                    Customer: {customerInfo.customer_name} | 
+                    Address: {customerInfo.address_line1} {" "} {customerInfo.address_line2} |
+                    City: {customerInfo.city} |
+                    State: {customerInfo.state} | 
+                    Zip: {customerInfo.zip} |
+                    Carrier: {customerInfo.carrier} | 
+                    Carrier Speed: {customerInfo.carrier_speed}
+                  </div>
+                  ) : (
+                    <p>No customer info found</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
