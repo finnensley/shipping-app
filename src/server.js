@@ -670,14 +670,15 @@ app.get("/picklists_with_order_info", async (req, res) => {
 
 app.get("/picked_orders_staged_for_packing", async (req, res) => {
   try {
-    const result = await pool.query(`
+   const result = await pool.query(`
       SELECT 
         p.id,
         p.pick_list_id,
         p.order_numbers,
         p.created_at,
         p.status,
-        p.items, o.id AS order_id,
+        p.items,
+        o.id AS order_id,
         o.order_number,
         o.subtotal,
         o.taxes,
@@ -692,7 +693,6 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
         o.carrier,
         o.carrier_speed,
         o.status AS order_status,
-        -- Get customer info
         c.id AS customer_id,
         c.name AS customer_name,
         c.email AS customer_email,
@@ -730,29 +730,35 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
         };
       }
 
-      // Add full order info to the orders array
-      if (row.order_id) {
-        picklistsMap[pickListId].orders.push({
-          order_id: row.order_id,
-          order_number: row.order_number,
-          subtotal: row.subtotal,
-          taxes: row.taxes,
-          total: row.total,
-          shipping_paid: row.shipping_paid,
-          address_line1: row.address_line1,
-          address_line2: row.address_line2,
-          city: row.city,
-          state: row.state,
-          zip: row.zip,
-          country: row.country,
-          carrier: row.carrier,
-          carrier_speed: row.carrier_speed,
-          order_status: row.order_status,
-          customer_id: row.customer_id,
-          customer_name: row.customer_name,
-          customer_email: row.customer_email,
-          customer_phone: row.customer_phone,
-        });
+      // FIXED: Only add order info if it belongs to this picklist AND doesn't already exist
+      if (row.order_id && row.order_numbers.includes(row.order_number)) {
+        const existingOrder = picklistsMap[pickListId].orders.find(
+          order => order.order_number === row.order_number
+        );
+        
+        if (!existingOrder) {
+          picklistsMap[pickListId].orders.push({
+            order_id: row.order_id,
+            order_number: row.order_number,
+            subtotal: row.subtotal,
+            taxes: row.taxes,
+            total: row.total,
+            shipping_paid: row.shipping_paid,
+            address_line1: row.address_line1,
+            address_line2: row.address_line2,
+            city: row.city,
+            state: row.state,
+            zip: row.zip,
+            country: row.country,
+            carrier: row.carrier,
+            carrier_speed: row.carrier_speed,
+            order_status: row.order_status,
+            customer_id: row.customer_id,
+            customer_name: row.customer_name,
+            customer_email: row.customer_email,
+            customer_phone: row.customer_phone,
+          });
+        }
       }
     });
 
