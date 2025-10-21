@@ -671,8 +671,18 @@ app.get("/picklists_with_order_info", async (req, res) => {
 app.get("/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const result = await pool.query(`
-        SELECT 
-        p.*,
+      SELECT 
+        p.id,
+        p.pick_list_id,
+        p.order_numbers,
+        p.created_at,
+        p.status,
+        p.items, o.id AS order_id,
+        o.order_number,
+        o.subtotal,
+        o.taxes,
+        o.total,
+        o.shipping_paid,
         o.address_line1,
         o.address_line2,
         o.city,
@@ -681,15 +691,73 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
         o.country,
         o.carrier,
         o.carrier_speed,
-        c.name AS customer_name
+        o.status AS order_status,
+        -- Get customer info
+        c.id AS customer_id,
+        c.name AS customer_name,
+        c.email AS customer_email,
+        c.phone AS customer_phone
       FROM picked_orders_staged_for_packing p
       LEFT JOIN orders o ON o.order_number = ANY(p.order_numbers)
       LEFT JOIN customers c ON o.customer_id = c.id
-      ORDER BY p.created_at DESC
+      ORDER BY p.created_at DESC, o.order_number
     `);
-    //        "SELECT * FROM picked_orders_staged_for_packing ORDER BY created_at DESC"
 
-    res.json({ picklists: result.rows });
+    // Group the results by pick list and include full order info
+    const picklistsMap = {};
+
+    result.rows.forEach((row) => {
+      const pickListId = row.pick_list_id;
+
+      if (!picklistsMap[pickListId]) {
+        // Parse items and add order_numbers to each item
+        const items = Array.isArray(row.items)
+          ? row.items
+          : JSON.parse(row.items || "[]");
+        const itemsWithOrderNumbers = items.map((item) => ({
+          ...item,
+          order_numbers: row.order_numbers,
+        }));
+
+        picklistsMap[pickListId] = {
+          id: row.id,
+          pick_list_id: row.pick_list_id,
+          order_numbers: row.order_numbers,
+          created_at: row.created_at,
+          status: row.status,
+          items: itemsWithOrderNumbers,
+          orders: [], // Array to hold full order details
+        };
+      }
+
+      // Add full order info to the orders array
+      if (row.order_id) {
+        picklistsMap[pickListId].orders.push({
+          order_id: row.order_id,
+          order_number: row.order_number,
+          subtotal: row.subtotal,
+          taxes: row.taxes,
+          total: row.total,
+          shipping_paid: row.shipping_paid,
+          address_line1: row.address_line1,
+          address_line2: row.address_line2,
+          city: row.city,
+          state: row.state,
+          zip: row.zip,
+          country: row.country,
+          carrier: row.carrier,
+          carrier_speed: row.carrier_speed,
+          order_status: row.order_status,
+          customer_id: row.customer_id,
+          customer_name: row.customer_name,
+          customer_email: row.customer_email,
+          customer_phone: row.customer_phone,
+        });
+      }
+    });
+
+    const picklists = Object.values(picklistsMap);
+    res.json({ picklists });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");

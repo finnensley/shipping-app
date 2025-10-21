@@ -1,26 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export const packingSlice = createSlice({
-    name: "packing",
-    initialState: [],
-    reducers: {
-        setPickLists: (state, action) => {
-            state.pickLists = action.payload;
-        },
-        setOrders: (state, action) => {
-            state.orders = action.payload;
-        },
-        // setItems: (state, action) => {
-        //     state.items = action.payload;
-        // },
-        // setPacked: (state, action) => {
-        //     state.packed = action.payload;
-        // }
-
-    }
+  name: "packing",
+  initialState: {
+    pickLists: [],
+    quantities: {},
+    packedItems: [],
+    currentOrder: null,
+  },
+  reducers: {
+    setPickLists: (state, action) => {
+      state.pickLists = action.payload;
+    },
+    addItem: (state, action) => {
+      state.packedItems.push(action.payload);
+    },
+    updateQuantity: (state, action) => {
+      const { itemId, quantity } = action.payload;
+      state.quantities[itemId] = quantity;
+    },
+    setCurrentOrder: (state, action) => {
+      state.currentOrder = action.payload;
+    },
+  },
 });
 
-export const { setPickLists, setOrders, setItems, setPacked } = packingSlice.actions;
+export const { setPickLists, addItem, updateQuantity, setCurrentOrder } =
+  packingSlice.actions;
 export default packingSlice.reducer;
 
-// may not need setPacked, could do with local state
+
