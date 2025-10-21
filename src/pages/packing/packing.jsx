@@ -1,40 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setPickLists, addItem } from "../../features/packing/packingSlice";
+import {
+  setPickLists,
+  setSelectedPickList,
+  setSelectedOrder,
+  setShowPickListSelector,
+  setQuantities,
+  addItem,
+  resetPackingState,
+} from "../../features/packing/packingSlice";
 import useFetchData from "../../components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
-import axios from "axios";
 import SingleOrderPacking from "../../components/singleOrderPacking";
-// import useCustomerInfo from "../../components/useCustomerInfo";
 import PickListSelector from "../../components/pickListSelector";
 
-// from the staging table, pull a pickinglist ID - separated by orders - "picked_orders_staged_for_packing" table
-// choose order to pack, order status changes to packing, then to shipped
-// test with pick_list_id: 10119
-
 const PackingPage = () => {
-  const [orderToPack, setOrderToPack] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedPickList, setSelectedPickList] = useState(null);
-  const { data, loading, error } = useFetchData(
-    "picked_orders_staged_for_packing"
-  );
   const dispatch = useDispatch();
-  const pickLists = useSelector((state) => state.packing.pickLists);
-  const [quantities, setQuantities] = useState({});
-  // const { customerInfo, loading: customerLoading } = useCustomerInfo(
-  //   selectedOrder?.order_number
-  // );
-  const customerInfo = selectedOrder;
 
-  // initialize and update staged pickLists
+  // Get all state from Redux
+  const {
+    pickLists,
+    selectedPickList,
+    selectedOrder,
+    showPickListSelector,
+    quantities,
+    packedItems,
+    loading: packingLoading,
+    error: packingError,
+  } = useSelector((state) => state.packing);
+
+  const {
+    data,
+    loading: fetchLoading,
+    error: fetchError,
+  } = useFetchData("picked_orders_staged_for_packing");
+
+  const loading = fetchLoading || packingLoading;
+  const error = fetchError || packingError;
+
+  // Initialize Redux state when data is fetched
   useEffect(() => {
-    console.log("Data received:", data); //debug log
     if (data?.picklists) {
-      console.log("Picklists:", data.picklists); //debug log
       dispatch(setPickLists(data.picklists));
 
-      // initialize quantities from all items in all picklists
+      // Initialize quantities from all items in all picklists
       const initial = {};
       data.picklists.forEach((pickList) => {
         // pick_list_id, order_numbers, items.sku, items.quantity, items.description
@@ -42,24 +51,37 @@ const PackingPage = () => {
           initial[item.id] = item.quantity;
         });
       });
-      setQuantities(initial);
+      dispatch(setQuantities(initial));
     }
   }, [data, dispatch]);
 
+  //Redux action handlers
   const handlePickListSelect = (pickList) => {
-    setSelectedPickList(pickList);
-    setSelectedOrder(null); // resets selected order when changing picklist
+    dispatch(setSelectedPickList(pickList));
+  };
+  const handleOrderSelect = (orderData) => {
+    dispatch(setSelectedOrder(orderData));
+  };
+  const handleShowPickLists = () => {
+    dispatch(setShowPickListSelector(true));
   };
 
-  //Filter orders based on selected picklist
-  const availableOrders = selectedPickList
-    ? selectedPickList.order_numbers.map((orderNum) => ({
-        order_number: orderNum,
-        items: selectedPickList.items.filter((item) =>
-          item.order_numbers?.includes(orderNum)
-        ),
-      }))
-    : [];
+  const handleClosePickListSelector = () => {
+    dispatch(setShowPickListSelector(false));
+  };
+
+  const handleBackToPickLists = () => {
+    dispatch(setSelectedPickList(null));
+    dispatch(setShowPickListSelector(true));
+  };
+
+  const handleBackToOrders = () => {
+    dispatch(setSelectedOrder(null));
+  };
+
+  const handleResetAll = () => {
+    dispatch(resetPackingState());
+  };
 
   const handleEditAddress = () => {
     //insert address validation and automatic update w/ a note of change
@@ -72,13 +94,25 @@ const PackingPage = () => {
 
   return (
     <div>
+      {/* Header - only show when not in pick list selector */}
+      {!showPickListSelector && !selectedOrder && (
+        <div className="flex items-center text-xl mt-4 justify-center">
+          <p className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]">
+            Select Pick List To Pack
+          </p>
+          <button type="button" onClick={handleShowPickLists} className="ml-2">
+            Click Here
+          </button>
+        </div>
+      )}
       <div className="flex flex-col font-medium">
         {/* Step 1: Select Pick List */}
-        {!selectedPickList && (
+        {showPickListSelector && !selectedPickList && (
           <PickListSelector
-            pickLists={data?.picklists}
+            pickLists={pickLists}
             selectedPickList={selectedPickList}
             onSelectPickList={handlePickListSelect}
+            onClose={handleClosePickListSelector}
           />
         )}
 
@@ -90,29 +124,19 @@ const PackingPage = () => {
                 Pick List #{selectedPickList.pick_list_id} - Select Order to
                 Pack:
               </h2>
-              <button
-                className="text-blue-300 hover:text-blue-100"
-                onClick={() => setSelectedPickList(null)}
-              >
+              <button onClick={handleBackToPickLists}>
                 ← Back to Pick Lists
               </button>
             </div>
-            {/* Add debug logging */}
-            {console.log("Selected PickList:", selectedPickList)}
-            {console.log("Order Numbers:", selectedPickList.order_numbers)}
-            {console.log("Items:", selectedPickList.items)}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedPickList.order_numbers.map((orderNum) => {
-                const fullOrderData = selectedPickList.orders.find(
+                const fullOrderData = selectedPickList.orders?.find(
                   (order) => order.order_number === orderNum
                 );
                 // Debug each order's items
                 const orderItems = selectedPickList.items.filter((item) =>
                   item.order_numbers?.includes(orderNum)
                 );
-                console.log(`Order ${orderNum} items:`, orderItems);
-                console.log(`Order ${orderNum} full data:`, fullOrderData);
 
                 return (
                   <div
@@ -121,12 +145,10 @@ const PackingPage = () => {
                     onClick={() => {
                       // Create order object for selected order
                       const orderData = {
-                        ...fullOrderData, 
+                        ...fullOrderData,
                         items: orderItems,
                       };
-                      console.log("Setting selected order:", orderData); // Add this debug log too
-
-                      setSelectedOrder(orderData);
+                      handleOrderSelect(orderData);
                     }}
                   >
                     <h3 className="font-semibold">Order #{orderNum}</h3>
@@ -140,48 +162,46 @@ const PackingPage = () => {
             </div>
           </div>
         )}
-        {!selectedPickList && (
+        {!selectedPickList && !selectedOrder && !showPickListSelector && (
           <SingleOrderPacking
             selectedOrder={selectedOrder}
-            setSelectedOrder={setSelectedOrder}
+            setSelectedOrder={(order) => dispatch(setSelectedOrder(order))}
           />
         )}
-        {/* Step 4: Show selected order details and packing interface */}
+        {/* Step 4: Packing interface */}
         {selectedOrder && (
           <>
-            {/* Add breadcrumb navigation */}
+            {/* Breadcrumb navigation */}
             <div className="m-4 p-2 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
               <div className="flex items-center space-x-2">
-                {selectedPickList && (
-                  <>
-                    <button
-                      className="text-blue-300 hover:text-blue-100"
-                      onClick={() => {
-                        setSelectedOrder(null);
-                        setSelectedPickList(null);
-                      }}
-                    >
-                      Pick Lists
+                {selectedPickList ? (
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex items-center space-x-2">
+                      <button onClick={handleResetAll}>Pick Lists</button>
+                      <span>→</span>
+                      <button onClick={handleBackToOrders}>
+                        Pick List #{selectedPickList.pick_list_id}
+                      </button>
+                      <span>→</span>
+                      <span>Order #{selectedOrder.order_number}</span>
+                    </div>
+                    <button onClick={() => dispatch(setSelectedOrder(null))}>
+                      ⓧ Close
                     </button>
-                    <span>→</span>
-                    <button
-                      className="text-blue-300 hover:text-blue-100"
-                      onClick={() => setSelectedOrder(null)}
-                    >
-                      Pick List #{selectedPickList.pick_list_id}
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center w-full">
+                    <span>
+                      Order #{selectedOrder.order_number} (Manual Entry)
+                    </span>
+                    <button onClick={() => dispatch(setSelectedOrder(null))}>
+                      ⓧ Close
                     </button>
-                    <span>→</span>
-                    <span>Order #{selectedOrder.order_number}</span>
-                  </>
-                )}
-                {!selectedPickList && (
-                  <span>
-                    Order #{selectedOrder.order_number} (Manual Entry)
-                  </span>
+                  </div>
                 )}
               </div>
             </div>
-            {/* Main packing content - ALWAYS show when order is selected */}
+            {/* Main packing interface */}
             <div>
               <div className="flex justify-evenly m-4 gap-x-4">
                 {/* Order items column */}
@@ -190,7 +210,7 @@ const PackingPage = () => {
                     Order # {selectedOrder.order_number}
                   </h2>
                   <ul className="flex flex-col items-center">
-                    {selectedOrder.items.map((item) => (
+                    {selectedOrder.items?.map((item) => (
                       <li
                         key={item.id}
                         className="flex border-y rounded-lg m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white w-fit text-lg text-shadow-lg font-semibold items-center"
@@ -228,26 +248,26 @@ const PackingPage = () => {
                     <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
                       Address And Carrier Verification:
                     </h2>
-                    {customerInfo ? (
+                    {selectedOrder ? (
                       <div className="p-4 border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg flex flex-col space-y-2">
                         <div className="flex flex-col justify-between items-center">
-                          <span>{customerInfo.customer_name}</span>
+                          <span>{selectedOrder.customer_name}</span>
                         </div>
                         <div className="flex flex-col justify-between items-center">
                           <span>
-                            {customerInfo.address_line1}
-                            {customerInfo.address_line2}
+                            {selectedOrder.address_line1}
+                            {selectedOrder.address_line2}
                           </span>
                         </div>
                         <div className="flex flex-col">
                           <span>
-                            {customerInfo.city}, {customerInfo.state}{" "}
-                            {customerInfo.zip}
+                            {selectedOrder.city}, {selectedOrder.state}{" "}
+                            {selectedOrder.zip}
                           </span>
                           <div>
                             <button
                               className="m-4 text-white"
-                              onClick={() => handleEditAddress()}
+                              onClick={handleEditAddress}
                             >
                               Address Edit
                             </button>
@@ -255,52 +275,39 @@ const PackingPage = () => {
                         </div>
                         <div className="flex justify-around items-center">
                           <span>
-                            {customerInfo.carrier} :{" "}
-                            {customerInfo.carrier_speed}
+                            {selectedOrder.carrier} :{" "}
+                            {selectedOrder.carrier_speed}
                           </span>
-                          <span>Paid ${customerInfo.shipping_paid}</span>
+                          <span>Paid ${selectedOrder.shipping_paid}</span>
                           <button
                             className="ml-2 text-white"
-                            onClick={() => handleEditCarrier()}
+                            onClick={handleEditCarrier}
                           >
                             Carrier Edit
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <p>
-                        {customerLoading
-                          ? "Loading..."
-                          : "No customer info found"}
-                      </p>
+                      <p>"No customer info found"</p>
                     )}
                   </div>
                 </div>
               </div>
-
               {/* Packing Screen */}
               <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
                 <div className="inline-block w-fit">
                   Packing Screen
-                  <p>OnClick: Items appear here</p>
+                  <p>Packed Items: {packedItems.length}</p>
+                  {/* Display packed items */}
+                  {packedItems.map((item, index) => (
+                    <div key={index} className="text-sm">
+                      {item.sku} - {item.description} (Qty: {item.quantity})
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </>
-        )}
-        {/* Show default state when no order is selected */}
-        {!selectedOrder && (
-          <div>
-            <div className="m-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold">
-              Address and Carriers Screen
-            </div>
-            <div className="mb-4 p-4 border rounded-lg m-4 border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
-              <div className="inline-block w-fit">
-                Packing Screen
-                <p>OnClick: Items appear here</p>
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>
