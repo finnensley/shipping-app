@@ -66,28 +66,25 @@ const PackingPage = () => {
     dispatch(setShowPickListSelector(true));
   };
 
-  const handleClosePickListSelector = () => {
-    dispatch(setShowPickListSelector(false));
-  };
-
-  const handleBackToPickLists = () => {
-    dispatch(setSelectedPickList(null));
-    dispatch(setShowPickListSelector(true));
-  };
-
-  const handleBackToOrders = () => {
-    dispatch(setSelectedOrder(null));
-  };
-
-  const handleResetAll = () => {
+  // 1. Reset everything to start screen
+  const handleResetToStart = () => {
     dispatch(resetPackingState());
   };
 
-  const handleCloseToStart = () => {
-  dispatch(setSelectedOrder(null));
-  dispatch(setSelectedPickList(null));  // Clear the pick list
-  dispatch(setShowPickListSelector(false));  // Close any selectors
-};
+  // 2. Go back one step
+  const handleGoBack = () => {
+    if (selectedOrder) {
+      dispatch(setSelectedOrder(null));
+      if (!selectedPickList) {
+        dispatch(setShowPickListSelector(false));
+      }
+    } else if (selectedPickList) {
+      dispatch(setSelectedPickList(null));
+      dispatch(setShowPickListSelector(true));
+    } else if (showPickListSelector) {
+      dispatch(setShowPickListSelector(false));
+    }
+  };
 
   const handleEditAddress = () => {
     //insert address validation and automatic update w/ a note of change
@@ -106,7 +103,11 @@ const PackingPage = () => {
           <p className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]">
             Select Pick List To Pack
           </p>
-          <button type="button" onClick={handleShowPickLists} className="ml-2">
+          <button
+            type="button"
+            onClick={() => dispatch(setShowPickListSelector(true))}
+            className="ml-2"
+          >
             Click Here
           </button>
         </div>
@@ -118,7 +119,7 @@ const PackingPage = () => {
             pickLists={pickLists}
             selectedPickList={selectedPickList}
             onSelectPickList={handlePickListSelect}
-            onClose={handleClosePickListSelector}
+            onClose={() => dispatch(setShowPickListSelector(false))}
           />
         )}
 
@@ -130,9 +131,7 @@ const PackingPage = () => {
                 Pick List #{selectedPickList.pick_list_id} - Select Order to
                 Pack:
               </h2>
-              <button onClick={handleBackToPickLists}>
-                ← Back to Pick Lists
-              </button>
+              <button onClick={handleGoBack}>← Back to Pick Lists</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedPickList.order_numbers.map((orderNum) => {
@@ -183,26 +182,22 @@ const PackingPage = () => {
                 {selectedPickList ? (
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center space-x-2">
-                      <button onClick={handleResetAll}>Pick Lists</button>
+                      <button onClick={handleResetToStart}>Pick Lists</button>
                       <span>→</span>
-                      <button onClick={handleBackToOrders}>
+                      <button onClick={handleGoBack}>
                         Pick List #{selectedPickList.pick_list_id}
                       </button>
                       <span>→</span>
                       <span>Order #{selectedOrder.order_number}</span>
                     </div>
-                    <button onClick={handleCloseToStart}>
-                      ⓧ Close
-                    </button>
+                    <button onClick={handleResetToStart}>ⓧ Close</button>
                   </div>
                 ) : (
                   <div className="flex justify-between items-center w-full">
                     <span>
                       Order #{selectedOrder.order_number} (Manual Entry)
                     </span>
-                    <button onClick={() => dispatch(setSelectedOrder(null))}>
-                      ⓧ Close
-                    </button>
+                    <button onClick={handleResetToStart}>ⓧ Close</button>
                   </div>
                 )}
               </div>
