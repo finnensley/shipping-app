@@ -5,7 +5,7 @@ import {
   setOrders,
   setItems,
 } from "../../features/picking/pickingSlice";
-import useFetchData from "../../components/useFetchData";
+import useFetchData from "@/components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import axios from "axios";
 import usePickListCreator from "../../components/usePickListCreator";

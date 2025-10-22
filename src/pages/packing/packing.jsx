@@ -83,6 +83,12 @@ const PackingPage = () => {
     dispatch(resetPackingState());
   };
 
+  const handleCloseToStart = () => {
+  dispatch(setSelectedOrder(null));
+  dispatch(setSelectedPickList(null));  // Clear the pick list
+  dispatch(setShowPickListSelector(false));  // Close any selectors
+};
+
   const handleEditAddress = () => {
     //insert address validation and automatic update w/ a note of change
   };
@@ -185,7 +191,7 @@ const PackingPage = () => {
                       <span>→</span>
                       <span>Order #{selectedOrder.order_number}</span>
                     </div>
-                    <button onClick={() => dispatch(setSelectedOrder(null))}>
+                    <button onClick={handleCloseToStart}>
                       ⓧ Close
                     </button>
                   </div>

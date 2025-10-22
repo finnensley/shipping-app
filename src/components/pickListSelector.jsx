@@ -6,7 +6,7 @@ const PickListSelector = ({
   onSelectPickList,
   onClose,
 }) => {
-  if (!pickLists || pickLists.length === 0) {
+  if (!pickLists.length) {
     return (
       <div className="m-4 p-4 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
         <h2 className="text-lg font-bold mb-4">No Pick Lists Available</h2>
