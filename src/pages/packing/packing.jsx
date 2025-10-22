@@ -5,8 +5,9 @@ import {
   setSelectedPickList,
   setSelectedOrder,
   setShowPickListSelector,
-  setQuantities,
-  addItem,
+  setRemainingQuantities,
+  packItem,
+  unpackItem,
   resetPackingState,
 } from "../../features/packing/packingSlice";
 import useFetchData from "../../components/useFetchData";
@@ -23,7 +24,7 @@ const PackingPage = () => {
     selectedPickList,
     selectedOrder,
     showPickListSelector,
-    quantities,
+    remainingQuantities,
     packedItems,
     loading: packingLoading,
     error: packingError,
@@ -51,9 +52,20 @@ const PackingPage = () => {
           initial[item.id] = item.quantity;
         });
       });
-      dispatch(setQuantities(initial));
+      dispatch(setRemainingQuantities(initial));
     }
   }, [data, dispatch]);
+
+  // Initialize when manual order is selected
+  useEffect(() => {
+    if (selectedOrder && selectedOrder.items) {
+      const initial = {};
+      selectedOrder.items.forEach((item) => {
+        initial[item.id] = item.quantity;
+      });
+      dispatch(setRemainingQuantities(initial));
+    }
+  }, [selectedOrder, dispatch]);
 
   //Redux action handlers
   const handlePickListSelect = (pickList) => {
@@ -62,16 +74,13 @@ const PackingPage = () => {
   const handleOrderSelect = (orderData) => {
     dispatch(setSelectedOrder(orderData));
   };
-  const handleShowPickLists = () => {
-    dispatch(setShowPickListSelector(true));
-  };
 
-  // 1. Reset everything to start screen
+  // Reset everything to start screen
   const handleResetToStart = () => {
     dispatch(resetPackingState());
   };
 
-  // 2. Go back one step
+  // Go back one step
   const handleGoBack = () => {
     if (selectedOrder) {
       dispatch(setSelectedOrder(null));
@@ -211,35 +220,39 @@ const PackingPage = () => {
                     Order # {selectedOrder.order_number}
                   </h2>
                   <ul className="flex flex-col items-center">
-                    {selectedOrder.items?.map((item) => (
-                      <li
-                        key={item.id}
-                        className="flex border-y rounded-lg m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white w-fit text-lg text-shadow-lg font-semibold items-center"
-                      >
-                        <ItemPicture
-                          sku={item.sku}
-                          description={item.description}
-                        />
-                        Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-                        {item.quantity}
-                        <button
-                          aria-label="add item"
-                          className="ml-3"
-                          onClick={() =>
-                            dispatch(
-                              addItem({
-                                id: item.id,
-                                sku: item.sku,
-                                description: item.description,
-                                quantity: 1,
-                              })
-                            )
-                          }
+                    {selectedOrder.items?.map((item) => {
+                      const remainingQty = remainingQuantities[item.id] || 0;
+
+                      //Only show items that still have a remaining quantity
+                      return remainingQty > 0 ? (
+                        <li
+                          key={item.id}
+                          className="flex border-y rounded-lg m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white w-fit text-lg text-shadow-lg font-semibold items-center"
                         >
-                          pack
-                        </button>
-                      </li>
-                    ))}
+                          <ItemPicture
+                            sku={item.sku}
+                            description={item.description}
+                          />
+                          Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
+                          {remainingQty}
+                          <button
+                            className="ml-3"
+                            onClick={() =>
+                              dispatch(
+                                packItem({
+                                  id: item.id,
+                                  sku: item.sku,
+                                  description: item.description,
+                                })
+                              )
+                            }
+                            disabled={remainingQty === 0}
+                          >
+                            pack
+                          </button>
+                        </li>
+                      ) : null;
+                    })}
                   </ul>
                 </div>
 
@@ -298,11 +311,24 @@ const PackingPage = () => {
               <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
                 <div className="inline-block w-fit">
                   Packing Screen
-                  <p>Packed Items: {packedItems.length}</p>
+                  <p>
+                    Packed Items:{" "}
+                    {packedItems.reduce(
+                      (total, item) => total + item.quantity,
+                      0
+                    )}
+                  </p>
                   {/* Display packed items */}
                   {packedItems.map((item, index) => (
                     <div key={index} className="text-sm">
-                      {item.sku} - {item.description} (Qty: {item.quantity})
+                      {item.sku} - {item.description} | Packed Qty:{" "}
+                      {item.quantity}
+                      <button
+                        className="ml-3"
+                        onClick={() => dispatch(unpackItem(item.id))}
+                      >
+                        unpack
+                      </button>
                     </div>
                   ))}
                 </div>

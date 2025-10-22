@@ -91,48 +91,6 @@ const InventoryPage = () => {
                       {" "}
                       Save{" "}
                     </button>
-                    {/* <button
-                      aria-label="Increment value"
-                      className="ml-2"
-                      onClick={async () => {
-                        dispatch(
-                          updateItemQuantity({
-                            itemId: item.id,
-                            locationId: location.id,
-                            delta: 1,
-                          })
-                        );
-                        await updateData(
-                          location.id,
-                          quantities[location.id] ?? location.quantity + 1,
-                          item.id,
-                          location.location_id
-                        );
-                      }}
-                    >
-                      +
-                    </button>
-                    <button
-                      aria-label="Decrement value"
-                      className="ml-2"
-                      onClick={async () => {
-                        dispatch(
-                          updateItemQuantity({
-                            itemId: item.id,
-                            locationId: location.id,
-                            delta: -1,
-                          })
-                        );
-                        await updateData(
-                          location.id,
-                          quantities[location.id] ?? location.quantity - 1,
-                          item.id,
-                          location.location_id
-                        );
-                      }}
-                    >
-                      -
-                    </button> */}
                     <button
                       className="ml-2"
                       onClick={async () => {
@@ -147,14 +105,6 @@ const InventoryPage = () => {
                         );
                         const data = await response.json();
                         dispatch(setInventory(data.items));
-                        // // Update local quantities state
-                        // const initial = {};
-                        // data.items.forEach((item) => {
-                        //   (item.locations || []).forEach((location) => {
-                        //     initial[location.id] = location.quantity;
-                        //   });
-                        // });
-                        // setQuantities(initial);
                       }}
                     >
                       Undo

@@ -7,7 +7,7 @@ export const packingSlice = createSlice({
     selectedPickList: null,
     selectedOrder: null,
     showPickListSelector: false,
-    quantities: {},
+    remainingQuantities: {},
     packedItems: [],
     loading: false,
     error: null,
@@ -29,26 +29,59 @@ export const packingSlice = createSlice({
     setShowPickListSelector: (state, action) => {
       state.showPickListSelector = action.payload;
     },
-    setQuantities: (state, action) => {
-      state.quantities = action.payload;
+    setRemainingQuantities: (state, action) => {
+      state.remainingQuantities = action.payload;
     },
-    updateQuantity: (state, action) => {
-      const { itemId, quantity } = action.payload;
-      state.quantities[itemId] = quantity;
+    
+    packItem: (state, action) => {
+      const { id, sku, description } = action.payload;
+    
+
+          // Decrement remaining quantity
+      if (state.remainingQuantities[id] > 0) {
+        state.remainingQuantities[id] -= 1;
+        
+        // Find existing packed item or create new one
+        const existingPackedItem = state.packedItems.find(item => item.id === id);
+        if (existingPackedItem) {
+          existingPackedItem.quantity += 1;
+        } else {
+          state.packedItems.push({
+            id,
+            sku,
+            description,
+            quantity: 1
+          });
+        }
+      }
     },
-    addItem: (state, action) => {
-      state.packedItems.push(action.payload);
-    },
-    removeItem: (state, action) => {
-      state.packedItems = state.packedItems.filter(
-        (item) => item.id !== action.payload
-      );
+    
+    unpackItem: (state, action) => {
+      const itemId = action.payload;
+      
+      // Find packed item
+      const packedItemIndex = state.packedItems.findIndex(item => item.id === itemId);
+      if (packedItemIndex !== -1) {
+        const packedItem = state.packedItems[packedItemIndex];
+        
+        // Increment remaining quantity
+        state.remainingQuantities[itemId] += 1;
+        
+        // Decrement packed quantity
+        if (packedItem.quantity > 1) {
+          packedItem.quantity -= 1;
+        } else {
+          // Remove from packed items if quantity becomes 0
+          state.packedItems.splice(packedItemIndex, 1);
+        }
+      }
     },
     resetPackingState: (state) => {
       state.selectedPickList = null;
       state.selectedOrder = null;
       state.showPickListSelector = false;
       state.packedItems = [];
+      state.remainingQuantities = {};
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -64,10 +97,9 @@ export const {
   setSelectedPickList,
   setSelectedOrder,
   setShowPickListSelector,
-  setQuantities,
-  updateQuantity,
-  addItem,
-  removeItem,
+  setRemainingQuantities,
+  packItem,
+  unpackItem,
   resetPackingState,
   setLoading,
   setError,
