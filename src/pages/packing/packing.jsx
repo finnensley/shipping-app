@@ -8,6 +8,8 @@ import {
   setRemainingQuantities,
   packItem,
   unpackItem,
+  setSelectedPackage,
+  setPackageDimensions,
   resetPackingState,
 } from "../../features/packing/packingSlice";
 import useFetchData from "../../components/useFetchData";
@@ -26,6 +28,8 @@ const PackingPage = () => {
     showPickListSelector,
     remainingQuantities,
     packedItems,
+    selectedPackage,
+    packageDimensions,
     loading: packingLoading,
     error: packingError,
   } = useSelector((state) => state.packing);
@@ -310,7 +314,73 @@ const PackingPage = () => {
               {/* Packing Screen */}
               <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
                 <div className="inline-block w-fit">
-                  Packing Screen
+                  <p>Package 1 of 1</p>
+                  <div className="m-2">
+                    <label>Box Selection:</label>
+                    <select
+                      type="dropdown"
+                      value={selectedPackage}
+                      onChange={(e) =>
+                        dispatch(setSelectedPackage(e.target.value))
+                      }
+                    >
+                      <option value="">Choose a package</option>
+                      <option value="6x6x6">6 Cube</option>
+                      <option value="8x8x8">8 Cube</option>
+                      <option value="10x10x10">10 Cube</option>
+                      <option value="12x12x12">12 Cube</option>
+                      <option value="14x14x14">14 Cube</option>
+                    </select>
+                    {/* <button className="ml-2" onClick={setSelectedPackage}>
+                      Save
+                    </button> */}
+                  </div>
+                  <div className="m-2">
+                    <label>Weight: </label>
+                    <input
+                      type="number"
+                      value={packageDimensions.weight}
+                      onChange={(e) =>
+                        dispatch(
+                          setPackageDimensions({ weight: e.target.value })
+                        )
+                      }
+                      className="border rounded-lg text-center w-20 h-10"
+                    ></input>{" "}
+                    <label className="ml-2">Length: </label>
+                    <input
+                      type="number"
+                      value={packageDimensions.length}
+                      onChange={(e) =>
+                        dispatch(
+                          setPackageDimensions({ length: e.target.value })
+                        )
+                      }
+                      className="border rounded-lg text-center w-20 h-10"
+                    ></input>
+                    <label className="ml-2">Width: </label>
+                    <input
+                      type="number"
+                      value={packageDimensions.width}
+                      onChange={(e) =>
+                        dispatch(
+                          setPackageDimensions({ width: e.target.value })
+                        )
+                      }
+                      className="border rounded-lg text-center w-20 h-10"
+                    ></input>
+                    <label className="ml-2">Height: </label>
+                    <input
+                      type="number"
+                      value={packageDimensions.height}
+                      onChange={(e) =>
+                        dispatch(
+                          setPackageDimensions({ height: e.target.value })
+                        )
+                      }
+                      className="border rounded-lg text-center w-20 h-10"
+                    ></input>
+                  </div>
                   <p>
                     Packed Items:{" "}
                     {packedItems.reduce(
@@ -331,6 +401,12 @@ const PackingPage = () => {
                       </button>
                     </div>
                   ))}
+                  <div className="flex flex-col items-end">
+                    <select type="dropdown">
+                      <option>Print Invoice</option>
+                      <option>Print Label</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>

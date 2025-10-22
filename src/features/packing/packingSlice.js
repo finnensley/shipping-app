@@ -9,6 +9,13 @@ export const packingSlice = createSlice({
     showPickListSelector: false,
     remainingQuantities: {},
     packedItems: [],
+    selectedPackage: "",
+    packageDimensions: {
+      length: "",
+      width: "",
+      height: "",
+      weight: "",
+    },
     loading: false,
     error: null,
   },
@@ -32,17 +39,18 @@ export const packingSlice = createSlice({
     setRemainingQuantities: (state, action) => {
       state.remainingQuantities = action.payload;
     },
-    
+
     packItem: (state, action) => {
       const { id, sku, description } = action.payload;
-    
 
-          // Decrement remaining quantity
+      // Decrement remaining quantity
       if (state.remainingQuantities[id] > 0) {
         state.remainingQuantities[id] -= 1;
-        
+
         // Find existing packed item or create new one
-        const existingPackedItem = state.packedItems.find(item => item.id === id);
+        const existingPackedItem = state.packedItems.find(
+          (item) => item.id === id
+        );
         if (existingPackedItem) {
           existingPackedItem.quantity += 1;
         } else {
@@ -50,23 +58,25 @@ export const packingSlice = createSlice({
             id,
             sku,
             description,
-            quantity: 1
+            quantity: 1,
           });
         }
       }
     },
-    
+
     unpackItem: (state, action) => {
       const itemId = action.payload;
-      
+
       // Find packed item
-      const packedItemIndex = state.packedItems.findIndex(item => item.id === itemId);
+      const packedItemIndex = state.packedItems.findIndex(
+        (item) => item.id === itemId
+      );
       if (packedItemIndex !== -1) {
         const packedItem = state.packedItems[packedItemIndex];
-        
+
         // Increment remaining quantity
         state.remainingQuantities[itemId] += 1;
-        
+
         // Decrement packed quantity
         if (packedItem.quantity > 1) {
           packedItem.quantity -= 1;
@@ -76,13 +86,54 @@ export const packingSlice = createSlice({
         }
       }
     },
-    resetPackingState: (state) => {
-      state.selectedPickList = null;
-      state.selectedOrder = null;
-      state.showPickListSelector = false;
-      state.packedItems = [];
-      state.remainingQuantities = {};
+
+    setSelectedPackage: (state, action) => {
+      const packageValue = action.payload;
+      state.selectedPackage = packageValue;
+
+      // Auto-fill dimensions when package is selected
+      if (packageValue && packageValue !== "") {
+        const dimensions = packageValue.split("x");
+        if (dimensions.length === 3) {
+          state.packageDimensions = {
+            length: dimensions[0],
+            width: dimensions[1],
+            height: dimensions[2],
+            weight: state.packageDimensions.weight, // Keep existing weight
+          };
+        }
+      } else {
+        // Clear dimensions when no package selected
+        state.packageDimensions = {
+          length: "",
+          width: "",
+          height: "",
+          weight: "",
+        };
+      }
     },
+
+    setPackageDimensions: (state, action) => {
+      state.packageDimensions = {
+        ...state.packageDimensions,
+        ...action.payload,
+      };
+    },
+
+resetPackingState: (state) => {
+  state.selectedPickList = null;
+  state.selectedOrder = null;
+  state.showPickListSelector = false;
+  state.packedItems = [];
+  state.remainingQuantities = {};
+  state.selectedPackage = ''; // Add this
+  state.packageDimensions = { // Add this
+    length: '',
+    width: '',
+    height: '',
+    weight: ''
+  };
+},
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -100,6 +151,8 @@ export const {
   setRemainingQuantities,
   packItem,
   unpackItem,
+  setSelectedPackage,
+  setPackageDimensions,
   resetPackingState,
   setLoading,
   setError,
