@@ -1,7 +1,13 @@
 import express from "express";
+import dotenv from "dotenv";
 import pkg from "pg";
 import cors from "cors";
 import { body, validationResult } from "express-validator";
+//Auth
+import AuthRoutes from "./routes/AuthRoutes.js";
+import { authenticateToken } from "./middleware/authMiddleware.js";
+
+dotenv.config();
 
 const { Pool } = pkg; // to use database
 const app = express();
@@ -10,12 +16,19 @@ const port = 3000; //port for backend
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
 
+
+//Public routes (no auth needed)
+app.use("/auth", AuthRoutes); // changed from /protected to /auth
+
+// Protected routes (auth required); add app.get("/api/items"..to all protected routes
+app.use("/api", authenticateToken); // This protects all /api routes
+
 //Database connection pool
 const pool = new Pool({
   user: "finnensley",
   host: "localhost",
   database: "shipping_app",
-  password: "Finnigan2020!",
+  password: "Finnigan2025",
   port: 5432, //Default PostgreSQL port
 });
 
@@ -670,7 +683,7 @@ app.get("/picklists_with_order_info", async (req, res) => {
 
 app.get("/picked_orders_staged_for_packing", async (req, res) => {
   try {
-   const result = await pool.query(`
+    const result = await pool.query(`
       SELECT 
         p.id,
         p.pick_list_id,
@@ -733,9 +746,9 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
       // FIXED: Only add order info if it belongs to this picklist AND doesn't already exist
       if (row.order_id && row.order_numbers.includes(row.order_number)) {
         const existingOrder = picklistsMap[pickListId].orders.find(
-          order => order.order_number === row.order_number
+          (order) => order.order_number === row.order_number
         );
-        
+
         if (!existingOrder) {
           picklistsMap[pickListId].orders.push({
             order_id: row.order_id,

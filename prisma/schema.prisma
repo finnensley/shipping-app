@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Orders {
+  id            Int          @id @default(autoincrement())
+  order_number  Int          @unique
+  subtotal      Decimal?     @db.Decimal
+  taxes         Decimal?     @db.Decimal
+  total         Decimal?     @db.Decimal
+  shipping_paid Decimal?     @db.Decimal
+  address_line1 String?
+  address_line2 String?
+  city          String?
+  state         String?
+  zip           String?
+  country       String?
+  carrier       String?
+  customer_id   Int?
+  carrier_speed String?
+  status        String?      @default("open") @db.VarChar(20)
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?    @default(now()) @db.Timestamp(6)
+  ship_by_date  DateTime?    @db.Date
+  order_items   OrderItems[]
+  customers     customers?   @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("orders")
+}
+
+model OrderItems {
+  id                 Int                  @id @default(autoincrement())
+  order_id           Int?
+  item_id            Int?
+  sku                BigInt?
+  description        String?
+  quantity           Int
+  order_item_history order_item_history[]
+  order              Orders?              @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("order_items")
+}
+
+model Items {
+  id             Int             @id @default(autoincrement())
+  image_path     String          @db.VarChar(255)
+  sku            BigInt?
+  description    String?
+  total_quantity Int?
+  item_locations ItemLocations[]
+
+  @@map("items")
+}
+
+model ItemLocations {
+  id                    Int                     @id @default(autoincrement())
+  item_id               Int?
+  location_id           Int?
+  quantity              Int?
+  location_number       Int?
+  item_location_history item_location_history[]
+  item                  Items?                  @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  locations             locations?              @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("item_locations")
+}
+
+model customers {
+  id     Int      @id @default(autoincrement())
+  name   String?
+  email  String?
+  phone  String?
+  orders Orders[]
+}
+
+model item_location_history {
+  id               Int            @id @default(autoincrement())
+  item_location_id Int?
+  old_quantity     Int?
+  new_quantity     Int?
+  changed_at       DateTime?      @default(now()) @db.Timestamp(6)
+  item_locations   ItemLocations? @relation(fields: [item_location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model locations {
+  id              Int             @id @default(autoincrement())
+  location_number Int?
+  location_name   String?
+  description     String?
+  item_locations  ItemLocations[]
+}
+
+model order_item_history {
+  id            Int         @id @default(autoincrement())
+  order_item_id Int?
+  old_quantity  Int?
+  new_quantity  Int?
+  changed_at    DateTime?   @default(now()) @db.Timestamp(6)
+  order_items   OrderItems? @relation(fields: [order_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model picked_orders_staged_for_packing {
+  id            Int      @id @default(autoincrement())
+  pick_list_id  Int
+  order_numbers Int[]
+  items         Json
+  created_at    DateTime @db.Timestamp(6)
+  status        String   @db.VarChar(50)
+}
+
+model users {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  password_hash String
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  permissions   String?
+}

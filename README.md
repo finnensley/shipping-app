@@ -1,6 +1,6 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, 
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken
 
 # Tables for testing, 
 # Using psql: psql -U finnensley -d postgres, CREATE DATABASE shipping_app; To connect to database: \c shipping_app
@@ -96,7 +96,16 @@ WHERE id = 1;  -->
 - The state has complex business logic
 - Multiple components modify the same state
 
+## For prisma setup: don't forget to import dotenv and add dotenv.config() to server.js
 
-## Terminal 1: npm run dev
-## Terminal 2: psql -U finnensley -d shipping_app
+## npx prisma generate:
+- Modify your schema.prisma file
+- Add/remove/change models or fields
+- Change relationships between models
+- Update the database and want to sync the schema
+- doesnt work unless do export DATABASE_URL="<insertURL>" npx prisma generate ?
+
+## Terminal 1: docker-compose up postgres and docker desktop open/running
+## Terminal 2: npm run dev
+<!-- ## Terminal 2: psql -U finnensley -d shipping_app -->
 ## Terminal 3: node server.js
