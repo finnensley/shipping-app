@@ -49,6 +49,7 @@ const PackingPage = () => {
       dispatch(setPickLists(data.picklists));
 
       // Initialize quantities from all items in all picklists
+        if (Object.keys(remainingQuantities).length === 0) {
       const initial = {};
       data.picklists.forEach((pickList) => {
         // pick_list_id, order_numbers, items.sku, items.quantity, items.description
@@ -58,6 +59,7 @@ const PackingPage = () => {
       });
       dispatch(setRemainingQuantities(initial));
     }
+  }
   }, [data, dispatch]);
 
   // Initialize when manual order is selected
@@ -65,11 +67,15 @@ const PackingPage = () => {
     if (selectedOrder && selectedOrder.items) {
       const initial = {};
       selectedOrder.items.forEach((item) => {
+         if (remainingQuantities[item.id] === undefined) {
         initial[item.id] = item.quantity;
-      });
-      dispatch(setRemainingQuantities(initial));
+    }});
+    if (Object.keys(initial).length > 0) {
+      dispatch(setRemainingQuantities({...remainingQuantities, ...initial}));
     }
-  }, [selectedOrder, dispatch]);
+    }
+  }, [selectedOrder?.order_number, dispatch]);
+
 
   //Redux action handlers
   const handlePickListSelect = (pickList) => {
@@ -313,8 +319,11 @@ const PackingPage = () => {
               </div>
               {/* Packing Screen */}
               <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
-                <div className="inline-block w-fit">
-                  <p>Package 1 of 1</p>
+                <div className="w-full">
+                  <div className="flex  items-center justify-center">
+                    <p>Package 1 of 1</p>
+                    <button className="text-xs ml-2">Add Package</button>
+                  </div>
                   <div className="m-2">
                     <label>Box Selection:</label>
                     <select
@@ -331,9 +340,6 @@ const PackingPage = () => {
                       <option value="12x12x12">12 Cube</option>
                       <option value="14x14x14">14 Cube</option>
                     </select>
-                    {/* <button className="ml-2" onClick={setSelectedPackage}>
-                      Save
-                    </button> */}
                   </div>
                   <div className="m-2">
                     <label>Weight: </label>
@@ -403,8 +409,8 @@ const PackingPage = () => {
                   ))}
                   <div className="flex flex-col items-end">
                     <select type="dropdown">
-                      <option>Print Invoice</option>
-                      <option>Print Label</option>
+                      <option>Print Invoices</option>
+                      <option>Print Labels</option>
                     </select>
                   </div>
                 </div>
