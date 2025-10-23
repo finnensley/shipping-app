@@ -58,7 +58,6 @@
 ## for carriers - maybe use free plugin, like easyship, to see if it works
 
 # Challenge:
-## Add localStorage - picking/packing pages
 ## Theme dark - remove background pic with black bkg, light - remove background pic and text-black bg-white, default - picture or change picture url like in dashboard
 ## Order numbers can be strings or numbers (table is set up as INT and .post validates for .isNumeric() )
 ## Question - did I need to set up CRUD for every table and column (maybe some didn't need to be included)

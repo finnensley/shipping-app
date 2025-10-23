@@ -24,28 +24,32 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
     setInputValue(event.target.value);
   };
 
-  const applyPriorityAndBatchType = (orders, selectedPriority, selectedBatch, quantity) => {
+  const applyPriorityAndBatchType = (
+    orders,
+    selectedPriority,
+    selectedBatch,
+    quantity
+  ) => {
     let filtered = [...orders];
-    if (selectedBatch === "single-item"){
-      filtered = filtered.filter(order => order.items && order.items.length === 1);
+    if (selectedBatch === "single-item") {
+      filtered = filtered.filter(
+        (order) => order.items && order.items.length === 1
+      );
     } else if (selectedBatch === "multi-item") {
-      filtered = filtered.filter(order => order.items && order.items.length > 1);
-    } else if (selectedBatch === "same-item") {
-      filtered = filtered.filter(order => {
-        if (!order.items || order.items.length === 0) return false;
-        const firstSku = order.items[0].sku;
-        return order.items.every(item => item.sku === firstSku);
-      });
+      filtered = filtered.filter(
+        (order) => order.items && order.items.length > 1
+      );
     }
+
     if (selectedPriority === "ship-by-date") {
-      filtered.sort((a, b) => new Date(a.ship_by_date) - new Date(b.ship_by_date));
+      filtered.sort(
+        (a, b) => new Date(a.ship_by_date) - new Date(b.ship_by_date)
+      );
     } else {
-      filtered.sort((a, b) => a.order_number - b.order_number)
+      filtered.sort((a, b) => a.order_number - b.order_number);
     }
     return filtered.slice(0, quantity);
-    }
-    
-  
+  };
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -99,7 +103,6 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           <option value="">Select Batch Type</option>
           <option value="single-item">Single-item</option>
           <option value="multi-item">Multi-item</option>
-          <option value="same-item">Same-item</option>
         </select>
       </div>
       <div className="flex items-center justify-center m-4">
