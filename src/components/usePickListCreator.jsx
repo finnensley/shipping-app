@@ -9,7 +9,7 @@ const usePickListCreator = (orders) => {
     const itemsList = ordersArg.flatMap((order) =>
       order.items.map((item) => ({ ...item, order_number: order.order_number }))
     );
-    console.log(itemsList); // []
+    console.log(`itemsList: ${itemsList}`); // []
 
     // groups by id and adds quantities of the same item.id together, Object.values converts object of grouped items into an array of values
     const groupedPickList = Object.values(
@@ -27,6 +27,8 @@ const usePickListCreator = (orders) => {
       }, {})
     );
     setPickList(groupedPickList); //snapshot that does not change
+
+    return groupedPickList;
   };
 
   return { pickList, createPickList };

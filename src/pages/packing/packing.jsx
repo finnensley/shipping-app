@@ -333,7 +333,7 @@ const PackingPage = () => {
                         dispatch(setSelectedPackage(e.target.value))
                       }
                     >
-                      <option value="">Choose a package</option>
+                      <option value="">Choose one or enter manually</option>
                       <option value="6x6x6">6 Cube</option>
                       <option value="8x8x8">8 Cube</option>
                       <option value="10x10x10">10 Cube</option>

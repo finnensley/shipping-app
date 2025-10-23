@@ -89,6 +89,13 @@ WHERE id = 1;  -->
 - All state updates go through dispatch(action())
 - All state reads come from useSelector()
 - Only use useState for purely local UI state (like form inputs, modals)
+- Clear separation: Redux = data, useState = UI
+
+## Move to Redux if:
+- Another component needs access to the state
+- You need state to persist navigation
+- The state has complex business logic
+- Multiple components modify the same state
 
 
 ## Terminal 1: npm run dev

@@ -20,6 +20,7 @@ export const packingSlice = createSlice({
     error: null,
   },
   reducers: {
+    // using set is for direct replacement
     setPickLists: (state, action) => {
       state.pickLists = action.payload;
     },
@@ -40,6 +41,7 @@ export const packingSlice = createSlice({
       state.remainingQuantities = action.payload;
     },
 
+    // uses more complicated business logic, like checks or multiple state updates
     packItem: (state, action) => {
       const { id, sku, description } = action.payload;
 

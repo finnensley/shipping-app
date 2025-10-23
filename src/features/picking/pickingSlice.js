@@ -4,9 +4,11 @@ export const pickingSlice = createSlice({
   name: "picking",
   initialState: {
     pickLists: [],
-    staged: [],
     orders: [],
     items: [],
+    lastGeneratedPickList: null,
+    lastPickListOrders: [],
+    lastPickListId: null,
   },
   reducers: {
     addPickList: (state, action) => {
@@ -18,9 +20,6 @@ export const pickingSlice = createSlice({
       );
       if (idx !== -1) state.pickLists[idx] = action.payload;
     },
-    setStaged: (state, action) => {
-      state.staged = action.payload;
-    },
     setOrders: (state, action) => {
       console.log("setOrders called with:", action.payload);
       state.orders = action.payload;
@@ -28,9 +27,26 @@ export const pickingSlice = createSlice({
     setItems: (state, action) => {
       state.items = action.payload;
     },
+    saveLastPickList: (state, action) => {
+      const { pickList, selectedOrders, pickListId } = action.payload;
+      state.lastGeneratedPickList = pickList;
+      state.lastPickListOrders = selectedOrders;
+      state.lastPickListId = pickListId;
+    },
+    clearLastPickList: (state, action) => {
+      state.lastGeneratedPickList = null;
+      state.lastPickListOrders = [];
+      state.lastPickListId = null;
+    },
   },
 });
 
-export const { addPickList, updatePickList, setStaged, setOrders, setItems } =
-  pickingSlice.actions;
+export const {
+  addPickList,
+  updatePickList,
+  setOrders,
+  setItems,
+  saveLastPickList,
+  clearLastPickList,
+} = pickingSlice.actions;
 export default pickingSlice.reducer;

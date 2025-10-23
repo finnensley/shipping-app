@@ -4,6 +4,8 @@ import {
   addPickList,
   setOrders,
   setItems,
+  saveLastPickList,
+  clearLastPickList,
 } from "../../features/picking/pickingSlice";
 import useFetchData from "@/components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
@@ -24,9 +26,20 @@ const PickingPage = () => {
   const { pickList, createPickList } = usePickListCreator(selectedOrders);
 
   const dispatch = useDispatch();
-  const staged = useSelector((state) => state.picking.staged) || [];
-  const stagedPickListIds = staged.map((order) => order.pickListId);
-  const [pickListId] = useState(() => getUniquePickListId(stagedPickListIds)); // argument that passes to the existingIds parameter
+  // Get pickListIds from pickLists, deleted staged
+  const pickLists = useSelector((state) => state.picking.pickLists) || [];
+  const { lastGeneratedPickList, lastPickListOrders, lastPickListId } =
+    useSelector((state) => state.picking);
+
+  // Generate pickListId dynamically - use saved ID if resuming
+  const [pickListId, setPickListId] = useState(() => {
+    if (lastPickListId) {
+      return lastPickListId; // Use saved Id if available
+    }
+    const stagedPickListIds = pickLists.map((order) => order.pickListId);
+    return getUniquePickListId(stagedPickListIds); // argument that passes to the existingIds parameter
+  });
+
   const [pickListGenerated, setPickListGenerated] = useState(false);
   const orders = useSelector((state) => state.picking.orders);
   const items = useSelector((state) => state.picking.items) || [];
@@ -53,12 +66,56 @@ const PickingPage = () => {
     }
   }, [data, dispatch]);
 
-  // console.log("selectedOrders before creating picklist:", selectedOrders);
   const handleCreatePickList = (ordersArray) => {
     //ordersArray is passed from OrderSelector's onCreatePickList
     setSelectedOrders(ordersArray); //updates local state
-    createPickList(ordersArray); //generates the pick list from the current selectedOrders, pass the array directly
+    const generatedPickList = createPickList(ordersArray);
     setPickListGenerated(true); // shows the pick list UI
+
+    // Add debugging here:
+    // console.log('About to save:');
+    // console.log('generatedPickList:', generatedPickList);
+    // console.log('ordersArray:', ordersArray);
+    // console.log('pickListId:', pickListId);
+
+    // Save the pick list for potential resume
+    dispatch(
+      saveLastPickList({
+        pickList: generatedPickList,
+        selectedOrders: ordersArray,
+        pickListId: pickListId, // Use current ID
+      })
+    );
+  };
+
+  // Handle resuming the last pick list
+  const handleResumeLastPickList = () => {
+    if (lastGeneratedPickList && lastPickListOrders && lastPickListId) {
+      setSelectedOrders(lastPickListOrders);
+      setPickListId(lastPickListId); // Set the saved ID
+      // The pickList will be recreated by usePickListCreator hook
+      setPickListGenerated(true);
+    }
+  };
+
+  // Handle start fresh
+  const handleStartFresh = () => {
+    dispatch(clearLastPickList());
+    setSelectedOrders([]);
+    setPickListGenerated(false);
+  
+
+  // Generate new ID for fresh start
+  const stagedPickListIds = pickLists.map((order) => order.pickListId);
+  const newPickListId = getUniquePickListId(stagedPickListIds);
+  setPickListId(newPickListId);
+  };
+
+  // Modified back button
+  const handleBack = () => {
+    setPickListGenerated(false);
+    setSelectedOrders([]);
+    // Don't clear the last pick list when going back
   };
 
   // Handle manual location input
@@ -150,10 +207,15 @@ const PickingPage = () => {
 
       alert("Pick list transferred and inventory updated!");
 
-      // Add to alert an undo option that reloads the pickList saved as it was before transfer.
-
+      // Clear the saved pick lst after successful transfer
+      dispatch(clearLastPickList());
       setPickListGenerated(false);
       setSelectedOrders([]);
+
+      // Generate new ID for next pick list
+      const stagedPickListIds = [...pickLists.map((order) => order.pickListId), pickListId];
+      const newPickListId = getUniquePickListId(stagedPickListIds);
+      setPickListId(newPickListId);
     } catch (err) {
       console.error("Transfer error:", err);
       alert("Transfer failed. See console for details.");
@@ -167,11 +229,41 @@ const PickingPage = () => {
     <div className="m-5">
       <div className="flex items-center justify-center">
         {!pickListGenerated && (
-          <OrderSelector
-            orders={orders}
-            onSelect={setSelectedOrders}
-            onCreatePickList={handleCreatePickList}
-          />
+          <>
+            {/* Show resume option if there is a last generated pick list */}
+            {lastGeneratedPickList ? (
+              <div className="mb-4 p-3 bg-gray-500 border rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-white text-lg">
+                      📋 Pick List #{lastPickListId} with{" "}
+                      {lastPickListOrders.length} orders exists:
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleResumeLastPickList}
+                      className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Resume Pick List
+                    </button>
+                    <button
+                      onClick={handleStartFresh}
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    >
+                      Start New
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <OrderSelector
+                orders={orders}
+                onSelect={setSelectedOrders}
+                onCreatePickList={handleCreatePickList}
+              />
+            )}
+          </>
         )}
       </div>
       {/* Add picture that can be touched or selected */}
@@ -181,10 +273,10 @@ const PickingPage = () => {
         <>
           <button
             className="text-xl mb-4"
-            onClick={() => {
-              setPickListGenerated(false);
-              setSelectedOrders([]);
-            }}
+            onClick={handleBack}
+
+            // setPickListGenerated(false);
+            // setSelectedOrders([]);
           >
             Back
           </button>
