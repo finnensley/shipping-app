@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import NavBar from "../components/navBar";
 
 const Header = () => {
   // the name of the page should display = Dashboard, Picking, Inventory, Orders, Packing etc.
@@ -27,16 +28,19 @@ const Header = () => {
 
   return (
     <>
-      <div className="flex justify-end text-sm">
-        <button
-          type="button"
-          onClick={() => dispatch(setSignOut(true))}
-          className="m-2 text-white"
-        >
-          Sign Out
-        </button>
+      <div >
+        <div className="flex justify-end text-sm">
+          <button
+            type="button"
+            onClick={() => dispatch(setSignOut(true))}
+            className="m-2 text-white"
+          >
+            Sign Out
+          </button>
+        </div>
+        <div>{pageName}</div>
+        {/* <NavBar /> */}
       </div>
-      <div>{pageName}</div>
     </>
   );
 };

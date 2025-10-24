@@ -19,6 +19,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+:root {
+  @apply w-full bg-[url('assets/pexels-david-bartus-43782-2290438.jpg')] bg-cover bg-bottom bg-no-repeat
+}
 
 a {
   font-weight: 500;
@@ -48,13 +51,17 @@ h1 {
 }
 
 button {
+  @apply bg-gray-700 text-white border-white rounded-lg px-2 py-1;
+}
+
+button {
   border-radius: 10px;
   border: 1px solid white;
   padding: 0.1em 0.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  /* background-color: #1a1a1a; */
   cursor: pointer;
   transition: border-color 0.25s;
 }

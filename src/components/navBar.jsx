@@ -5,7 +5,7 @@ const NavBar = () => {
   return (
     <>
       <div className="flex items-center justify-center">
-        <nav className="inline-block bg-[rgba(0,0,0,0.38)] m-4 text-xl font-bold rounded-lg">
+        <nav className="mt-2 text-xl font-bold">
           <Link to="/dashboard">Dashboard</Link> |{" "}
           <Link to="/inventory">Inventory</Link> |{" "}
           <Link to="/orders">Orders</Link> | <Link to="/picking">Picking</Link>{" "}
