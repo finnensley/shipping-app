@@ -1,17 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-export const dashboardSlice = createSlice({
-  name: "dashboard",
+export const authSlice = createSlice({
+  name: "auth",
   initialState: {
     isAuthenticated: false,
   },
   reducers: {
     setAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload; //payload should be true/false
+    },
   },
-}
 });
 
-export const { setAuthenticated } = dashboardSlice.actions;
+export const { setAuthenticated } = authSlice.actions;
 
-export default dashboardSlice.reducer;
+export default authSlice.reducer;
