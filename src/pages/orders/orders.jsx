@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
+import NavBar from "../../components/navBar";
 import useFetchData from "../../components/useFetchData";
 import useUpdateOrderData from "../../components/useUpdateOrderData";
 import axios from "axios";
+import { Link, Outlet } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams } from "react-router-dom";
 
 const OrdersPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
@@ -11,6 +15,7 @@ const OrdersPage = () => {
   const dispatch = useDispatch();
   const { updateData } = useUpdateOrderData();
   const [quantities, setQuantities] = useState({});
+  const { orderNumber } = useParams();
 
   useEffect(() => {
     if (orders) {
@@ -42,80 +47,122 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center m-4 font-medium text-shadow-lg">
-      {/* <h1>Orders</h1>*/}
-      <div> 
-        <ul>
-          {orders.map((order) => (
-            <li
-              key={order.order_number}
-              className="border-y rounded-lg m-4 p-2 flex bg-[rgba(0,0,0,0.38)] text-white w-fit text-xl text-shadow-lg items-center"
+    <div className="min-h-screen">
+      {/* <div className="w-2/3 p-6"> */}
+      <NavBar />
+      <div
+        className={`flex ${!orderNumber ? "justify-center items-center" : ""}`}
+      >
+        {/* Animate orders list width */}
+        {/* Orders list/main content */}
+        <motion.div
+          className={`p-6 ${!orderNumber ? "mx-auto" : ""}`}
+          initial={false}
+          animate={{ width: orderNumber ? "66.6667%" : "auto" }} // 2/3 = 66.6667%
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <div className="font-medium text-shadow-lg">
+            <ul>
+              {orders.map(
+                (order) => (
+                  console.log(orders),
+                  (
+                    <li
+                      key={order.order_number}
+                      className="border-y rounded-lg m-4 p-2 flex bg-[rgba(0,0,0,0.38)] text-white w-fit text-shadow-lg items-center"
+                    >
+                      <strong>Order # {order.order_number} |</strong>
+                      <ul>
+                        {order.items.map((item) => (
+                          // local state for each input
+
+                          <li key={item.id} className="ml-2 font-semibold">
+                            Sku: {item.sku} | Item: {item.description} | Total:
+                            ${order.total} | Shipping: ${order.shipping_paid} |
+                            Quantity:
+                            <input
+                              type="number"
+                              className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
+                              value={quantities[item.id] ?? item.quantity}
+                              min={0}
+                              onChange={(e) => {
+                                setQuantities((q) => ({
+                                  ...q,
+                                  [item.id]: Number(e.target.value),
+                                }));
+                              }}
+                            />
+                            <button
+                              className="ml-2"
+                              onClick={async () => {
+                                //Update Redux for instant UI feedback
+                                dispatch(
+                                  updateItemQuantity({
+                                    orderId: order.order_id || order.id,
+                                    itemId: item.id,
+                                    delta:
+                                      (quantities[item.id] ?? item.quantity) -
+                                      item.quantity,
+                                  })
+                                );
+                                // Update backend
+
+                                await updateData(
+                                  item.id,
+                                  order.order_id || order.id,
+                                  item.item_id,
+                                  quantities[item.id] ?? item.quantity
+                                );
+                                //Re-fetch to sync UI
+                                await fetchOrders();
+                              }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="ml-2"
+                              onClick={() => {
+                                axios
+                                  .post(
+                                    `http://localhost:3000/order_items/${item.id}/undo`
+                                  )
+                                  // .then(() => window.location.reload());
+                                  .then(fetchOrders);
+                              }}
+                            >
+                              Undo
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link
+                        to={`/orders/${order.order_number}`}
+                        className="ml-2 text-blue-400 underline"
+                      >
+                        View Details
+                      </Link>
+                    </li>
+                  )
+                )
+              )}
+            </ul>
+          </div>
+        </motion.div>
+        {/* Animated sidebar for order details, below NavBar and even with orders list */}
+        <AnimatePresence>
+          {orderNumber && (
+            <motion.div
+              initial={{ x: "100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "100%", opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="w-1/3 p-6 border-l bg-[rgba(0,0,0,0.15)] h-full"
+              style={{ position: "relative" }}
             >
-              <strong>Order # {order.order_number} |</strong>
-              <ul>
-                {order.items.map((item) => (
-                  // local state for each input
-
-                  <li key={item.id} className="ml-2 font-semibold">
-                    Sku: {item.sku} | Item: {item.description} | Total: ${order.total} | Shipping: ${order.shipping_paid} | Quantity:
-                    <input
-                      type="number"
-                      className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
-                      value={quantities[item.id] ?? item.quantity}
-                      min={0}
-                      onChange={(e) => {
-                        setQuantities((q) => ({
-                          ...q,
-                          [item.id]: Number(e.target.value),
-                        }));
-                      }}
-                    />
-                    <button
-                      className="ml-2"
-                      onClick={async () => {
-                        //Update Redux for instant UI feedback
-                        dispatch(
-                          updateItemQuantity({
-                            orderId: order.order_id || order.id,
-                            itemId: item.id,
-                            delta:
-                              (quantities[item.id] ?? item.quantity) -
-                              item.quantity,
-                          })
-                        );
-                        // Update backend
-
-                        await updateData(
-                          item.id,
-                          order.order_id || order.id,
-                          item.item_id,
-                          quantities[item.id] ?? item.quantity
-                        );
-                        //Re-fetch to sync UI
-                        await fetchOrders();
-                      }}
-                    >
-                      Save
-                    </button>
-                    <button
-                      className="ml-2"
-                      onClick={() => {
-                        axios
-                          .post(
-                            `http://localhost:3000/order_items/${item.id}/undo`
-                          )
-                          // .then(() => window.location.reload());
-                          .then(fetchOrders);
-                      }}
-                    >
-                      Undo
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+              <Outlet />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

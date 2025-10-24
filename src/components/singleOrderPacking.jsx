@@ -19,7 +19,7 @@ const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
   return (
     <>
       <div className="flex flex-col items-center justify-center m-4 font-medium">
-        <div className="m-4 text-xl">
+        <div className="m-4">
           <label
             htmlFor="singleOrderPacking"
             className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]"

@@ -12,6 +12,7 @@ import {
   setPackageDimensions,
   resetPackingState,
 } from "../../features/packing/packingSlice";
+import NavBar from "../../components/navBar";
 import useFetchData from "../../components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import SingleOrderPacking from "../../components/singleOrderPacking";
@@ -49,17 +50,17 @@ const PackingPage = () => {
       dispatch(setPickLists(data.picklists));
 
       // Initialize quantities from all items in all picklists
-        if (Object.keys(remainingQuantities).length === 0) {
-      const initial = {};
-      data.picklists.forEach((pickList) => {
-        // pick_list_id, order_numbers, items.sku, items.quantity, items.description
-        pickList.items?.forEach((item) => {
-          initial[item.id] = item.quantity;
+      if (Object.keys(remainingQuantities).length === 0) {
+        const initial = {};
+        data.picklists.forEach((pickList) => {
+          // pick_list_id, order_numbers, items.sku, items.quantity, items.description
+          pickList.items?.forEach((item) => {
+            initial[item.id] = item.quantity;
+          });
         });
-      });
-      dispatch(setRemainingQuantities(initial));
+        dispatch(setRemainingQuantities(initial));
+      }
     }
-  }
   }, [data, dispatch]);
 
   // Initialize when manual order is selected
@@ -67,15 +68,17 @@ const PackingPage = () => {
     if (selectedOrder && selectedOrder.items) {
       const initial = {};
       selectedOrder.items.forEach((item) => {
-         if (remainingQuantities[item.id] === undefined) {
-        initial[item.id] = item.quantity;
-    }});
-    if (Object.keys(initial).length > 0) {
-      dispatch(setRemainingQuantities({...remainingQuantities, ...initial}));
-    }
+        if (remainingQuantities[item.id] === undefined) {
+          initial[item.id] = item.quantity;
+        }
+      });
+      if (Object.keys(initial).length > 0) {
+        dispatch(
+          setRemainingQuantities({ ...remainingQuantities, ...initial })
+        );
+      }
     }
   }, [selectedOrder?.order_number, dispatch]);
-
 
   //Redux action handlers
   const handlePickListSelect = (pickList) => {
@@ -116,9 +119,10 @@ const PackingPage = () => {
 
   return (
     <div>
+      <NavBar />
       {/* Header - only show when not in pick list selector */}
       {!showPickListSelector && !selectedOrder && (
-        <div className="flex items-center text-xl mt-4 justify-center">
+        <div className="flex items-center mt-4 justify-center">
           <p className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]">
             Select Pick List To Pack
           </p>

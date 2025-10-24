@@ -1,6 +1,6 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256)
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion
 
 # Tables for testing, 
 # Using psql: psql -U finnensley -d postgres, CREATE DATABASE shipping_app; To connect to database: \c shipping_app

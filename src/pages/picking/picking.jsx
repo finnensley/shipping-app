@@ -7,6 +7,7 @@ import {
   saveLastPickList,
   clearLastPickList,
 } from "../../features/picking/pickingSlice";
+import NavBar from "../../components/navBar";
 import useFetchData from "@/components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import axios from "axios";
@@ -103,12 +104,11 @@ const PickingPage = () => {
     dispatch(clearLastPickList());
     setSelectedOrders([]);
     setPickListGenerated(false);
-  
 
-  // Generate new ID for fresh start
-  const stagedPickListIds = pickLists.map((order) => order.pickListId);
-  const newPickListId = getUniquePickListId(stagedPickListIds);
-  setPickListId(newPickListId);
+    // Generate new ID for fresh start
+    const stagedPickListIds = pickLists.map((order) => order.pickListId);
+    const newPickListId = getUniquePickListId(stagedPickListIds);
+    setPickListId(newPickListId);
   };
 
   // Modified back button
@@ -213,7 +213,10 @@ const PickingPage = () => {
       setSelectedOrders([]);
 
       // Generate new ID for next pick list
-      const stagedPickListIds = [...pickLists.map((order) => order.pickListId), pickListId];
+      const stagedPickListIds = [
+        ...pickLists.map((order) => order.pickListId),
+        pickListId,
+      ];
       const newPickListId = getUniquePickListId(stagedPickListIds);
       setPickListId(newPickListId);
     } catch (err) {
@@ -226,135 +229,138 @@ const PickingPage = () => {
   if (error) return <div>Error loading picklist.</div>;
 
   return (
-    <div className="m-5">
-      <div className="flex items-center justify-center">
-        {!pickListGenerated && (
-          <>
-            {/* Show resume option if there is a last generated pick list */}
-            {lastGeneratedPickList ? (
-              <div className="mb-4 p-3 bg-gray-500 border rounded-lg">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-white text-lg">
-                      📋 Pick List #{lastPickListId} with{" "}
-                      {lastPickListOrders.length} orders exists:
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleResumeLastPickList}
-                      className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Resume Pick List
-                    </button>
-                    <button
-                      onClick={handleStartFresh}
-                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                    >
-                      Start New
-                    </button>
+    <div>
+      <NavBar />
+      <div className="m-5">
+        <div className="flex items-center justify-center">
+          {!pickListGenerated && (
+            <>
+              {/* Show resume option if there is a last generated pick list */}
+              {lastGeneratedPickList ? (
+                <div className="mb-4 p-3 bg-gray-500 border rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-white text-lg">
+                        📋 Pick List #{lastPickListId} with{" "}
+                        {lastPickListOrders.length} orders exists:
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleResumeLastPickList}
+                        className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      >
+                        Resume Pick List
+                      </button>
+                      <button
+                        onClick={handleStartFresh}
+                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                      >
+                        Start New
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <OrderSelector
+                  orders={orders}
+                  onSelect={setSelectedOrders}
+                  onCreatePickList={handleCreatePickList}
+                />
+              )}
+            </>
+          )}
+        </div>
+        {/* Add picture that can be touched or selected */}
+
+        {/* Picklist UI */}
+        {pickListGenerated && pickList.length > 0 && items.length > 0 && (
+          <>
+            <button
+              className="text-xl mb-4"
+              onClick={handleBack}
+
+              // setPickListGenerated(false);
+              // setSelectedOrders([]);
+            >
+              Back
+            </button>
+            <ul>
+              {pickList.map((item) => {
+                // Find the matching inventory item by SKU
+                const inventoryItem = items.find((inv) => inv.sku === item.sku);
+
+                // Filter locations with enough quantity
+                const eligibleLocations = inventoryItem
+                  ? inventoryItem.locations.filter(
+                      (loc) => loc.quantity >= item.quantity
+                    )
+                  : [];
+
+                // Choose location logic
+                let chosenLocation = null;
+                if (locationOverrides[item.sku]) {
+                  chosenLocation = {
+                    location_number: locationOverrides[item.sku],
+                  };
+                } else if (eligibleLocations.length === 1) {
+                  chosenLocation = eligibleLocations[0];
+                } else if (eligibleLocations.length > 1) {
+                  // Sort by quantity ascending, then by location number ascending
+                  eligibleLocations.sort((a, b) =>
+                    a.quantity !== b.quantity
+                      ? a.quantity - b.quantity
+                      : a.location_number - b.location_number
+                  );
+                  chosenLocation = eligibleLocations[0];
+                }
+
+                return (
+                  <div className="place-content-center" key={item.id}>
+                    <li className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center">
+                      <ItemPicture
+                        sku={item.sku}
+                        description={item.description}
+                        image_path={item.image_path}
+                      />
+                      Order #: {item.order_numbers.join(", ")} | Location:{" "}
+                      {chosenLocation
+                        ? chosenLocation.location_number || "N/A"
+                        : "N/A"}{" "}
+                      | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
+                      {item.quantity} |{" "}
+                      <label
+                        htmlFor={`locationTransfer-${item.sku}`}
+                        className="ml-2"
+                      >
+                        Picked From Location:{" "}
+                      </label>
+                      <input
+                        id={`locationTransfer-${item.sku}`}
+                        type="text"
+                        placeholder={chosenLocation.location_number}
+                        className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
+                        value={locationOverrides[item.sku] || ""}
+                        onChange={(e) =>
+                          handleLocationChange(item.sku, e.target.value)
+                        }
+                      />
+                    </li>
+                  </div>
+                );
+              })}
+            </ul>
+            <button className="text-xl mb-4" onClick={handlePickListTransfer}>
+              Transfer
+            </button>
+            <div className="flex justify-end">
+              <div className="inline-block text-xl bg-[rgba(0,0,0,0.38)] rounded-lg px-1">
+                Pick List #: {pickListId}{" "}
               </div>
-            ) : (
-              <OrderSelector
-                orders={orders}
-                onSelect={setSelectedOrders}
-                onCreatePickList={handleCreatePickList}
-              />
-            )}
+            </div>
           </>
         )}
       </div>
-      {/* Add picture that can be touched or selected */}
-
-      {/* Picklist UI */}
-      {pickListGenerated && pickList.length > 0 && items.length > 0 && (
-        <>
-          <button
-            className="text-xl mb-4"
-            onClick={handleBack}
-
-            // setPickListGenerated(false);
-            // setSelectedOrders([]);
-          >
-            Back
-          </button>
-          <ul>
-            {pickList.map((item) => {
-              // Find the matching inventory item by SKU
-              const inventoryItem = items.find((inv) => inv.sku === item.sku);
-
-              // Filter locations with enough quantity
-              const eligibleLocations = inventoryItem
-                ? inventoryItem.locations.filter(
-                    (loc) => loc.quantity >= item.quantity
-                  )
-                : [];
-
-              // Choose location logic
-              let chosenLocation = null;
-              if (locationOverrides[item.sku]) {
-                chosenLocation = {
-                  location_number: locationOverrides[item.sku],
-                };
-              } else if (eligibleLocations.length === 1) {
-                chosenLocation = eligibleLocations[0];
-              } else if (eligibleLocations.length > 1) {
-                // Sort by quantity ascending, then by location number ascending
-                eligibleLocations.sort((a, b) =>
-                  a.quantity !== b.quantity
-                    ? a.quantity - b.quantity
-                    : a.location_number - b.location_number
-                );
-                chosenLocation = eligibleLocations[0];
-              }
-
-              return (
-                <div className="place-content-center" key={item.id}>
-                  <li className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center">
-                    <ItemPicture
-                      sku={item.sku}
-                      description={item.description}
-                      image_path={item.image_path}
-                    />
-                    Order #: {item.order_numbers.join(", ")} | Location:{" "}
-                    {chosenLocation
-                      ? chosenLocation.location_number || "N/A"
-                      : "N/A"}{" "}
-                    | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-                    {item.quantity} |{" "}
-                    <label
-                      htmlFor={`locationTransfer-${item.sku}`}
-                      className="ml-2"
-                    >
-                      Picked From Location:{" "}
-                    </label>
-                    <input
-                      id={`locationTransfer-${item.sku}`}
-                      type="text"
-                      placeholder={chosenLocation.location_number}
-                      className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
-                      value={locationOverrides[item.sku] || ""}
-                      onChange={(e) =>
-                        handleLocationChange(item.sku, e.target.value)
-                      }
-                    />
-                  </li>
-                </div>
-              );
-            })}
-          </ul>
-          <button className="text-xl mb-4" onClick={handlePickListTransfer}>
-            Transfer
-          </button>
-          <div className="flex justify-end">
-            <div className="inline-block text-xl bg-[rgba(0,0,0,0.38)] rounded-lg px-1">
-              Pick List #: {pickListId}{" "}
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 };

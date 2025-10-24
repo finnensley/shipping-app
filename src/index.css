@@ -1,5 +1,8 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* this :root is adjusting the bkgr behind the app itself */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -8,7 +11,8 @@
   color-scheme: light dark;
   /* color: rgba(255, 255, 255, 0.87); */
   color: white;
-  background-color: #242424;
+  /* background-color: #242424; */
+  /* background-color: rgba(13, 110, 8, 0.38), */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -46,7 +50,7 @@ h1 {
 button {
   border-radius: 10px;
   border: 1px solid white;
-  padding: 0.1em .2em;
+  padding: 0.1em 0.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -62,7 +66,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -72,5 +76,5 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
-  }
-}
+  } 
+}*/

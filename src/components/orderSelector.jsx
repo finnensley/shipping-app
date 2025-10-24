@@ -71,7 +71,6 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
         />
         <button
           className="m-2"
-          // onClick={() => onCreatePickList(sortedOrders.slice(0, quantity))}
           onClick={() => {
             const filteredOrders = applyPriorityAndBatchType(
               orders,
@@ -121,7 +120,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           placeholder="enter order #"
         ></input>
         <button
-          className="ml-4 px-4 py-2 rounded justify-center items-center"
+          className="m-2"
           onClick={() => {
             const orderToPick = orders.find(
               (order) => order.order_number === Number(inputValue)

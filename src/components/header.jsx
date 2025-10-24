@@ -9,15 +9,33 @@ const Header = () => {
     .split("/")
     .filter((segment) => segment != ""); // location.pathname gives the current path, split breaks path into segments, filter removes any space or empty strings
 
-  const pageName =
-    pathNames.length > 0
-      ? pathNames[pathNames.length - 1][0].toUpperCase() +
-        pathNames[pathNames.length - 1].slice(1) // slice(1), takes rest of slice starting at 1
-      : "Dashboard"; // gives the pageNames from the end of the path
-  console.log(pathNames, pageName);
+  let pageName = "";
+  if (pathNames.length > 0) {
+    if (pathNames[0].toLowerCase() === "orders") {
+      pageName = "Orders";
+    } else {
+      pageName =
+        pathNames[pathNames.length - 1][0].toUpperCase() +
+        pathNames[pathNames.length - 1].slice(1); // slice(1), takes rest of slice starting at 1
+    }
+  }
+
+  // gives the pageNames from the end of the path
+  // console.log(pathNames, pageName);
+
+  const handleSignOut = () => {}; // or could use state for setSignOut
 
   return (
     <>
+      <div className="flex justify-end text-sm">
+        <button
+          type="button"
+          onClick={() => dispatch(setSignOut(true))}
+          className="m-2 text-white"
+        >
+          Sign Out
+        </button>
+      </div>
       <div>{pageName}</div>
     </>
   );

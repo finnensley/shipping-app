@@ -1,19 +1,21 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: {
-    proxy: {
-      "/picked_orders_staged_for_packing": "http://localhost:3000",
-      "/inventory/transfer": "http://localhost:3000",
-      "/items": "http://localhost:3000",
+  plugins: [react()],
+
+  // server: {
+  //   proxy: {
+  //     "/picked_orders_staged_for_packing": "http://localhost:3000",
+  //     "/inventory/transfer": "http://localhost:3000",
+  //     "/items": "http://localhost:3000",
+  //   },
+  // },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-  resolve: {alias: {
-      '@': path.resolve(__dirname, './src'),
-    },}
 });
