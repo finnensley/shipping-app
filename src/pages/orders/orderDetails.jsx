@@ -23,7 +23,7 @@ const OrderDetailsPage = () => {
 
   return (
     <div>
-      <div className="flex flex-col items-center justify-center m-5">
+      <div className="flex flex-col items-center justify-center">
         <h2>Order Details for #{order.order_number}</h2>
         <p>Customer: {order.customer_name}</p>
         <p>Email: {order.customer_email}</p>

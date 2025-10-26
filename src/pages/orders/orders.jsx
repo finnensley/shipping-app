@@ -69,8 +69,14 @@ const OrdersPage = () => {
                   (
                     <li
                       key={order.order_number}
-                      className="border-y rounded-lg m-4 p-2 flex bg-[rgba(0,0,0,0.38)] text-white w-fit text-shadow-lg items-center"
+                      className="border-y rounded-lg m-4 p-2 flex  text-white w-fit text-shadow-lg items-center"
                     >
+                      <Link
+                        to={`/orders/${order.order_number}`}
+                        className="mr-2 text-blue-400 underline"
+                      >
+                        View Details
+                      </Link>
                       <strong>Order # {order.order_number} |</strong>
                       <ul>
                         {order.items.map((item) => (
@@ -135,12 +141,6 @@ const OrdersPage = () => {
                           </li>
                         ))}
                       </ul>
-                      <Link
-                        to={`/orders/${order.order_number}`}
-                        className="ml-2 text-blue-400 underline"
-                      >
-                        View Details
-                      </Link>
                     </li>
                   )
                 )
@@ -156,7 +156,7 @@ const OrdersPage = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="w-1/3 p-6 border-l bg-[rgba(0,0,0,0.15)] h-full"
+              className="w-1/3 p-6 border-l bg-[rgba(0,0,0,0.15)] h-full mt-10"
               style={{ position: "relative" }}
             >
               <Outlet />

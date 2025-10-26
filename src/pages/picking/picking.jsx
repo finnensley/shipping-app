@@ -227,7 +227,9 @@ const PickingPage = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading picklist.</div>;
-
+console.log('pickListGenerated:', pickListGenerated);
+console.log('pickList:', pickList);
+console.log('items:', items);
   return (
     <div>
       <NavBar />

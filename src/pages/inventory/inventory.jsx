@@ -48,7 +48,7 @@ const InventoryPage = () => {
             {inventory.map((item) => (
               <li
                 key={item.id}
-                className="flex border-y rounded-lg m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white w-fit text-shadow-lg font-semibold items-center"
+                className="flex border-y rounded-lg m-4 p-1  text-white w-fit text-shadow-lg font-semibold items-center"
               >
                 SKU: {item.sku} | Item: {item.description} | Total OH:{" "}
                 {item.total_quantity} |
