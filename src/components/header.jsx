@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setAuthenticated } from "../features/auth/authSlice";
+import Navbar from "../components/navBar"
 
 const Header = () => {
   // initializes dispatch
@@ -29,6 +30,7 @@ const Header = () => {
   // console.log(pathNames, pageName);
 
   const handleSignOut = () => {
+    localStorage.removeItem("token");
     dispatch(setAuthenticated(false));
     navigate("/");
   };
@@ -50,7 +52,8 @@ const Header = () => {
             </button>
           )}
         </div>
-        <div>{pageName}</div>
+        <div className="pt-10 pb-3">{pageName}</div>
+        <Navbar />
       </div>
     </>
   );

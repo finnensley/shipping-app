@@ -5,7 +5,6 @@ import NavBar from "../../components/navBar";
 const DashboardPage = () => {
   return (
     <div>
-      <NavBar />
       <div className="flex flex-col ml-2 mr-2 mt-4 p-4 border rounded-lg border-y  text-white text-lg text-shadow-lg font-semibold items-center justify-center">
         <div>Daily Output, with week/month/year toggle: </div>
       </div>

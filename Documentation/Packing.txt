@@ -1,0 +1,142 @@
+Packing Logic Flow (Updated, 10/26/2025)
+
+1. Data Fetching:
+    - useFetchData("picked_orders_staged_for_packing") loads pick lists from the API.
+    - On data load, Redux is updated via dispatch(setPickLists(data.picklists)).
+    - Initial remaining quantities for items are set in Redux.
+
+2. Pick List Selection:
+    - User clicks "Select Pick List To Pack" to open the pick list selector.
+    - PickListSelector displays available pick lists.
+    - User selects a pick list, which updates selectedPickList in Redux.
+
+3. Order Selection:
+    - After a pick list is selected, user chooses an order from that pick list.
+    - selectedOrder is updated in Redux.
+
+4. Packing Items:
+    - For each item in the selected order, user can click "pack" to decrement remaining quantity and increment packed quantity.
+    - packedItems array in Redux tracks packed items and their quantities.
+    - User can "unpack" items to reverse packing.
+
+5. Package Selection & Dimensions:
+    - User selects a package type from a dropdown or enters dimensions manually.
+    - packageDimensions in Redux are updated accordingly.
+    - User enters package weight, length, width, and height.
+
+6. Address & Carrier Verification:
+    - User can view and edit shipping address and carrier details for the order.
+
+7. Printing:
+    - User can select to print invoices or labels from a dropdown.
+
+8. Reset & Navigation:
+    - User can reset packing state to start over or navigate back to pick list/order selection.
+
+---------------------------------------------------------
+
+React Local State (useState)
+- Most state is managed in Redux for packing.
+
+----------------------------------------------------------
+
+Redux Slice (Global State via Redux)
+
+1. pickLists:
+    - Stores all pick lists available for packing.
+
+2. selectedPickList:
+    - The currently selected pick list.
+
+3. selectedOrder:
+    - The currently selected order within the pick list.
+
+4. showPickListSelector:
+    - Controls visibility of the pick list selector UI.
+
+5. remainingQuantities:
+    - Tracks remaining quantities for each item to be packed.
+
+6. packedItems:
+    - Array of packed items and their packed quantities.
+
+7. selectedPackage:
+    - The currently selected package type.
+
+8. packageDimensions:
+    - Object storing length, width, height, and weight of the package.
+
+9. loading, error:
+    - Tracks loading and error states for packing operations.
+
+-----------------------------------------------------------
+
+Custom Hooks
+
+1. useFetchData:
+    - Fetches pick lists staged for packing from the API.
+
+------------------------------------------------------------
+
+Helper Functions
+
+1. handlePickListSelect:
+    - Sets the selected pick list in Redux.
+
+2. handleOrderSelect:
+    - Sets the selected order in Redux.
+
+3. handleGoBack:
+    - Navigates back to previous step (pick list or order selection).
+
+4. handleResetToStart:
+    - Resets all packing state to initial.
+
+5. handleEditAddress / handleEditCarrier:
+    - Allows editing of address and carrier info.
+
+6. packItem / unpackItem:
+    - Redux actions to pack or unpack items.
+
+7. setSelectedPackage / setPackageDimensions:
+    - Redux actions to select package and set dimensions.
+
+-------------------------------------------------------------
+
+Components
+
+1. PackingPage:
+    - Main page component for packing logic.
+    - Handles pick list selection, order selection, packing items, and package details.
+
+2. PickListSelector:
+    - UI for selecting a pick list to pack.
+
+3. SingleOrderPacking:
+    - UI for packing a single order (manual entry).
+
+4. ItemPicture:
+    - Displays image for each item.
+
+-------------------------------------------------------------
+
+Routing
+
+- `/packing`: Shows the packing page, pick list selection, order selection, and packing interface.
+
+-------------------------------------------------------------
+
+Error and Loading States
+
+- Displays loading indicator while fetching pick lists.
+- Displays error message if data fetch fails.
+
+-------------------------------------------------------------
+
+Summary
+
+- Pick lists staged for packing are fetched from the backend and stored in Redux.
+- User selects a pick list and order, then packs items by updating quantities.
+- Package selection and dimensions are managed in Redux.
+- Address and carrier info can be viewed and edited.
+- UI supports packing, unpacking, printing, and navigation between steps.

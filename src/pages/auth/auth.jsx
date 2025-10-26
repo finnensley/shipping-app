@@ -40,6 +40,7 @@ const AuthPage = () => {
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
         navigate("/dashboard");
+        localStorage.setItem("token", data.token);
       } else {
         dispatch(setAuthenticated(false));
         dispatch(setError(data.error || "Login failed"));
@@ -55,9 +56,13 @@ const AuthPage = () => {
     e.preventDefault();
     dispatch(setLoading(true));
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:3000/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           username: signUpUserName,
           email: signUpEmail,
@@ -69,6 +74,7 @@ const AuthPage = () => {
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
         navigate("/dashboard");
+        localStorage.setItem("token", data.token);
       } else {
         dispatch(setAuthenticated(false));
         dispatch(setError(data.error) || "Sign Up failed");

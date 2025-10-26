@@ -1,75 +1,105 @@
-Inventory Logic Flow
+Inventory Logic Flow (Updated, 10/26/2025)
 
 1. Data Fetching:
     - useFetchData("items") loads inventory data from the API.
-    - on data load, Redux is updated via dispatch(setInventory(data.items))
+    - When data loads, Redux is updated via dispatch(setInventory(data.items)).
 
 2. Inventory Sync:
-    - when Redux inventory changes, local quantities state is initialized or updated to match the inventory
+    - When Redux inventory changes, local quantities state is initialized or updated to match the inventory.
+    - useEffect keeps local quantities in sync with Redux inventory.
 
-3. Quantity Editing::
-    - user edits a quantity in an input field 
-    - onChange updates the corresponding value in the quantities state.
+3. Quantity Editing:
+    - User edits a quantity in an input field.
+    - onChange updates the corresponding value in the local quantities state (keyed by location ID).
 
 4. Saving Changes:
-    - user clicks Save:
-        * dispatch(updateItemQuantity({...})) updates Redux state with the delta
+    - User clicks Save:
+        * dispatch(updateItemQuantity({...})) updates Redux state for instant UI feedback.
         * updateData(...) updates the backend with the new quantity.
+        * Optionally, re-fetch inventory from the backend and update Redux to sync UI.
 
 5. Undo Changes:
-    - user clicks Undo:
-        * sends a request to the backend to revert the changes
-        * re-fetches inventory and updates Redux state
+    - User clicks Undo:
+        * Sends a POST request to the backend to revert the change for a specific location.
+        * Re-fetches inventory and updates Redux state.
 
 ---------------------------------------------------------
 
-UseState (React local state)
+React Local State (useState)
 
 1. quantities:
-    - stores the quantity for each location, keyed by location ID
-    - used to control the value of each input field for location quantities.
+    - Stores the quantity for each location, keyed by location ID.
+    - Controls the value of each input field for location quantities.
 
 ----------------------------------------------------------
 
-Redux Slice (Global state via Redux)
+Redux Slice (Global State)
 
-1. inventory:  
-    - gets the inventory array from the Redux store
+1. inventory:
+    - Gets the inventory array from the Redux store.
 
 2. dispatch:
-    - used to update Redux state    
-        * dispatch(setInventory(data.items)) - sets the inventory from API data
-        * dispatch(updateItemQuantity({...})) - updates the quantity for a specific item/location
+    - Used to update Redux state:
+        * dispatch(setInventory(data.items)) - sets the inventory from API data.
+        * dispatch(updateItemQuantity({...})) - updates the quantity for a specific item/location.
 
 -----------------------------------------------------------
 
-Custom hooks
+Custom Hooks
 
 1. useFetchData:
-    - fetches inventory data from the API, using "items"
+    - Fetches inventory data from the API using "items".
+    - Returns data, loading, and error states.
 
 2. useUpdateInventoryData:
-    - provides a function to update inventory data in the backend
+    - Provides a function to update inventory data in the backend.
 
 ------------------------------------------------------------
 
 Helper Functions
 
-1. useEffect (inventory sync)
-    - syncs local quantities state with Redux inventory whenever inventory changes
+1. useEffect (inventory sync):
+    - Syncs local quantities state with Redux inventory whenever inventory changes.
 
-2. useEffect (API data to Redux)
-    - updates redux inventory when new API data is loaded
+2. useEffect (API data to Redux):
+    - Updates Redux inventory when new API data is loaded.
+
+3. fetchInventory:
+    - Fetches the latest inventory from the backend and updates Redux.
 
 -------------------------------------------------------------
 
 Components
 
 1. InventoryPage:
-    - main page component for inventory management
+    - Main page component for inventory management.
+    - Renders a list of items and their locations.
+    - For each location, renders:
+        * An input field for quantity (controlled by quantities state).
+        * A Save button to update Redux and backend.
+        * An Undo button to revert changes.
 
-2. Input fields and buttons
-    - for each location, renders:
-        * an input field for quantity (controlled by quantities state)
-        * a Save button to update Redux and backend
-        * an Undo buton to revert changes
+2. NavBar:
+    - Navigation bar for the inventory page.
+
+-------------------------------------------------------------
+
+Routing
+
+- `/inventory`: Shows the inventory list and allows editing quantities.
+
+-------------------------------------------------------------
+
+Error and Loading States
+
+- Displays loading indicator while fetching data.
+- Displays error message if data fetch fails.
+
+-------------------------------------------------------------
+
+Summary
+
+- Inventory data is fetched from the backend and stored in Redux.
+- Local state (quantities) is synced with Redux inventory for input control.
+- Changes are saved to both Redux and backend, with UI re-synced after each update.
+- Undo functionality allows reverting changes for individual locations.

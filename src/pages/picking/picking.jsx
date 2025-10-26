@@ -60,7 +60,7 @@ const PickingPage = () => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
       axios.get("/items").then((res) => {
-        // console.log("Fetched inventory:", res.data);
+        console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));
       });
@@ -225,14 +225,14 @@ const PickingPage = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading picklist.</div>;
-console.log('pickListGenerated:', pickListGenerated);
-console.log('pickList:', pickList);
-console.log('items:', items);
+  if (loading) return <div>Loading inventory...</div>;
+
+  console.log("pickListGenerated:", pickListGenerated);
+  console.log("pickList:", pickList);
+  console.log("items:", items);
   return (
     <div>
-      <NavBar />
       <div className="m-5">
         <div className="flex items-center justify-center">
           {!pickListGenerated && (

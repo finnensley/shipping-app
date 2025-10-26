@@ -159,7 +159,7 @@ WHERE id = 1;  -->
 - npx prisma studio
 
 ## For daily development, should only need to have these three running: frontend, backend, and docker
-## Terminal 1: docker-compose up postgres, docker desktop open/running
+## Terminal 1: docker-compose up postgres, make sure docker desktop open/running
 
 ## Terminal 2: npm run dev
 
@@ -179,4 +179,4 @@ WHERE id = 1;  -->
 -3rd Terminal: node src/server.js
 - 4th or use -d in 3rd: docker-compose up
 
-## Solve permission issues: sudo chown -R finnensley:staff /Users/finnensley/Desktop/letPhil/React/shipping-app
+## Solve permission issues: sudo chown -R finnensley:staff /Users/finnensley/Desktop/letPhil/React/shipping-app - didn't work still had to export DATABASE_URL directly in terminal.

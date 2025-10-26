@@ -119,7 +119,6 @@ const PackingPage = () => {
 
   return (
     <div>
-      <NavBar />
       {/* Header - only show when not in pick list selector */}
       {!showPickListSelector && !selectedOrder && (
         <div className="flex items-center mt-4 justify-center">

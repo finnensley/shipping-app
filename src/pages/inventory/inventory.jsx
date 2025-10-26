@@ -41,7 +41,6 @@ const InventoryPage = () => {
 
   return (
     <div>
-      <NavBar />
       <div className="m-5">
         <div className="flex items-center justify-center">
           <ul>

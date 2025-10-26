@@ -1,0 +1,79 @@
+Authorization Logic Flow (Updated, 10/26/2025)
+
+1. State Management:
+    - Uses Redux Toolkit with an authSlice to manage authentication state.
+    - State includes: isAuthenticated (bool), loading (bool), error (string or null).
+
+2. Login Flow:
+    - User enters email and password in the login form.
+    - handleLogIn sends a POST request to /auth/login with { email, password }.
+    - On success:
+        * Redux: dispatch(setAuthenticated(true)), dispatch(setError(null)).
+        * Token is saved to localStorage: localStorage.setItem("token", data.token).
+        * User is redirected to /dashboard.
+    - On failure:
+        * Redux: dispatch(setAuthenticated(false)), dispatch(setError(data.error || "Login failed")).
+
+3. Signup Flow:
+    - User enters username, email, and password in the signup form.
+    - handleSignUp sends a POST request to /auth/signup with { username, email, password }.
+    - On success:
+        * Redux: dispatch(setAuthenticated(true)), dispatch(setError(null)).
+        * Token is saved to localStorage: localStorage.setItem("token", data.token).
+        * User is redirected to /dashboard.
+    - On failure:
+        * Redux: dispatch(setAuthenticated(false)), dispatch(setError(data.error || "Sign Up failed")).
+
+4. Persisting Authentication:
+    - On app load (App.jsx), useEffect checks localStorage for a token.
+    - If token exists, dispatch(setAuthenticated(true)) to keep user logged in after refresh.
+
+5. Logout Flow:
+    - handleSignOut removes token from localStorage and dispatches setAuthenticated(false).
+    - User is redirected to the login page (/).
+
+6. Error and Loading States:
+    - Redux tracks loading and error states for login/signup.
+    - UI displays loading indicators and error messages as needed.
+
+---------------------------------------------------------
+
+Redux Slice (authSlice)
+
+- isAuthenticated: true/false, determines if user is logged in.
+- loading: true/false, shows loading spinner during requests.
+- error: string/null, displays error messages.
+
+Actions:
+- setAuthenticated(payload): sets isAuthenticated.
+- setLoading(payload): sets loading.
+- setError(payload): sets error.
+
+---------------------------------------------------------
+
+Components
+
+1. AuthPage:
+    - Renders login and signup forms.
+    - Handles form state and dispatches authentication actions.
+    - Displays error messages from Redux.
+
+2. Header:
+    - Shows "Sign Out" button when authenticated.
+    - Calls handleSignOut to log out.
+
+---------------------------------------------------------
+
+API Endpoints
+
+- POST /auth/login: Authenticates user, returns { success, token }.
+- POST /auth/signup: Registers user, returns { success, token }.
+
+---------------------------------------------------------
+
+Summary
+
+- Authentication state is managed in Redux and persisted in localStorage.
+- Login and signup flows update Redux and localStorage, and redirect on success.
+- Logout clears authentication state and token.
+- UI reflects authentication, loading, and error states.
