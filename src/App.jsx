@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/header";
 import AuthPage from "./pages/auth/auth";
 import DashboardPage from "./pages/dashboard/dashboard";
@@ -15,12 +15,12 @@ import UsersPage from "./pages/users/users";
 import OrderDetailsPage from "./pages/orders/orderDetails";
 
 function App() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   return (
     <BrowserRouter>
       {/* bg-[url('assets/pexels-david-bartus-43782-2290438.jpg')], bg-black, bg-[rgba(0,0,0,0.38)] */}
       {/* <div className="font-bold border-x rounded-lg bg-green-500/20 bg-cover w-full bg-gradient-to-r from-black/90 via-black/60 to-transparent"> */}
-      <div
-        className="font-bold w-full min-h-screen bg-cover bg-gradient-to-r from-black/80 via-black/60 to-transparent shadow-2xl rounded-xl border border-white/30 bg-white/10">
+      <div className="font-bold w-full min-h-screen bg-cover bg-gradient-to-r from-black/80 via-black/60 to-transparent shadow-2xl rounded-xl border border-white/30 bg-white/10">
         <div className="flex flex-col justify-center font-medium rounded-lg  ">
           <h1 className="text-white ">
             <Header />
@@ -28,7 +28,10 @@ function App() {
         </div>
         <Routes>
           <Route path="/" element={<AuthPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <DashboardPage /> : <Navigate to="/" />}
+          />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/orders" element={<OrdersPage />}>
             <Route path=":orderNumber" element={<OrderDetailsPage />} />

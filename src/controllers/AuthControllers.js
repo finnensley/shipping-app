@@ -38,7 +38,7 @@ export const SignUp = async (req, res, next) => {
       data: {
         username,
         email,
-        password: hashedPassword,
+        password_hash: hashedPassword,
         permissions: "user", // default user permissions },
       },
     });

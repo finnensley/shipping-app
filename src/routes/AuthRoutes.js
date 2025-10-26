@@ -8,7 +8,7 @@ routes.get("/", (req, res) => {
 })
 
 // signup routes
-routes.post("/sign-up", SignUp);
+routes.post("/signup", SignUp);
 
 // login routes
 routes.post("/login", Login);
