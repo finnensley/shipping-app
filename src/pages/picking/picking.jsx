@@ -59,7 +59,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
-      axios.get("/items").then((res) => {
+      axios.get("http://localhost:3000/items").then((res) => {
         console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));
@@ -326,7 +326,7 @@ const PickingPage = () => {
                         image_path={item.image_path}
                       />
                       Order #: {item.order_numbers.join(", ")} | Location:{" "}
-                      {chosenLocation
+                      {chosenLocation && typeof chosenLocation === "object"
                         ? chosenLocation.location_number || "N/A"
                         : "N/A"}{" "}
                       | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
@@ -340,7 +340,12 @@ const PickingPage = () => {
                       <input
                         id={`locationTransfer-${item.sku}`}
                         type="text"
-                        placeholder={chosenLocation.location_number}
+                        // placeholder={chosenLocation.location_number}
+                        placeholder={
+                          chosenLocation && typeof chosenLocation === "object"
+                            ? chosenLocation.location_number || "N/A"
+                            : "N/A"
+                        }
                         className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
                         value={locationOverrides[item.sku] || ""}
                         onChange={(e) =>
