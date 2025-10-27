@@ -1,0 +1,99 @@
+Shipping App User Workflow (End-to-End)
+
+---------------------------------------------------------
+1. Sign In / Authorization
+
+- User lands on the login page.
+- Enters email and password to sign in, or creates a new account via signup.
+- On successful login/signup:
+    * Authentication state is set in Redux.
+    * JWT token is saved to localStorage for session persistence.
+    * User is redirected to the dashboard.
+- User remains authenticated across page refreshes.
+- Can sign out from any page, which clears the token and Redux state.
+
+---------------------------------------------------------
+2. Inventory Receiving & Put Away
+
+- User navigates to the Inventory page.
+- Receives new inventory shipments.
+    * Adds new items or updates quantities for existing items.
+    * Assigns items to specific warehouse locations.
+- Inventory data is fetched from the backend and displayed.
+- User edits quantities and locations via input fields.
+    * Changes are saved to Redux for instant UI feedback.
+    * Backend is updated to persist changes.
+    * Undo functionality allows reverting changes for individual locations.
+- Inventory is always kept in sync between frontend and backend.
+
+---------------------------------------------------------
+3. Order Management
+
+- User navigates to the Orders page.
+- Orders are fetched from the backend and displayed in a list.
+- User can view details for each order, including customer info and ordered items.
+- For each item in an order:
+    * User can edit quantities if needed.
+    * Save button updates Redux and backend.
+    * Undo button reverts changes.
+- Orders are kept in sync between frontend and backend.
+- Animated sidebar displays order details for selected orders.
+
+---------------------------------------------------------
+4. Picking Flow
+
+- User navigates to the Picking page.
+- Orders with items are loaded from the backend.
+- User selects orders to batch for picking using the OrderSelector.
+- When "Create Pick List" is clicked:
+    * Pick list is generated from selected orders.
+    * UI toggles to show the pick list view.
+- For each SKU in the pick list:
+    * System suggests pick location based on inventory logic.
+    * User can manually override pick location if needed.
+    * Picked quantities are tracked.
+- When ready, user clicks "Transfer":
+    * Inventory is deducted via API.
+    * Pick list is staged in backend and Redux.
+    * Inventory is refreshed and UI is reset.
+- User can resume last pick list or start fresh at any time.
+
+---------------------------------------------------------
+5. Packing
+
+- User navigates to the Packing page.
+- Pick lists staged for packing are loaded from the backend.
+- User selects a pick list and then an order within that pick list.
+- For each item in the order:
+    * User packs items, updating packed and remaining quantities.
+    * Can unpack items to reverse packing if needed.
+- User selects package type or enters dimensions manually.
+    * Package weight, length, width, and height are recorded.
+- Shipping address and carrier details are displayed and can be edited.
+- User can print invoices or shipping labels as needed.
+- Packing state can be reset or user can navigate back to pick list/order selection.
+
+---------------------------------------------------------
+6. Shipping & Tracking
+
+- After packing, user confirms shipment.
+- Shipping label is generated and printed.
+- Tracking number is recorded and associated with the order.
+- User can view shipment status and tracking info from the dashboard or orders page.
+- Shipping updates are synced with backend for customer visibility.
+
+---------------------------------------------------------
+Error Handling & State Sync
+
+- All pages display loading indicators while fetching data.
+- Errors are shown if data fetch or save fails.
+- Redux keeps UI state in sync with backend.
+- Undo functionality is available for inventory and order changes.
+
+---------------------------------------------------------
+Summary
+
+- The workflow covers: sign in, inventory receiving/put away, order management, picking, packing, and shipping/tracking.
+- State is managed in Redux and persisted in backend.
+- UI is responsive, animated, and supports undo/reset actions.
+- Authentication is persistent and secure.
