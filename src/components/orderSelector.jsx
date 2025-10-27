@@ -88,7 +88,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
         <select
           value={selectedPriority}
           onChange={(e) => setSelectedPriority(e.target.value)}
-          className="border-x rounded-lg bg-black"
+          className="border-x rounded-lg"
         >
           <option value="">Select Pick Priority</option>
           <option value="ship-by-date">Earliest Ship By Date</option>
@@ -97,7 +97,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
         <select
           value={selectedBatch}
           onChange={(e) => setSelectedBatch(e.target.value)}
-          className="border-x rounded-lg bg-black"
+          className="border-x rounded-lg"
         >
           <option value="">Select Batch Type</option>
           <option value="single-item">Single-item</option>

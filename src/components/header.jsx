@@ -53,7 +53,7 @@ const Header = () => {
           )}
         </div>
         <div className="pt-10 pb-3">{pageName}</div>
-        <Navbar />
+        {isAuthenticated && location.pathname !== "/" && <Navbar />}
       </div>
     </>
   );
