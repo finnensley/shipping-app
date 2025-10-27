@@ -41,7 +41,7 @@ const InventoryPage = () => {
 
   return (
     <div>
-      <div className="m-5">
+      <div className="flex flex-col items-center justify-center">
         <div className="flex items-center justify-center">
           <ul>
             {inventory.map((item) => (

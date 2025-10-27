@@ -122,7 +122,7 @@ const PackingPage = () => {
       {/* Header - only show when not in pick list selector */}
       {!showPickListSelector && !selectedOrder && (
         <div className="flex items-center mt-4 justify-center">
-          <p className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]">
+          <p className="text-xl text-white font-semibold">
             Select Pick List To Pack
           </p>
           <button
@@ -147,7 +147,7 @@ const PackingPage = () => {
 
         {/* Step 2: Select Order from Pick List */}
         {selectedPickList && !selectedOrder && (
-          <div className="m-4 p-4 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
+          <div className="m-4 p-4 border rounded-lg text-white">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">
                 Pick List #{selectedPickList.pick_list_id} - Select Order to
@@ -199,7 +199,7 @@ const PackingPage = () => {
         {selectedOrder && (
           <>
             {/* Breadcrumb navigation */}
-            <div className="m-4 p-2 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
+            <div className="m-4 p-2 border rounded-lg text-white">
               <div className="flex items-center space-x-2">
                 {selectedPickList ? (
                   <div className="flex justify-between items-center w-full">
@@ -228,8 +228,8 @@ const PackingPage = () => {
             <div>
               <div className="flex justify-evenly m-4 gap-x-4">
                 {/* Order items column */}
-                <div className="flex-1 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold">
-                  <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
+                <div className="flex-1 mt-4 p-4 border rounded-lg border-y  text-white text-lg text-shadow-lg font-semibold">
+                  <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1  text-white text-shadow-lg items-center">
                     Order # {selectedOrder.order_number}
                   </h2>
                   <ul className="flex flex-col items-center">
@@ -240,7 +240,7 @@ const PackingPage = () => {
                       return remainingQty > 0 ? (
                         <li
                           key={item.id}
-                          className="flex border-y rounded-lg m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white w-fit text-lg text-shadow-lg font-semibold items-center"
+                          className="flex border-y rounded-lg m-4 p-1  text-white w-fit text-lg text-shadow-lg font-semibold items-center"
                         >
                           <ItemPicture
                             sku={item.sku}
@@ -270,13 +270,13 @@ const PackingPage = () => {
                 </div>
 
                 {/* Customer info column */}
-                <div className="flex-1 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold">
+                <div className="flex-1 mt-4 p-4 border rounded-lg border-y text-white text-lg text-shadow-lg font-semibold">
                   <div>
-                    <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg items-center">
+                    <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1  text-white text-shadow-lg items-center">
                       Address And Carrier Verification:
                     </h2>
                     {selectedOrder ? (
-                      <div className="p-4 border-y rounded-lg text-lg font-bold m-4 p-1 bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg flex flex-col space-y-2">
+                      <div className="p-4 border-y rounded-lg text-lg font-bold m-4 text-white text-shadow-lg flex flex-col space-y-2">
                         <div className="flex flex-col justify-between items-center">
                           <span>{selectedOrder.customer_name}</span>
                         </div>
@@ -321,7 +321,7 @@ const PackingPage = () => {
                 </div>
               </div>
               {/* Packing Screen */}
-              <div className="m-4 mt-4 p-4 border rounded-lg border-y bg-[rgba(0,0,0,0.38)] text-white text-lg text-shadow-lg font-semibold items-center">
+              <div className="m-4 mt-4 p-4 border rounded-lg border-y text-white text-lg text-shadow-lg font-semibold items-center">
                 <div className="w-full">
                   <div className="flex  items-center justify-center">
                     <p>Package 1 of 1</p>

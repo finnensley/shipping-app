@@ -55,13 +55,13 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
     <div className="flex flex-col items-center justify-center">
       <div className="items-center mb-4">
         <label
-          className="text-xl m-2 rounded-lg pl-1 pr-1 bg-[rgba(0,0,0,0.38)]"
+          className="text-xl m-2 rounded-lg pl-1 pr-1"
           htmlFor="orderQuantity"
         >
           Choose number of orders:
         </label>
         <input
-          className="m-2 w-16 text-2xl text-center rounded-lg text-white bg-[rgba(0,0,0,0.38)]"
+          className="m-2 w-16 text-2xl text-center rounded-lg text-white"
           id="orderQuantity"
           type="number"
           min={1}
@@ -107,7 +107,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
       <div className="flex items-center justify-center m-4">
         <label
           htmlFor="singleOrderPacking"
-          className="text-xl m-2 pl-2 pr-2 bg-[rgba(0,0,0,0.38)] rounded-lg"
+          className="text-xl m-2 pl-2 pr-2 rounded-lg"
         >
           Order number:
         </label>
@@ -116,7 +116,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           value={inputValue}
           onChange={handleInputChange}
           id="singleOrderPacking"
-          className=" ml-2 border rounded-lg text-xl bg-[rgba(0,0,0,0.38)] text-white text-center w-40"
+          className=" ml-2 border rounded-lg text-xl text-white text-center w-40"
           placeholder="enter order #"
         ></input>
         <button

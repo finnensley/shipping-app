@@ -22,7 +22,7 @@ const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
         <div className="m-4">
           <label
             htmlFor="singleOrderPacking"
-            className="text-xl text-white font-semibold bg-[rgba(0,0,0,0.38)]"
+            className="text-xl text-white font-semibold "
           >
             Order number:
           </label>
@@ -32,7 +32,7 @@ const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
             id="singleOrderPacking"
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="enter order number"
-            className="pl-1 text-center border ml-2 rounded-lg text-xl bg-[rgba(0,0,0,0.38)] text-white font-semibold placeholder-gray-400"
+            className="pl-1 text-center border ml-2 rounded-lg text-xl text-white font-semibold placeholder-gray-400"
           />
           <button type="button" onClick={handleClick} className="ml-2">
             Enter

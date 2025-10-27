@@ -8,14 +8,14 @@ const PickListSelector = ({
 }) => {
   if (!pickLists.length) {
     return (
-      <div className="m-4 p-4 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
+      <div className="m-4 p-4 border rounded-lg  text-white">
         <h2 className="text-lg font-bold mb-4">No Pick Lists Available</h2>
         <p>There are no staged pick lists ready for packing.</p>
       </div>
     );
   }
   return (
-    <div className="m-4 p-4 border rounded-lg bg-[rgba(0,0,0,0.38)] text-white">
+    <div className="m-4 p-4 border rounded-lg  text-white">
       <div className="flex justify-end">
         <button onClick={onClose}>ⓧ Close</button>
       </div>

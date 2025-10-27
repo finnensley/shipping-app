@@ -47,7 +47,7 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-screen">
+    <div className="flex-1 items-center justify-center min-h-screen">
       {/* <div className="w-2/3 p-6"> */}
       <div
         className={`flex ${!orderNumber ? "justify-center items-center" : ""}`}
@@ -82,7 +82,7 @@ const OrdersPage = () => {
                           // local state for each input
 
                           <li key={item.id} className="ml-2 font-semibold">
-                            Sku: {item.sku} | Item: {item.description} | 
+                            Sku: {item.sku} | Item: {item.description} |
                             Quantity:
                             <input
                               type="number"
