@@ -64,7 +64,6 @@ const OrdersPage = () => {
             <ul>
               {orders.map(
                 (order) => (
-                  console.log(orders),
                   (
                     <li
                       key={order.order_number}

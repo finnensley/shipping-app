@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { updateOrder } from "../../features/orders/orderSlice";
+import { updateOrder, fetchOrders } from "../../features/orders/orderSlice";
 import axios from "axios";
 
 const OrderDetailsPage = () => {
@@ -12,7 +12,7 @@ const OrderDetailsPage = () => {
   const order = orders.find(
     (o) => String(o.order_number) === String(orderNumber)
   );
-  const orderId = order?.id
+  const orderId = order?.id;
   const [newItem, setNewItem] = useState(null);
   const [orderEdits, setOrderEdits] = useState(null);
 
@@ -109,22 +109,47 @@ const OrderDetailsPage = () => {
 
   const handleSave = async (e) => {
     if (e) e.preventDefault(); // prevents form submit if passed
-    console.log("Saving orderEdits:", orderEdits);
-    dispatch(updateOrder(orderEdits)); // redux state
+
+    const orderEditsToSend = {
+      ...orderEdits,
+      order_number: Number(orderEdits.order_number),
+      subtotal: Number(orderEdits.subtotal),
+      taxes: Number(orderEdits.taxes),
+      total: Number(orderEdits.total),
+      shipping_paid: Number(orderEdits.shipping_paid),
+      customer_id: Number(orderEdits.customer_id),
+      items: orderEdits.items.map((item) => ({
+        ...item,
+        item_id: Number(item.item_id),
+        quantity: Number(item.quantity),
+      })),
+    };
+    console.log(
+      "Saving orderEdits:",
+      JSON.stringify(orderEditsToSend, null, 2)
+    );
+    dispatch(updateOrder(orderEditsToSend)); // redux state
     try {
-      const response = await fetch(`http://localhost:3000/orders/${orderEdits.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderEdits),
-      });
+      const response = await fetch(
+        `http://localhost:3000/orders/${orderEdits.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderEditsToSend),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error("Unable to save edits: " + errorText);
+        alert("Unable to save edits: " + errorText);
+        return;
       }
-      const data = await response.json();
-      dispatch(updateOrder({ ...data.order, items: data.items }));
-      alert("Order was updated successfully");
+      if (response.ok) {
+        // const data = await response.json();
+        // dispatch(updateOrder({ ...data.order, items: data.items }));
+        dispatch(fetchOrders()); // re-fetch orders from backend
+        alert("Order was updated successfully");
+      }
     } catch (err) {
       console.error("Unable to save edits:", err);
       alert("Unable to save edits: " + err.message);
@@ -343,10 +368,20 @@ const OrderDetailsPage = () => {
                     className="ml-2 text-red-500"
                     type="button"
                     onClick={() => {
-                      const newItems = orderEdits.items.filter(
-                        (_, i) => i !== idx
-                      );
-                      setOrderEdits((edits) => ({ ...edits, items: newItems }));
+                      setOrderEdits((edits) => ({
+                        ...edits,
+                        items: edits.items.filter(
+                          (itm, i) =>
+                            // Remove by id for existing items
+                            itm.id !== item.id &&
+                            // Remove by item_id and sku for new items (no id)
+                            !(
+                              itm.item_id === item.item_id &&
+                              itm.sku === item.sku &&
+                              i === idx
+                            )
+                        ),
+                      }));
                     }}
                   >
                     Delete

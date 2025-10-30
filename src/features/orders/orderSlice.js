@@ -42,7 +42,15 @@ export const orderSlice = createSlice({
       }
     },
   },
+  
 });
+
+// Fetch orders from backend and update Redux state
+export const fetchOrders = () => async (dispatch) => {
+  const response = await fetch("http://localhost:3000/orders_with_items");
+  const data = await response.json();
+  dispatch(setOrder(data.orders ?? data));
+};
 
 export const {
   setOrder,

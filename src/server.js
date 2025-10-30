@@ -315,6 +315,7 @@ app.get("/orders_with_items", async (req, res) => {
         o.zip,
         o.country,
         o.carrier,
+        o.customer_id,
         o.carrier_speed,
         o.status,
         c.name AS customer_name,
@@ -328,7 +329,7 @@ app.get("/orders_with_items", async (req, res) => {
         i.image_path
       FROM orders o
       LEFT JOIN customers c ON o.customer_id = c.id
-      LEFT JOIN order_items oi ON o.id = oi.order_id
+       LEFT JOIN order_items oi ON o.id = oi.order_id AND oi.active = TRUE
       LEFT JOIN items i ON oi.item_id = i.id
       WHERE o.status = 'open'
       ORDER BY o.id, oi.id
@@ -353,6 +354,7 @@ app.get("/orders_with_items", async (req, res) => {
           country: row.country,
           carrier: row.carrier,
           carrier_speed: row.carrier_speed,
+          customer_id: row.customer_id,
           customer_name: row.customer_name,
           customer_email: row.customer_email,
           customer_phone: row.customer_phone,
@@ -448,6 +450,8 @@ app.post(
 
 app.put("/orders/:id", async (req, res) => {
   const client = await pool.connect();
+  let transactionStarted = false;
+
   try {
     const { id } = req.params;
     let {
@@ -493,11 +497,11 @@ app.put("/orders/:id", async (req, res) => {
       !carrier_speed ||
       isNaN(customer_id)
     ) {
-      await client.query("ROLLBACK");
       return res.status(400).json({ error: "Missing or invalid fields" });
     }
 
     await client.query("BEGIN");
+    transactionStarted = true;
 
     // Update order fields
     const result = await client.query(
@@ -522,32 +526,60 @@ app.put("/orders/:id", async (req, res) => {
       ]
     );
 
-    // Update order_items
+    // Get current active items for this order
+    const { rows: currentItems } = await client.query(
+      "SELECT id FROM order_items WHERE order_id=$1 AND active=TRUE",
+      [id]
+    );
+
+    // Get IDs of items sent from frontend
+    const payloadIds = items.filter((item) => item.id).map((item) => item.id);
+
+    // Mark items as inactive if they are not in the payload
+    for (const item of currentItems) {
+      if (!payloadIds.includes(item.id)) {
+        await client.query("UPDATE order_items SET active=FALSE WHERE id=$1", [
+          item.id,
+        ]);
+      }
+    }
+
+    // Update or insert items
     if (Array.isArray(items)) {
-      await client.query("DELETE FROM order_items WHERE order_id=$1", [id]);
       for (const item of items) {
-        await client.query(
-          "INSERT INTO order_items (order_id, item_id, sku, description, quantity) VALUES ($1, $2, $3, $4, $5)",
-          [
-            id,
-            Number(item.item_id),
-            item.sku,
-            item.description,
-            Number(item.quantity),
-          ]
-        );
+        if (item.id) {
+          // Existing item: update quantity and description if needed
+          await client.query(
+            "UPDATE order_items SET quantity=$1, description=$2 WHERE id=$3",
+            [Number(item.quantity), item.description, item.id]
+          );
+        } else {
+          // New item: insert
+          await client.query(
+            "INSERT INTO order_items (order_id, item_id, sku, description, quantity, active) VALUES ($1, $2, $3, $4, $5, TRUE)",
+            [
+              id,
+              Number(item.item_id),
+              item.sku,
+              item.description,
+              Number(item.quantity),
+            ]
+          );
+        }
       }
     }
     await client.query("COMMIT");
 
     const itemsResult = await pool.query(
-      "SELECT * FROM order_items WHERE order_id=$1",
+      "SELECT * FROM order_items WHERE order_id=$1 AND active=TRUE",
       [id]
     );
 
     res.json({ order: result.rows[0], items: itemsResult.rows });
   } catch (err) {
-    await client.query("ROLLBACK");
+    if (transactionStarted) {
+      await client.query("ROLLBACK");
+    }
     console.error(err);
     res.status(500).json({ error: "Server Error" });
   } finally {
