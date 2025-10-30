@@ -180,3 +180,5 @@ WHERE id = 1;  -->
 - 4th or use -d in 3rd: docker-compose up
 
 ## Solve permission issues: sudo chown -R finnensley:staff /Users/finnensley/Desktop/letPhil/React/shipping-app - didn't work still had to export DATABASE_URL directly in terminal.
+
+## Access tables: docker exec -it shipping-app-postgres-1 psql -U finnensley -d shipping_app

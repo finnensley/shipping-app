@@ -6,6 +6,7 @@ import {
   setError,
 } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AuthPage = () => {
   // Steps needed:
@@ -59,7 +60,7 @@ const AuthPage = () => {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:3000/auth/signup", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },

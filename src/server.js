@@ -16,7 +16,6 @@ const port = 3000; //port for backend
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
 
-
 //Public routes (no auth needed)
 app.use("/auth", AuthRoutes); // changed from /protected to /auth
 
@@ -86,6 +85,24 @@ app.get("/items", async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+// Get items by sku
+app.get("/items/by_sku/:sku", async (req, res) => {
+  try {
+    const { sku } = req.params;
+    const result = await pool.query(
+      "SELECT id, sku, description FROM items WHERE sku = $1 LIMIT 1",
+      [sku]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Backend error:", err);
     res.status(500).send("Server Error");
   }
 });
@@ -322,6 +339,7 @@ app.get("/orders_with_items", async (req, res) => {
     result.rows.forEach((row) => {
       if (!ordersMap[row.order_id]) {
         ordersMap[row.order_id] = {
+          id: row.order_id,
           order_number: row.order_number,
           subtotal: row.subtotal,
           taxes: row.taxes,
@@ -429,9 +447,10 @@ app.post(
 );
 
 app.put("/orders/:id", async (req, res) => {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
-    const {
+    let {
       order_number,
       subtotal,
       taxes,
@@ -446,8 +465,42 @@ app.put("/orders/:id", async (req, res) => {
       carrier,
       carrier_speed,
       customer_id,
+      updated_at,
+      items,
     } = req.body;
-    const result = await pool.query(
+
+    // Convert string numbers to actual numbers
+    order_number = Number(order_number);
+    subtotal = Number(subtotal);
+    taxes = Number(taxes);
+    total = Number(total);
+    shipping_paid = Number(shipping_paid);
+    customer_id = Number(customer_id);
+
+    // Validate required fields
+    if (
+      !order_number ||
+      isNaN(subtotal) ||
+      isNaN(taxes) ||
+      isNaN(total) ||
+      isNaN(shipping_paid) ||
+      !address_line1 ||
+      !city ||
+      !state ||
+      !zip ||
+      !country ||
+      !carrier ||
+      !carrier_speed ||
+      isNaN(customer_id)
+    ) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "Missing or invalid fields" });
+    }
+
+    await client.query("BEGIN");
+
+    // Update order fields
+    const result = await client.query(
       "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14, updated_at=$15 WHERE id=$16 RETURNING *",
       [
         order_number,
@@ -469,12 +522,117 @@ app.put("/orders/:id", async (req, res) => {
       ]
     );
 
-    res.json({ orders: result.rows[0] });
+    // Update order_items
+    if (Array.isArray(items)) {
+      await client.query("DELETE FROM order_items WHERE order_id=$1", [id]);
+      for (const item of items) {
+        await client.query(
+          "INSERT INTO order_items (order_id, item_id, sku, description, quantity) VALUES ($1, $2, $3, $4, $5)",
+          [
+            id,
+            Number(item.item_id),
+            item.sku,
+            item.description,
+            Number(item.quantity),
+          ]
+        );
+      }
+    }
+    await client.query("COMMIT");
+
+    const itemsResult = await pool.query(
+      "SELECT * FROM order_items WHERE order_id=$1",
+      [id]
+    );
+
+    res.json({ order: result.rows[0], items: itemsResult.rows });
   } catch (err) {
+    await client.query("ROLLBACK");
     console.error(err);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: "Server Error" });
+  } finally {
+    client.release();
   }
 });
+
+// app.put("/orders/:id", async (req, res) => {
+//   const client = await pool.connect();
+//   try {
+//     const { id } = req.params;
+//     const {
+//       order_number,
+//       subtotal,
+//       taxes,
+//       total,
+//       shipping_paid,
+//       address_line1,
+//       address_line2,
+//       city,
+//       state,
+//       zip,
+//       country,
+//       carrier,
+//       carrier_speed,
+//       customer_id,
+//       updated_at,
+//       items,
+//     } = req.body;
+
+//     await client.query("BEGIN");
+
+//     // Update order fields
+//     const result = await client.query(
+//       "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14, updated_at=$15 WHERE id=$16 RETURNING *",
+//       [
+//         order_number,
+//         subtotal,
+//         taxes,
+//         total,
+//         shipping_paid,
+//         address_line1,
+//         address_line2,
+//         city,
+//         state,
+//         zip,
+//         country,
+//         carrier,
+//         carrier_speed,
+//         customer_id,
+//         updated_at,
+//         id,
+//       ]
+//     );
+
+//     // Update order_items
+//     if (Array.isArray(items)) {
+//       // Remove all existing items for this order
+//       await client.query("DELETE FROM order_items WHERE order_id=$1", [id]);
+
+//       // Insert new items
+//       for (const item of items) {
+//         await client.query(
+//           "INSERT INTO order_items (order_id, item_id, sku, description, quantity) VALUES ($1, $2, $3, $4, $5)",
+//           [id, item.item_id, item.sku, item.description, item.quantity]
+//         );
+//       }
+//     }
+//     await client.query("COMMIT");
+
+//     // Fetch updated items to return
+//     const itemsResult = await pool.query(
+//       "SELECT * FROM order_items WHERE order_id=$1",
+//       [id]
+//     );
+
+//     res.json({ order: result.rows[0], items: itemsResult.rows });
+//   } catch (err) {
+//     await client.query("ROLLBACK");
+//     console.error(err);
+//     res.status(500).json({ error: "Server Error" });
+//   } finally {
+//     client.release();
+//   }
+// });
 
 app.delete("/orders/:id", async (req, res) => {
   try {

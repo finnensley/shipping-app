@@ -15,6 +15,7 @@ import UsersPage from "./pages/users/users";
 import OrderDetailsPage from "./pages/orders/orderDetails";
 import { setAuthenticated } from "./features/auth/authSlice";
 
+
 function App() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
