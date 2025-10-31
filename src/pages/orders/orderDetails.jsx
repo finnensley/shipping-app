@@ -422,7 +422,6 @@ const OrderDetailsPage = () => {
                   className="ml-2 text-green-500"
                   type="button"
                   onClick={handleAddNewItem}
-                  // disabled={!newItem.sku || !newItem.description}
                 >
                   Add
                 </button>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
-import NavBar from "../../components/navBar";
 import useFetchData from "../../components/useFetchData";
 import useUpdateOrderData from "../../components/useUpdateOrderData";
 import axios from "axios";
@@ -73,7 +72,7 @@ const OrdersPage = () => {
                         to={`/orders/${order.order_number}`}
                         className="mr-2 text-blue-400 underline"
                       >
-                        View Details
+                        View/Edit
                       </Link>
                       <strong>Order # {order.order_number} |</strong>
                       <ul>

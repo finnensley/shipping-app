@@ -92,6 +92,10 @@
 
 # Challenge:
 
+## Add Create a manual order - "create order" button -> csv upload option
+
+## Add Create inventory item - "create item" button -> csv upload option
+
 ## Theme dark - remove background pic with black bkg, light - remove background pic and text-black bg-white, default - picture or change picture url like in dashboard
 
 ## Order numbers can be strings or numbers (table is set up as INT and .post validates for .isNumeric() )
@@ -111,6 +115,7 @@
 ## Accurate weight and pkg dimensions saves client money until hits next tier level with carrier agreements.Think about ways to improve this feature.
 
 ## Order Page: Add ability to edit each order, a find search and have a selection option, pop-up to edit order.
+
 
 # Notes:
 
