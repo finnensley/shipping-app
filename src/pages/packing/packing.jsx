@@ -17,6 +17,7 @@ import useFetchData from "../../components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import SingleOrderPacking from "../../components/singleOrderPacking";
 import PickListSelector from "../../components/pickListSelector";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PackingPage = () => {
   const dispatch = useDispatch();
@@ -118,7 +119,11 @@ const PackingPage = () => {
   if (error) return <div>Error loading inventory.</div>;
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
       {/* Header - only show when not in pick list selector */}
       {!showPickListSelector && !selectedOrder && (
         <div className="flex items-center mt-4 justify-center">
@@ -422,7 +427,7 @@ const PackingPage = () => {
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

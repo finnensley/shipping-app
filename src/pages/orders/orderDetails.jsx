@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updateOrder, fetchOrders } from "../../features/orders/orderSlice";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 const OrderDetailsPage = () => {
   const dispatch = useDispatch();
@@ -157,7 +158,11 @@ const OrderDetailsPage = () => {
   };
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
       <div className="flex items-center justify-center w-full">
         <form className="text-semibold flex flex-col border-y rounded-lg p-4 text-md w-full max-w-xl">
           <button
@@ -450,7 +455,7 @@ const OrderDetailsPage = () => {
           </div>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

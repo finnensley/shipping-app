@@ -88,8 +88,12 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center">
-      <h1>Let's get started! </h1>
+    <motion.div className="flex flex-col min-h-screen items-center justify-center"
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+       > 
+       <h1>Let's get started! </h1>
       <h1 className="text-2xl m-2">Returning Users Log In Below: </h1>
       <form
         className="flex flex-col m-2 p-2 items-center"
@@ -151,7 +155,7 @@ const AuthPage = () => {
           </button>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

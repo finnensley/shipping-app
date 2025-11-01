@@ -4,10 +4,11 @@ import {
   setInventory,
   updateItemQuantity,
 } from "/src/features/inventory/inventorySlice";
-import NavBar from "../../components/navBar";
 import useFetchData from "../../components/useFetchData";
 import useUpdateInventoryData from "../../components/useUpdateInventoryData";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 const InventoryPage = () => {
   const inventory = useSelector((state) => state.inventory);
@@ -40,7 +41,11 @@ const InventoryPage = () => {
   if (error) return <div>Error loading inventory.</div>;
 
   return (
-    <div>
+    <motion.div
+                     initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+           > 
       <div className="flex flex-col items-center justify-center">
         <div className="flex items-center justify-center">
           <ul>
@@ -119,7 +124,7 @@ const InventoryPage = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
