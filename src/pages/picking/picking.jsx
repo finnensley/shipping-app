@@ -14,7 +14,6 @@ import usePickListCreator from "../../components/usePickListCreator";
 import OrderSelector from "../../components/orderSelector";
 import { motion, AnimatePresence } from "framer-motion";
 
-
 // Helper function for unique pickListId
 const generateRandomId = (max = 1000000) => Math.floor(Math.random() * max) + 1;
 const getUniquePickListId = (existingIds, max = 1000000) => {
@@ -233,11 +232,11 @@ const PickingPage = () => {
   console.log("pickList:", pickList);
   console.log("items:", items);
   return (
-        <motion.div
-                     initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-           >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
       <div className="m-5">
         <div className="flex items-center justify-center">
           {!pickListGenerated && (
