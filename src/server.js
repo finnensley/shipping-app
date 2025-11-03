@@ -587,84 +587,21 @@ app.put("/orders/:id", async (req, res) => {
   }
 });
 
-// app.put("/orders/:id", async (req, res) => {
-//   const client = await pool.connect();
-//   try {
-//     const { id } = req.params;
-//     const {
-//       order_number,
-//       subtotal,
-//       taxes,
-//       total,
-//       shipping_paid,
-//       address_line1,
-//       address_line2,
-//       city,
-//       state,
-//       zip,
-//       country,
-//       carrier,
-//       carrier_speed,
-//       customer_id,
-//       updated_at,
-//       items,
-//     } = req.body;
-
-//     await client.query("BEGIN");
-
-//     // Update order fields
-//     const result = await client.query(
-//       "UPDATE orders SET order_number=$1, subtotal=$2, taxes=$3, total=$4, shipping_paid=$5, address_line1=$6, address_line2=$7, city=$8, state=$9, zip=$10, country=$11, carrier=$12, carrier_speed=$13, customer_id=$14, updated_at=$15 WHERE id=$16 RETURNING *",
-//       [
-//         order_number,
-//         subtotal,
-//         taxes,
-//         total,
-//         shipping_paid,
-//         address_line1,
-//         address_line2,
-//         city,
-//         state,
-//         zip,
-//         country,
-//         carrier,
-//         carrier_speed,
-//         customer_id,
-//         updated_at,
-//         id,
-//       ]
-//     );
-
-//     // Update order_items
-//     if (Array.isArray(items)) {
-//       // Remove all existing items for this order
-//       await client.query("DELETE FROM order_items WHERE order_id=$1", [id]);
-
-//       // Insert new items
-//       for (const item of items) {
-//         await client.query(
-//           "INSERT INTO order_items (order_id, item_id, sku, description, quantity) VALUES ($1, $2, $3, $4, $5)",
-//           [id, item.item_id, item.sku, item.description, item.quantity]
-//         );
-//       }
-//     }
-//     await client.query("COMMIT");
-
-//     // Fetch updated items to return
-//     const itemsResult = await pool.query(
-//       "SELECT * FROM order_items WHERE order_id=$1",
-//       [id]
-//     );
-
-//     res.json({ order: result.rows[0], items: itemsResult.rows });
-//   } catch (err) {
-//     await client.query("ROLLBACK");
-//     console.error(err);
-//     res.status(500).json({ error: "Server Error" });
-//   } finally {
-//     client.release();
-//   }
-// });
+// Change carrier and _speed if packer selects from dropdown
+app.put("/api/orders/:order_number/carrier", async (req, res) => {
+  try {
+    const { order_number } = req.params;
+    const { carrier, carrier_speed } = req.body;
+    const result = await pool.query(
+      "UPDATE orders SET carrier=$1, carrier_speed=$2 WHERE order_number=$3 RETURNING *",
+      [carrier, carrier_speed, order_number]
+    );
+    res.json({ order: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
 
 app.delete("/orders/:id", async (req, res) => {
   try {

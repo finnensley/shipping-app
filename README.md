@@ -173,6 +173,8 @@ WHERE id = 1;  -->
 ## Terminal 3: node src/server.js
 
 ## Terminal 4: prisma running (issues with opening, could be permissions issue) 
+- issue: CLI prisma file not found in node_modules/.bin.
+- fix by re-installing prisma locally: npm install prisma --save-dev; npx prism studio
 
 ## This worked to fix prisma issue: order of commands
 -rm -rf node_modules
@@ -187,3 +189,9 @@ WHERE id = 1;  -->
 ## Solve permission issues: sudo chown -R finnensley:staff /Users/finnensley/Desktop/letPhil/React/shipping-app - didn't work still had to export DATABASE_URL directly in terminal.
 
 ## Access tables: docker exec -it shipping-app-postgres-1 psql -U finnensley -d shipping_app
+
+## Easyship:
+- Import the Easyship SDK (from index.js)
+- SDK (Software Development Kit) is a toolkit for developers to use an API/service easily and provides pre-built functions, handles authentication, and simplifies integration.
+- Use sandbox API key (stored in a .env file, access it via process.env.EASYSHIP_SAND)
+- Call the SDK methods to get carrier rates

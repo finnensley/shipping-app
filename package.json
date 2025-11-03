@@ -17,6 +17,7 @@
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "easyship": "^1.0.0",
     "esbuild": "^0.25.11",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",

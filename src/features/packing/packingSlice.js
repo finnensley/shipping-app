@@ -16,6 +16,7 @@ export const packingSlice = createSlice({
       height: "",
       weight: "",
     },
+    selectedCarrier: null, // null indicates no selection
     loading: false,
     error: null,
   },
@@ -122,20 +123,24 @@ export const packingSlice = createSlice({
       };
     },
 
-resetPackingState: (state) => {
-  state.selectedPickList = null;
-  state.selectedOrder = null;
-  state.showPickListSelector = false;
-  state.packedItems = [];
-  state.remainingQuantities = {};
-  state.selectedPackage = ''; // Add this
-  state.packageDimensions = { // Add this
-    length: '',
-    width: '',
-    height: '',
-    weight: ''
-  };
-},
+    resetPackingState: (state) => {
+      state.selectedPickList = null;
+      state.selectedOrder = null;
+      state.showPickListSelector = false;
+      state.packedItems = [];
+      state.remainingQuantities = {};
+      state.selectedPackage = ""; // Add this
+      state.packageDimensions = {
+        // Add this
+        length: "",
+        width: "",
+        height: "",
+        weight: "",
+      };
+    },
+    setSelectedCarrier: (state, action) => {
+      state.selectedCarrier = action.payload;
+    },
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -156,6 +161,7 @@ export const {
   setSelectedPackage,
   setPackageDimensions,
   resetPackingState,
+  setSelectedCarrier,
   setLoading,
   setError,
 } = packingSlice.actions;
