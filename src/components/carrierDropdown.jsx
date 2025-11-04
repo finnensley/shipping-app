@@ -1,6 +1,9 @@
 import React from "react";
 
 const CarrierDropdown = ({ carrierRates, selectedCarrier, onSelect }) => {
+  // Debug: log all rates received
+  console.log("All carrierRates from Easyship:", carrierRates);
+
   // Filter out invalid rates and add safety checks
   const validRates = carrierRates.filter(
     (rate) =>
@@ -12,6 +15,8 @@ const CarrierDropdown = ({ carrierRates, selectedCarrier, onSelect }) => {
       rate.total_charge !== null &&
       !isNaN(rate.total_charge)
   );
+  // Debug: log filtered rates
+  console.log("Valid carrierRates after filtering:", validRates);
 
   return (
     <div className="mt-2">
