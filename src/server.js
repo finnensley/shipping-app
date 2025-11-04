@@ -22,6 +22,18 @@ app.use("/auth", AuthRoutes); // changed from /protected to /auth
 // Protected routes (auth required); add app.get("/api/items"..to all protected routes
 app.use("/api", authenticateToken); // This protects all /api routes
 
+// Log every request
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Log errors
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  next(err);
+});
+
 //Database connection pool
 const pool = new Pool({
   user: "finnensley",
@@ -449,6 +461,8 @@ app.post(
 );
 
 app.put("/orders/:id", async (req, res) => {
+  console.log("PUT /orders/:id called");
+  console.log("Request body:", req.body);
   const client = await pool.connect();
   let transactionStarted = false;
 

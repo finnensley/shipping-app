@@ -1,6 +1,6 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion, easyship (requred install of api@6.1.3,https://npm.im/oas)
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion, easyship (requred install of api@6.1.3,https://npm.im/oas), nodemon
 
 # Tables for testing,
 
@@ -170,7 +170,7 @@ WHERE id = 1;  -->
 
 <!-- ## Terminal 2: psql -U finnensley -d shipping_app -->
 
-## Terminal 3: node src/server.js
+## Terminal 3: node src/server.js or for auto-refresh npx nodemon src/server.js
 
 ## Terminal 4: prisma running (issues with opening, could be permissions issue) 
 - issue: CLI prisma file not found in node_modules/.bin.

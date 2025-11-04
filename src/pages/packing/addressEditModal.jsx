@@ -14,7 +14,7 @@ const AddressEditModal = ({ order, onClose }) => {
         id: order.id,
         order_number: order.order_number,
         address_line1: order.address_line1 ?? "",
-        address_line2: order.address_line2 ?? "",
+        address_line2: order.address_line2 ?? null,
         city: order.city ?? "",
         state: order.state ?? "",
         zip: order.zip ?? "",
@@ -30,16 +30,36 @@ const AddressEditModal = ({ order, onClose }) => {
     if (e) e.preventDefault();
 
     const orderEditsToSend = {
-      ...orderEdits,
+      id: orderEdits.id,
       order_number: Number(orderEdits.order_number),
+      subtotal: order.subtotal ?? 0,
+      taxes: order.taxes ?? 0,
+      total: order.total ?? 0,
+      shipping_paid: order.shipping_paid ?? 0,
+      address_line1: orderEdits.address_line1,
+      address_line2: orderEdits.address_line2,
+      city: orderEdits.city,
+      state: orderEdits.state,
+      zip: orderEdits.zip,
+      country: orderEdits.country,
+      carrier: order.carrier ?? "",
+      carrier_speed: order.carrier_speed ?? "",
       customer_id: Number(orderEdits.customer_id),
+      customer_name: orderEdits.customer_name,
+      customer_email: orderEdits.customer_email,
+      updated_at: new Date().toISOString(), // optional, if your backend uses it
+      items: order.items ?? [], // optional, if your backend uses it
     };
 
     console.log(
       "Saving orderEdits:",
       JSON.stringify(orderEditsToSend, null, 2)
     );
-    dispatch(updateOrder(orderEditsToSend));
+
+    // Debugging logs
+    console.log("API URL:", `http://localhost:3000/orders/${orderEdits.id}`);
+    console.log("Request body:", JSON.stringify(orderEditsToSend, null, 2));
+    console.log("Order ID being used:", orderEdits.id);
 
     try {
       const response = await fetch(
@@ -51,8 +71,19 @@ const AddressEditModal = ({ order, onClose }) => {
         }
       );
 
+      // Logs to see response data
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("Server error response:", errorText);
+        console.error("Response headers:", [...response.headers.entries()]);
+        console.error("Request that failed:", {
+          url: `http://localhost:3000/orders/${orderEdits.id}`,
+          method: "PUT",
+          body: orderEditsToSend,
+        });
         alert("Unable to save edits: " + errorText);
         return;
       }
@@ -81,7 +112,7 @@ const AddressEditModal = ({ order, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
       onClick={onClose} // Close when clicking backdrop
     >
       <motion.div
@@ -89,25 +120,23 @@ const AddressEditModal = ({ order, onClose }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="bg-white rounded-lg p-6 w-full max-w-xl mx-4 relative"
+        className="bg-black/80 border border-y rounded-xl p-6 w-full max-w-lg mx-4 relative"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
       >
         <button
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-300 hover:text-gray-400"
           onClick={onClose}
         >
           ⓧ Close
         </button>
 
-        <h1 className="mt-4 text-xl font-bold text-gray-800 mb-4">
+        <h1 className="mt-4 text-xl font-bold text-white mb-4">
           Edit Address - Order #{order.order_number}
         </h1>
 
         <form onSubmit={handleSave} className="space-y-4">
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">
-              Customer:
-            </label>
+            <label className="w-40 text-right mr-2 text-white">Customer:</label>
             <input
               className="border rounded-lg px-3 py-2 flex-1"
               placeholder={order.customer_name}
@@ -122,7 +151,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">Email:</label>
+            <label className="w-40 text-right mr-2 text-white">Email:</label>
             <input
               className="border rounded-lg px-3 py-2 flex-1"
               placeholder={order.customer_email}
@@ -137,7 +166,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">
+            <label className="w-40 text-right mr-2 text-white">
               Address Line 1:
             </label>
             <input
@@ -154,7 +183,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">
+            <label className="w-40 text-right mr-2 text-white">
               Address Line 2:
             </label>
             <input
@@ -171,7 +200,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">City:</label>
+            <label className="w-40 text-right mr-2 text-white">City:</label>
             <input
               className="border rounded-lg px-3 py-2 flex-1"
               placeholder={order.city}
@@ -183,7 +212,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">State:</label>
+            <label className="w-40 text-right mr-2 text-white">State:</label>
             <input
               className="border rounded-lg px-3 py-2 flex-1"
               placeholder={order.state}
@@ -198,7 +227,7 @@ const AddressEditModal = ({ order, onClose }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="w-40 text-right mr-2 text-gray-700">Zip:</label>
+            <label className="w-40 text-right mr-2 text-white">Zip:</label>
             <input
               className="border rounded-lg px-3 py-2 flex-1"
               placeholder={order.zip}
@@ -219,7 +248,7 @@ const AddressEditModal = ({ order, onClose }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700"
             >
               Save Changes
             </button>
