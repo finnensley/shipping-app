@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setAuthenticated } from "../features/auth/authSlice";
-import Navbar from "../components/navBar"
+import Navbar from "../components/navBar";
 
 const Header = () => {
   // initializes dispatch
@@ -21,6 +21,8 @@ const Header = () => {
   if (pathNames.length > 0) {
     if (pathNames[0].toLowerCase() === "orders") {
       pageName = "Orders";
+    } else if (pathNames[0].toLowerCase() === "packing") {
+      pageName = "Packing";
     } else {
       pageName =
         pathNames[pathNames.length - 1][0].toUpperCase() +

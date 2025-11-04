@@ -13,6 +13,7 @@ import PackingPage from "./pages/packing/packing";
 import StoreFrontPage from "./pages/storeFront/storeFront";
 import UsersPage from "./pages/users/users";
 import OrderDetailsPage from "./pages/orders/orderDetails";
+// import AddressDetailsPage from "./pages/packing/addressDetails";
 import { setAuthenticated } from "./features/auth/authSlice";
 
 
@@ -51,6 +52,8 @@ function App() {
           </Route>
           <Route path="/picking" element={<PickingPage />} />
           <Route path="/packing" element={<PackingPage />} />
+            {/* <Route path="/packing/orders/:orderNumber/address" element={<AddressDetailsPage />} />
+          </Route> */}
           <Route path="/store" element={<StoreFrontPage />} />
           <Route path="/users" element={<UsersPage />} />
         </Routes>

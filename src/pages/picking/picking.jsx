@@ -282,6 +282,11 @@ const PickingPage = () => {
         {/* Picklist UI */}
         {pickListGenerated && pickList.length > 0 && items.length > 0 && (
           <>
+             <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
             <button
               className="text-xl mb-4"
               onClick={handleBack}
@@ -322,8 +327,8 @@ const PickingPage = () => {
                 }
 
                 return (
-                  <div className="place-content-center" key={item.id}>
-                    <li className="flex border-y text-white font-semibold bg-[rgba(0,0,0,0.38)] rounded-lg m-1 p-1 text-xl place-items-center">
+                  <div className="flex justify-center items-center" key={item.id}>
+                    <li className="flex border-y text-white font-semibold rounded-lg m-1 p-1 w-3/4 text-xl items-center justify-center">
                       <ItemPicture
                         sku={item.sku}
                         description={item.description}
@@ -365,10 +370,11 @@ const PickingPage = () => {
               Transfer
             </button>
             <div className="flex justify-end">
-              <div className="inline-block text-xl bg-[rgba(0,0,0,0.38)] rounded-lg px-1">
+              <div className="inline-block text-xl rounded-lg px-1">
                 Pick List #: {pickListId}{" "}
               </div>
             </div>
+            </motion.div>
           </>
         )}
       </div>

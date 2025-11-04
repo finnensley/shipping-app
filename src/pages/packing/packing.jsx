@@ -19,6 +19,9 @@ import SingleOrderPacking from "../../components/singleOrderPacking";
 import PickListSelector from "../../components/pickListSelector";
 import { motion, AnimatePresence } from "framer-motion";
 import CarrierDropdown from "../../components/carrierDropdown";
+// import { Link, Outlet } from "react-router-dom";
+// import { useParams } from "react-router-dom";
+import AddressEditModal from "./AddressEditModal";
 
 // const EASYSHIP_API_KEY = process.env.EASYSHIP_SAND;
 const EASYSHIP_API_KEY = import.meta.env.VITE_EASYSHIP_SAND;
@@ -27,7 +30,8 @@ const PackingPage = () => {
   const dispatch = useDispatch();
   const [carrierRates, setCarrierRates] = useState([]);
   const [showCarrierDropdown, setShowCarrierDropdown] = useState(false);
-  // const [selectedCarrier, setSelectedCarrier] = useState(null);
+  // const { orderNumber } = useParams();
+  const [showAddressEdit, setShowAddressEdit] = useState(false);
 
   // Get all state from Redux
   const {
@@ -119,6 +123,7 @@ const PackingPage = () => {
 
   const handleEditAddress = () => {
     //insert address validation and automatic update w/ a note of change
+    setShowAddressEdit(true);
   };
 
   const handleEditCarrier = async () => {
@@ -319,7 +324,7 @@ const PackingPage = () => {
         )}
         {/* Step 4: Packing interface */}
         {selectedOrder && (
-          <>
+          <div>
             {/* Breadcrumb navigation */}
             <div className="m-4 p-2 border rounded-lg text-white">
               <div className="flex items-center space-x-2">
@@ -395,7 +400,7 @@ const PackingPage = () => {
                 <div className="flex-1 mt-4 p-4 border rounded-lg border-y text-white text-lg text-shadow-lg font-semibold">
                   <div>
                     <h2 className="border-y rounded-lg text-lg font-bold m-4 p-1  text-white text-shadow-lg items-center">
-                      Address And Carrier Verification:
+                      Address Verification:
                     </h2>
                     {selectedOrder ? (
                       <div className="p-4 border-y rounded-lg text-lg font-bold m-4 text-white text-shadow-lg flex flex-col space-y-2">
@@ -414,57 +419,36 @@ const PackingPage = () => {
                             {selectedOrder.zip}
                           </span>
                           <div>
+                            {/* <Link
+                              to={`/packing/orders/${selectedOrder.order_number}/address`}
+                            > */}
                             <button
                               className="m-4 text-white"
-                              onClick={handleEditAddress}
+                              onClick={() => setShowAddressEdit(true)}
                             >
                               Address Edit
                             </button>
+                            {/* </Link> */}
                           </div>
+                          {/* <AnimatePresence>
+                            {selectedOrder && showAddressEdit && (
+                              <motion.div
+                                initial={{ x: "100%", opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: "100%", opacity: 0 }}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 300,
+                                  damping: 30,
+                                }}
+                                className="p-6 border-l bg-[rgba(0,0,0,0.15)] h-full mt-10"
+                                style={{ position: "relative" }}
+                              >
+                                <Outlet />
+                              </motion.div>
+                            )}
+                          </AnimatePresence> */}
                         </div>
-                        <div className="flex justify-around items-center">
-                          <span>
-                            {selectedOrder.carrier} :{" "}
-                            {selectedOrder.carrier_speed}
-                          </span>
-                          <span>Paid ${selectedOrder.shipping_paid}</span>
-                          <button
-                            className="ml-2 text-white"
-                            onClick={handleEditCarrier}
-                          >
-                            Carrier Edit
-                          </button>
-                        </div>
-                        {/*Carrier dropdown*/}
-                        {showCarrierDropdown && (
-                          <CarrierDropdown
-                            carrierRates={carrierRates}
-                            selectedCarrier={selectedCarrier}
-                            onSelect={(carrierRate) => {
-                              console.log(
-                                "Selected carrier rate:",
-                                carrierRate
-                              );
-                              // Update Redux state
-                              dispatch(setSelectedCarrier(carrierRate));
-
-                              // Update backend
-                              if (carrierRate && selectedOrder) {
-                                updateCarrierOnBackend(
-                                  selectedOrder.order_number,
-                                  {
-                                    courier_name:
-                                      carrierRate.courier_service.umbrella_name,
-                                    service_level:
-                                      carrierRate.courier_service.name,
-                                  }
-                                );
-                              }
-                              // Close the dropdown after selection
-                              setShowCarrierDropdown(false);
-                            }}
-                          />
-                        )}
                       </div>
                     ) : (
                       <p>"No customer info found"</p>
@@ -559,7 +543,7 @@ const PackingPage = () => {
                   </p>
                   {/* Display packed items */}
                   {packedItems.map((item, index) => (
-                    <div key={index} className="text-sm">
+                    <div key={index} className="text-sm m-2">
                       {item.sku} - {item.description} | Packed Qty:{" "}
                       {item.quantity}
                       <button
@@ -570,7 +554,46 @@ const PackingPage = () => {
                       </button>
                     </div>
                   ))}
-                  <div className="flex flex-col items-end">
+
+                  <div className="flex flex-col justify-end mt-4 items-end">
+                    <div className="flex flex-end">
+                      {selectedOrder.carrier} : {selectedOrder.carrier_speed}
+                    </div>
+                    <div className="ml-2">
+                      Paid ${selectedOrder.shipping_paid}
+                    </div>
+                    <button
+                      className="ml-2 text-white"
+                      onClick={handleEditCarrier}
+                    >
+                      Carrier Edit
+                    </button>
+                  </div>
+                  {/*Carrier dropdown*/}
+                  {showCarrierDropdown && (
+                    <CarrierDropdown
+                      carrierRates={carrierRates}
+                      selectedCarrier={selectedCarrier}
+                      onSelect={(carrierRate) => {
+                        console.log("Selected carrier rate:", carrierRate);
+                        // Update Redux state
+                        dispatch(setSelectedCarrier(carrierRate));
+
+                        // Update backend
+                        if (carrierRate && selectedOrder) {
+                          updateCarrierOnBackend(selectedOrder.order_number, {
+                            courier_name:
+                              carrierRate.courier_service.umbrella_name,
+                            service_level: carrierRate.courier_service.name,
+                          });
+                        }
+                        // Close the dropdown after selection
+                        setShowCarrierDropdown(false);
+                      }}
+                    />
+                  )}
+
+                  <div className="flex flex-col items-end mt-2">
                     <select type="dropdown">
                       <option>Print Invoices</option>
                       <option>Print Labels</option>
@@ -579,9 +602,18 @@ const PackingPage = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
+      {/* Modal */}
+      <AnimatePresence>
+        {showAddressEdit && selectedOrder && (
+          <AddressEditModal
+            order={selectedOrder}
+            onClose={() => setShowAddressEdit(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
