@@ -34,29 +34,28 @@ const UsersPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8 ">
-          <div className="grid grid-cols-4 gap-12 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
-            <div>USERNAME</div>
-            <div>EMAIL</div>
-            <div>PERMISSIONS</div>
-            <div>PASSWORD</div>
-          </div>
-          <ul>
-            {(users || []).map((user) => (
-              <li
-                key={user.id}
-                className="grid grid-cols-4 gap-6 border-b border-gray-700 px-4 py-2 text-white items-center"
-              >
-                <div>{user.username} </div>
-                <div>{user.email}</div>
-                <div>{user.permissions}</div>
-                <button className="ml-2 rounded" onClick={handlePasswordReset}>
-                  Password Reset
-                </button>
-              </li>
-            ))}
-            ;
-          </ul>
+        <div className="grid grid-cols-4 gap-12 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+          <div>USERNAME</div>
+          <div>EMAIL</div>
+          <div>PERMISSIONS</div>
+          <div>PASSWORD</div>
         </div>
+        <ul>
+          {(users || []).map((user) => (
+            <li
+              key={user.id}
+              className="grid grid-cols-4 gap-6 border-b border-gray-700 px-4 py-2 text-white items-center"
+            >
+              <div>{user.username} </div>
+              <div>{user.email}</div>
+              <div>{user.permissions}</div>
+              <button className="rounded" onClick={handlePasswordReset}>
+                Reset
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </motion.div>
   );
 };

@@ -23,7 +23,6 @@ import CarrierDropdown from "../../components/carrierDropdown";
 // import { useParams } from "react-router-dom";
 import AddressEditModal from "./AddressEditModal";
 
-// const EASYSHIP_API_KEY = process.env.EASYSHIP_SAND;
 const EASYSHIP_API_KEY = import.meta.env.VITE_EASYSHIP_SAND;
 
 const PackingPage = () => {

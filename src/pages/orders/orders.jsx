@@ -4,9 +4,10 @@ import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
 import useFetchData from "../../components/useFetchData";
 import useUpdateOrderData from "../../components/useUpdateOrderData";
 import axios from "axios";
-import { Link, Outlet } from "react-router-dom";
+// import { Link, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
+import OrderEditModal from "./orderEditModal";
 
 const OrdersPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
@@ -14,7 +15,9 @@ const OrdersPage = () => {
   const dispatch = useDispatch();
   const { updateData } = useUpdateOrderData();
   const [quantities, setQuantities] = useState({});
-  const { orderNumber } = useParams();
+  // const { orderNumber } = useParams();
+  const [showOrderEdit, setShowOrderEdit] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     if (orders) {
@@ -51,103 +54,204 @@ const OrdersPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <div className="flex-1 items-center justify-center min-h-screen">
-        {/* <div className="w-2/3 p-6"> */}
-        <div
+      <div className="w-full max-w-3xl mx-auto mt-8">
+        {/* <div
           className={`flex ${
             !orderNumber ? "justify-center items-center" : ""
-          }`}
-        >
-          {/* Animate orders list width */}
-          {/* Orders list/main content */}
-          <motion.div
+          }`} 
+        >*/}
+        {/* Animate orders list width */}
+        {/* Orders list/main content */}
+        {/* <motion.div
             className={`p-6 ${!orderNumber ? "mx-auto" : ""}`}
             initial={false}
             animate={{ width: orderNumber ? "66.6667%" : "auto" }} // 2/3 = 66.6667%
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            <div className="font-medium text-shadow-lg">
-              <ul>
-                {orders.map((order) => (
-                  <li
-                    key={order.order_number}
-                    className="border-y rounded-lg m-4 p-2 flex  text-white w-fit text-shadow-lg items-center"
+          > */}
+        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+          <div>EDIT</div>
+          <div>ORDER #</div>
+          <div>SKU</div>
+          <div>ITEM</div>
+          <div>QUANTITY</div>
+          <div>ACTIONS</div>
+        </div>
+        <ul>
+          {orders.map((order) => (
+            <li
+              key={order.order_number}
+              className="border-b border-gray-700 px-4 py-2 text-white"
+            >
+              <div className="grid grid-cols-6 gap-6 items-center">
+                {/* View/Edit */}
+                <div>
+                  <button
+                    className="mr-2 text-blue-400 underline"
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setShowOrderEdit(true);
+                    }}
                   >
-                    <Link
-                      to={`/orders/${order.order_number}`}
-                      className="mr-2 text-blue-400 underline"
-                    >
-                      View/Edit
-                    </Link>
-                    <strong>Order # {order.order_number} |</strong>
-                    <ul>
-                      {order.items.map((item) => (
-                        // local state for each input
+                    View/Edit
+                  </button>
+                </div>
+                {/* Order Number */}
+                <div>
+                  <strong>{order.order_number}</strong>
+                </div>
+                {/* SKU(s) */}
+                <div>
+                  <div className="flex flex-col gap-2">
+                    {order.items.map((item) => (
+                      <span key={item.id}>{item.sku}</span>
+                    ))}
+                  </div>
+                </div>
+                {/* Item(s) */}
+                <div>
+                  <div className="flex flex-col gap-2">
+                    {order.items.map((item) => (
+                      <span key={item.id}>{item.description}</span>
+                    ))}
+                  </div>
+                </div>
+                {/* Quantity(s) */}
+                <div>
+                  <div className="flex flex-col gap-2 items-center">
+                    {order.items.map((item) => (
+                      <input
+                        key={item.id}
+                        type="number"
+                        className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
+                        value={quantities[item.id] ?? item.quantity}
+                        min={0}
+                        onChange={(e) => {
+                          setQuantities((q) => ({
+                            ...q,
+                            [item.id]: Number(e.target.value),
+                          }));
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {/* Actions */}
+                <div>
+                  <div className="flex flex-col gap-2">
+                    {order.items.map((item) => (
+                      <div key={item.id} className="flex gap-2">
+                        <button
+                          className="px-2 py-1 bg-green-900 rounded"
+                          onClick={async () => {
+                            dispatch(
+                              updateItemQuantity({
+                                orderId: order.order_id || order.id,
+                                itemId: item.id,
+                                delta:
+                                  (quantities[item.id] ?? item.quantity) -
+                                  item.quantity,
+                              })
+                            );
+                            await updateData(
+                              item.id,
+                              order.order_id || order.id,
+                              item.item_id,
+                              quantities[item.id] ?? item.quantity
+                            );
+                            await fetchOrders();
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="px-2 py-1 bg-gray-700 rounded"
+                          onClick={() => {
+                            axios
+                              .post(
+                                `http://localhost:3000/order_items/${item.id}/undo`
+                              )
+                              .then(fetchOrders);
+                          }}
+                        >
+                          Undo
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {/* edited above */}
+        {/* <li key={item.id} className="flex flex-col gap-2">
+                      <div>{item.sku}</div>
+                      <div>{item.description}</div>
+                      <div>
+                        <input
+                          type="number"
+                          className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
+                          value={quantities[item.id] ?? item.quantity}
+                          min={0}
+                          onChange={(e) => {
+                            setQuantities((q) => ({
+                              ...q,
+                              [item.id]: Number(e.target.value),
+                            }));
+                          }}
+                        />
+                      </div>
+                      <button
+                        className="ml-2"
+                        onClick={async () => {
+                          //Update Redux for instant UI feedback
+                          dispatch(
+                            updateItemQuantity({
+                              orderId: order.order_id || order.id,
+                              itemId: item.id,
+                              delta:
+                                (quantities[item.id] ?? item.quantity) -
+                                item.quantity,
+                            })
+                          );
+                          // Update backend
 
-                        <li key={item.id} className="ml-2 font-semibold">
-                          Sku: {item.sku} | Item: {item.description} | Quantity:
-                          <input
-                            type="number"
-                            className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
-                            value={quantities[item.id] ?? item.quantity}
-                            min={0}
-                            onChange={(e) => {
-                              setQuantities((q) => ({
-                                ...q,
-                                [item.id]: Number(e.target.value),
-                              }));
-                            }}
-                          />
-                          <button
-                            className="ml-2"
-                            onClick={async () => {
-                              //Update Redux for instant UI feedback
-                              dispatch(
-                                updateItemQuantity({
-                                  orderId: order.order_id || order.id,
-                                  itemId: item.id,
-                                  delta:
-                                    (quantities[item.id] ?? item.quantity) -
-                                    item.quantity,
-                                })
-                              );
-                              // Update backend
-
-                              await updateData(
-                                item.id,
-                                order.order_id || order.id,
-                                item.item_id,
-                                quantities[item.id] ?? item.quantity
-                              );
-                              //Re-fetch to sync UI
-                              await fetchOrders();
-                            }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            className="ml-2"
-                            onClick={() => {
-                              axios
-                                .post(
-                                  `http://localhost:3000/order_items/${item.id}/undo`
-                                )
-                                // .then(() => window.location.reload());
-                                .then(fetchOrders);
-                            }}
-                          >
-                            Undo
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-          {/* Animated sidebar for order details, below NavBar and even with orders list */}
-          <AnimatePresence>
+                          await updateData(
+                            item.id,
+                            order.order_id || order.id,
+                            item.item_id,
+                            quantities[item.id] ?? item.quantity
+                          );
+                          //Re-fetch to sync UI
+                          await fetchOrders();
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="ml-2"
+                        onClick={() => {
+                          axios
+                            .post(
+                              `http://localhost:3000/order_items/${item.id}/undo`
+                            )
+                            // .then(() => window.location.reload());
+                            .then(fetchOrders);
+                        }}
+                      >
+                        Undo
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ul> */}
+        {/* </div> */}
+        {/* </motion.div> */}
+        {/* Animated sidebar for order details, below NavBar and even with orders list */}
+        {/* <AnimatePresence>
             {orderNumber && (
               <motion.div
                 initial={{ x: "100%", opacity: 0 }}
@@ -160,9 +264,17 @@ const OrdersPage = () => {
                 <Outlet />
               </motion.div>
             )}
-          </AnimatePresence>
-        </div>
+          </AnimatePresence> */}
       </div>
+      {/* Modal */}
+      <AnimatePresence>
+        {showOrderEdit && selectedOrder && (
+          <OrderEditModal
+            order={selectedOrder}
+            onClose={() => setShowOrderEdit(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
