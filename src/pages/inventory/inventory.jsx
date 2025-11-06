@@ -9,7 +9,6 @@ import useUpdateInventoryData from "../../components/useUpdateInventoryData";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
-
 const InventoryPage = () => {
   const inventory = useSelector((state) => state.inventory);
   const dispatch = useDispatch();
@@ -42,28 +41,47 @@ const InventoryPage = () => {
 
   return (
     <motion.div
-                     initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-           > 
-      <div className="flex flex-col items-center justify-center">
-        <div className="flex items-center justify-center">
-          <ul>
-            {inventory.map((item) => (
-              <li
-                key={item.id}
-                className="flex border-y rounded-lg m-4 p-1  text-white w-fit text-shadow-lg font-semibold items-center"
-              >
-                SKU: {item.sku} | Item: {item.description} | Total OH:{" "}
-                {item.total_quantity} |
-                <ul>
-                  {(item.locations || []).map((location) => (
-                    <li key={location.id} className="flex ml-1 items-center">
-                      Location: {location.location_number}{" "}
-                      {location.location_name} | Quantity:{" "}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
+      <div className="w-full max-w-3xl mx-auto mt-8 ">
+        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+          <div>SKU</div>
+          <div>ITEM</div>
+          <div>TOTAL OH</div>
+          <div>LOCATIONS</div>
+          <div>QUANTITY</div>
+          <div>ACTIONS</div>
+        </div>
+        <ul>
+          {inventory.map((item) => (
+            <li
+              key={item.id}
+              className="border-b border-gray-700 px-4 py-2 text-white"
+            >
+              <div className="grid grid-cols-6 gap-6 items-center">
+                <div>{item.sku}</div>
+                <div>{item.description}</div>
+                <div>{item.total_quantity} </div>
+                {/* LOCATIONS column */}
+                <div>
+                  <div className="flex flex-col gap-2">
+                    {(item.locations || []).map((location) => (
+                      <span key={location.id} className="font-semibold">
+                        {location.location_number} {location.location_name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {/* QUANTITY column */}
+                <div>
+                  <div className="flex flex-col items-center  gap-2">
+                    {(item.locations || []).map((location) => (
                       <input
+                        key={location.id}
                         type="number"
-                        className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
+                        className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
                         value={quantities[location.id] ?? location.quantity} // ?? is nullish coalescing operator. if left side is null or undefined use right side
                         min={0}
                         onChange={(e) => {
@@ -73,56 +91,62 @@ const InventoryPage = () => {
                           }));
                         }}
                       />
-                      <button
-                        className="ml-2"
-                        onClick={async () => {
-                          const newQuantity =
-                            quantities[location.id] ?? location.quantity;
-                          dispatch(
-                            updateItemQuantity({
-                              itemId: item.id,
-                              locationId: location.id,
-                              delta: newQuantity - location.quantity, //Redux applies a change(called delta) to the stored value (not a replacement)
-                            })
-                          );
+                    ))}
+                  </div>
+                </div>
+                {/* ACTIONS column */}
+                <div>
+                  <div className="flex flex-col gap-2">
+                    {(item.locations || []).map((location) => (
+                      <div key={location.id} className="flex gap-2">
+                        <button
+                          className="px-2 py-1 bg-green-900 rounded"
+                          onClick={async () => {
+                            const newQuantity =
+                              quantities[location.id] ?? location.quantity;
+                            dispatch(
+                              updateItemQuantity({
+                                itemId: item.id,
+                                locationId: location.id,
+                                delta: newQuantity - location.quantity, //Redux applies a change(called delta) to the stored value (not a replacement)
+                              })
+                            );
 
-                          // Update backend
-                          await updateData(
-                            location.id,
-                            newQuantity,
-                            item.id,
-                            location.location_id
-                          );
-                        }}
-                      >
-                        {" "}
-                        Save{" "}
-                      </button>
-                      <button
-                        className="m-2"
-                        onClick={async () => {
-                          await axios.post(
-                            `http://localhost:3000/item_locations/${location.id}/undo`
-                          );
-                          // .then(() => window.location.reload());
+                            // Update backend
+                            await updateData(
+                              location.id,
+                              newQuantity,
+                              item.id,
+                              location.location_id
+                            );
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="px-2 py-1 bg-gray-700 rounded"
+                          onClick={async () => {
+                            await axios.post(
+                              `http://localhost:3000/item_locations/${location.id}/undo`
+                            );
 
-                          // Re-fetch inventory data and update Redux state
-                          const response = await fetch(
-                            "http://localhost:3000/items"
-                          );
-                          const data = await response.json();
-                          dispatch(setInventory(data.items));
-                        }}
-                      >
-                        Undo
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </div>
+                            const response = await fetch(
+                              "http://localhost:3000/items"
+                            );
+                            const data = await response.json();
+                            dispatch(setInventory(data.items));
+                          }}
+                        >
+                          Undo
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </motion.div>
   );

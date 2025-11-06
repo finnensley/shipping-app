@@ -342,7 +342,7 @@ const PackingPage = () => {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error loading orders.</div>;
+  if (error) return <div>Error loading page.</div>;
 
   return (
     <motion.div
