@@ -68,7 +68,7 @@ const OrdersPage = () => {
             animate={{ width: orderNumber ? "66.6667%" : "auto" }} // 2/3 = 66.6667%
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           > */}
-        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
           <div>EDIT</div>
           <div>ORDER #</div>
           <div>SKU</div>
@@ -76,121 +76,54 @@ const OrdersPage = () => {
           <div>QUANTITY</div>
           <div>ACTIONS</div>
         </div>
-        <ul>
-          {orders.map((order) => (
-            <li
-              key={order.order_number}
-              className="border-b border-gray-700 px-4 py-2 text-white"
-            >
-              <div className="grid grid-cols-6 gap-6 items-center">
-                {/* View/Edit */}
-                <div>
-                  <button
-                    className="mr-2 text-blue-400 underline"
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      setShowOrderEdit(true);
-                    }}
-                  >
-                    View/Edit
-                  </button>
-                </div>
-                {/* Order Number */}
-                <div>
-                  <strong>{order.order_number}</strong>
-                </div>
-                {/* SKU(s) */}
-                <div>
-                  <div className="flex flex-col gap-2">
-                    {order.items.map((item) => (
-                      <span key={item.id}>{item.sku}</span>
-                    ))}
+        <div className="overflow-y-auto max-h-[60vh]">
+          <ul>
+            {orders.map((order) => (
+              <li
+                key={order.order_number}
+                className="border-b border-gray-700 px-4 py-2 text-white"
+              >
+                <div className="grid grid-cols-6 gap-6 items-center">
+                  {/* View/Edit */}
+                  <div>
+                    <button
+                      className="mr-2 text-blue-400 underline"
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setShowOrderEdit(true);
+                      }}
+                    >
+                      View/Edit
+                    </button>
                   </div>
-                </div>
-                {/* Item(s) */}
-                <div>
-                  <div className="flex flex-col gap-2">
-                    {order.items.map((item) => (
-                      <span key={item.id}>{item.description}</span>
-                    ))}
+                  {/* Order Number */}
+                  <div>
+                    <strong>{order.order_number}</strong>
                   </div>
-                </div>
-                {/* Quantity(s) */}
-                <div>
-                  <div className="flex flex-col gap-2 items-center">
-                    {order.items.map((item) => (
-                      <input
-                        key={item.id}
-                        type="number"
-                        className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
-                        value={quantities[item.id] ?? item.quantity}
-                        min={0}
-                        onChange={(e) => {
-                          setQuantities((q) => ({
-                            ...q,
-                            [item.id]: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    ))}
+                  {/* SKU(s) */}
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      {order.items.map((item) => (
+                        <span key={item.id}>{item.sku}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {/* Actions */}
-                <div>
-                  <div className="flex flex-col gap-2">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="flex gap-2">
-                        <button
-                          className="px-2 py-1 bg-green-900 rounded"
-                          onClick={async () => {
-                            dispatch(
-                              updateItemQuantity({
-                                orderId: order.order_id || order.id,
-                                itemId: item.id,
-                                delta:
-                                  (quantities[item.id] ?? item.quantity) -
-                                  item.quantity,
-                              })
-                            );
-                            await updateData(
-                              item.id,
-                              order.order_id || order.id,
-                              item.item_id,
-                              quantities[item.id] ?? item.quantity
-                            );
-                            await fetchOrders();
-                          }}
-                        >
-                          Save
-                        </button>
-                        <button
-                          className="px-2 py-1 bg-gray-700 rounded"
-                          onClick={() => {
-                            axios
-                              .post(
-                                `http://localhost:3000/order_items/${item.id}/undo`
-                              )
-                              .then(fetchOrders);
-                          }}
-                        >
-                          Undo
-                        </button>
-                      </div>
-                    ))}
+                  {/* Item(s) */}
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      {order.items.map((item) => (
+                        <span key={item.id}>{item.description}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {/* edited above */}
-        {/* <li key={item.id} className="flex flex-col gap-2">
-                      <div>{item.sku}</div>
-                      <div>{item.description}</div>
-                      <div>
+                  {/* Quantity(s) */}
+                  <div>
+                    <div className="flex flex-col gap-2 items-center">
+                      {order.items.map((item) => (
                         <input
+                          key={item.id}
                           type="number"
-                          className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)]"
+                          className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
                           value={quantities[item.id] ?? item.quantity}
                           min={0}
                           onChange={(e) => {
@@ -200,58 +133,61 @@ const OrdersPage = () => {
                             }));
                           }}
                         />
-                      </div>
-                      <button
-                        className="ml-2"
-                        onClick={async () => {
-                          //Update Redux for instant UI feedback
-                          dispatch(
-                            updateItemQuantity({
-                              orderId: order.order_id || order.id,
-                              itemId: item.id,
-                              delta:
-                                (quantities[item.id] ?? item.quantity) -
-                                item.quantity,
-                            })
-                          );
-                          // Update backend
-
-                          await updateData(
-                            item.id,
-                            order.order_id || order.id,
-                            item.item_id,
-                            quantities[item.id] ?? item.quantity
-                          );
-                          //Re-fetch to sync UI
-                          await fetchOrders();
-                        }}
-                      >
-                        Save
-                      </button>
-                      <button
-                        className="ml-2"
-                        onClick={() => {
-                          axios
-                            .post(
-                              `http://localhost:3000/order_items/${item.id}/undo`
-                            )
-                            // .then(() => window.location.reload());
-                            .then(fetchOrders);
-                        }}
-                      >
-                        Undo
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul> */}
-        {/* </div> */}
-        {/* </motion.div> */}
-        {/* Animated sidebar for order details, below NavBar and even with orders list */}
-        {/* <AnimatePresence>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Actions */}
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      {order.items.map((item) => (
+                        <div key={item.id} className="flex gap-2">
+                          <button
+                            className="px-2 py-1 bg-green-900 rounded"
+                            onClick={async () => {
+                              dispatch(
+                                updateItemQuantity({
+                                  orderId: order.order_id || order.id,
+                                  itemId: item.id,
+                                  delta:
+                                    (quantities[item.id] ?? item.quantity) -
+                                    item.quantity,
+                                })
+                              );
+                              await updateData(
+                                item.id,
+                                order.order_id || order.id,
+                                item.item_id,
+                                quantities[item.id] ?? item.quantity
+                              );
+                              await fetchOrders();
+                            }}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="px-2 py-1 bg-gray-700 rounded"
+                            onClick={() => {
+                              axios
+                                .post(
+                                  `http://localhost:3000/order_items/${item.id}/undo`
+                                )
+                                .then(fetchOrders);
+                            }}
+                          >
+                            Undo
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* </div> */}
+          {/* </motion.div> */}
+          {/* Animated sidebar for order details, below NavBar and even with orders list */}
+          {/* <AnimatePresence>
             {orderNumber && (
               <motion.div
                 initial={{ x: "100%", opacity: 0 }}
@@ -265,6 +201,7 @@ const OrdersPage = () => {
               </motion.div>
             )}
           </AnimatePresence> */}
+        </div>
       </div>
       {/* Modal */}
       <AnimatePresence>

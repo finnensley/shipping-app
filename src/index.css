@@ -21,6 +21,8 @@
 }
 :root {
   @apply w-full bg-[url('assets/pexels-david-bartus-43782-2290438.jpg')] bg-cover bg-bottom bg-no-repeat
+  /* @apply w-full bg-black */
+  /* @apply w-full bg-white text-black */
 }
 
 a {

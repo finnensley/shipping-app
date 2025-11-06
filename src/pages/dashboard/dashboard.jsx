@@ -26,87 +26,177 @@ const DashboardPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* Ready to Ship & Picked side by side */}
-      <div className="flex flex-row justify-evenly ml-2 mr-2 mt-4 p-4 border-b shadow-sm shadow-white rounded-lg  text-white text-lg text-shadow-lg font-semibold items-center">
-        <div className="flex flex-row gap-4">
-          <div className="flex flex-col bg-gray-800/30 shadow-md shadow-white p-4 rounded-lg">
-            <h1 className="text-2xl">READY TO SHIP:</h1>
-            <p className="ml-2 text-xl"> Orders: {openOrderCount} </p>
-            <p className="ml-2 text-xl">Total Revenue: ${orderTotal} </p>
-            <p>Number of Orders by Type/Revenue: </p>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">TOTAL ORDERS</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>CATEGORY</div>
+            <div>TOTAL</div>
+            <div>REVENUE</div>
           </div>
-          <div className="flex flex-col bg-gray-800/30 shadow-md shadow-white p-4 rounded-lg">
-            <h1 className="text-2xl">PICKED:</h1>
-            <p className="ml-2 text-xl"> Orders: {/*{pickedOrderCount}*/} </p>
-            <p className="ml-2 text-xl">
-              Total Revenue: {/*${pickedOrderTotal}*/}
-            </p>
-            <p>Number of Orders by Type/Revenue: </p>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center ">
+            <div>READY TO SHIP</div>
+            <div>{openOrderCount}</div>
+            <div>${orderTotal}</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>PICKED</div>
+            <div>{openOrderCount}</div>
+            <div>${orderTotal}</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>SHIPPED</div>
+            <div>{openOrderCount}</div>
+            <div>${orderTotal}</div>
           </div>
         </div>
       </div>
-      {/* Shipped below, full width */}
-      <div className="flex flex-row justify-evenly ml-2 mr-2 mt-4 p-4 border-b shadow-sm shadow-white rounded-lg  text-white text-lg text-shadow-lg font-semibold items-center">
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">SHIPPED:</h1>
-          <p className="ml-2 text-xl"> Orders: {/*{shippedOrderCount}*/} </p>
-          <p className="ml-2 text-xl">
-            Total Revenue: {/*${shippedOrderTotal}*/}
-          </p>
-          <p>Shipping Revenue vs Shipping Cost</p>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">ORDERS BY TYPE</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-4 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>ORDER TYPE</div>
+            <div>READY TO SHIP</div>
+            <div>PICKED</div>
+            <div>SHIPPED</div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center ">
+            <div>D2C</div>
+            <div>2</div>
+            <div>2</div>
+            <div>2</div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>B2B</div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>HOSPITALITY</div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
         </div>
       </div>
-
-      {/* Inventory Health & Needs Replenishment side by side */}
-      <div className="flex flex-row justify-evenly ml-2 mr-2 mt-4 p-4 border-b shadow-sm shadow-white rounded-lg text-white text-lg text-shadow-lg font-semibold items-center">
-        <div className="flex flex-col bg-gray-800/30 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">INVENTORY HEALTH:</h1>
-        </div>
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">NEEDS REPLENISHMENT:</h1>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">ORDERS WITH ISSUES</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-4 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>ORDER #</div>
+            <div>ORDER TYPE</div>
+            <div>STATUS </div>
+            <div>COMMENTS</div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center ">
+            <div>#</div>
+            <div>D2C</div>
+            <div>BACK ORDER</div>
+            <div>Receiving 12/12, PO #</div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>#</div>
+            <div>B2B</div>
+            <div>ON HOLD</div>
+            <div>CX Update</div>
+          </div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>#</div>
+            <div>WHOLESALE</div>
+            <div>ADDRESS FLAG</div>
+            <div>CX Alerted</div>
+          </div>
         </div>
       </div>
-      {/* Orders with issues*/}
-      <div className="flex flex-row justify-evenly ml-2 mr-2 mt-4 p-4 border-b shadow-sm shadow-white rounded-lg  text-white text-lg text-shadow-lg font-semibold items-center">
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">ORDERS WITH ISSUES:</h1>
-          <p className="ml-2 text-xl">
-            {" "}
-            Order #: Status: {/*{map over orders, return order # and status*/}{" "}
-          </p>
-          <p className="ml-2 text-xl"> Order #: Status:</p>
-          <p className="ml-2 text-xl">
-            Total Revenue: {/*total revenue of orders with issues*/}
-          </p>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">INVENTORY HEALTH</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>CATEGORY</div>
+            <div>TOTAL </div>
+            <div>DATE RECEIVING</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center ">
+            <div>OUT OF STOCK</div>
+            <div>#</div>
+            <div>PO Arrival Date</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>LOW STOCK</div>
+            <div>#</div>
+            <div>PO Arrival Date</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>STAGNANT</div>
+            <div>#</div>
+            <div></div>
+          </div>
         </div>
       </div>
-      <div className="m-4">
-        <h1 className="text-xl">AVERAGE OUTPUT:</h1>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">REPLENISHMENT</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>CATEGORY</div>
+            <div>TOTAL </div>
+            <div>DATE RECEIVING</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center ">
+            <div>OUT OF STOCK</div>
+            <div>#</div>
+            <div>PO Arrival Date</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>LOW STOCK</div>
+            <div>#</div>
+            <div>PO Arrival Date</div>
+          </div>
+          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
+            <div>EMPTY LOCATIONS</div>
+            <div>#</div>
+            <div></div>
+          </div>
+        </div>
       </div>
-      <div className="flex flex-row justify-evenly ml-2 mr-2 mt-4 p-4 rounded-lg border-b shadow-sm shadow-white text-white text-lg text-shadow-lg font-semibold items-center">
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">DAILY:</h1>
-          <p className="ml-2 text-xl"> Orders In: {/*{dailyOrdersIn}*/} </p>
-          <p className="ml-2 text-xl"> Picked: {/*{dailyPicked}*/} </p>
-          <p className="ml-2 text-xl">Shipped: {/*${dailyShipped}*/}</p>
-        </div>
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">WEEKLY:</h1>
-          <p className="ml-2 text-xl"> Orders In: {/*{weeklyOrdersIn}*/} </p>
-          <p className="ml-2 text-xl"> Picked: {/*{weeklyPicked}*/} </p>
-          <p className="ml-2 text-xl">Shipped: {/*${weeklyShipped}*/}</p>
-        </div>
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">MONTHLY:</h1>
-          <p className="ml-2 text-xl"> Orders In: {/*{monthlyOrdersIn}*/} </p>
-          <p className="ml-2 text-xl"> Picked: {/*{monthlyPicked}*/} </p>
-          <p className="ml-2 text-xl">Shipped: {/*${monthlyShipped}*/}</p>
-        </div>
-        <div className="flex flex-col bg-gray-800/40 shadow-md shadow-white p-4 rounded-lg">
-          <h1 className="text-2xl">YEAR TO DATE:</h1>
-          <p className="ml-2 text-xl"> Orders In: {/*{yearlyOrdersIn}*/} </p>
-          <p className="ml-2 text-xl"> Picked: {/*{yearlyPicked}*/} </p>
-          <p className="ml-2 text-xl">Shipped: {/*${yearlyShipped}*/}</p>
+      <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
+        <h1 className="flex text-3xl font-bold mb-2">AVERAGE OUTPUT</h1>
+        <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
+          <div className="grid grid-cols-5 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>CATEGORY</div>
+            <div>ORDERS RECEIVED</div>
+            <div>SALES REVENUE</div>
+            <div>SHIPPED</div>
+            <div>SHIPPED REVENUE</div>
+          </div>
+          <div className="grid grid-cols-5 p-2 border-b gap-6 items-center ">
+            <div>DAILY</div>
+            <div>#</div>
+            <div>$</div>
+            <div>#</div>
+            <div>$</div>
+          </div>
+          <div className="grid grid-cols-5 p-2 border-b gap-6 items-center">
+            <div>WEEKLY</div>
+            <div>#</div>
+            <div>$</div>
+            <div>#</div>
+            <div>$</div>
+          </div>
+          <div className="grid grid-cols-5 p-2 border-b gap-6 items-center">
+            <div>MONTHLY</div>
+            <div>#</div>
+            <div>$</div>
+            <div>#</div>
+            <div>$</div>
+          </div>
+          <div className="grid grid-cols-5 p-2 border-b gap-6 items-center">
+            <div>YTD</div>
+            <div>#</div>
+            <div>$</div>
+            <div>#</div>
+            <div>$</div>
+          </div>
         </div>
       </div>
     </motion.div>
