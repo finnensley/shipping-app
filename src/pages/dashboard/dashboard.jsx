@@ -137,25 +137,29 @@ const DashboardPage = () => {
       <div className="flex flex-col items-center justify-center mt-8 p-2 text-xs">
         <h1 className="flex text-3xl font-bold mb-2">REPLENISHMENT</h1>
         <div className="flex flex-col border-b max-w-3xl bg-gray-800/30 shadow-md shadow-white rounded-lg">
-          <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
-            <div>CATEGORY</div>
-            <div>TOTAL </div>
-            <div>DATE RECEIVING</div>
+          <div className="grid grid-cols-4 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>SKU</div>
+            <div>LOCATION </div>
+            <div>NEED</div>
+            <div>STATUS</div>
           </div>
-          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center ">
-            <div>OUT OF STOCK</div>
-            <div>#</div>
-            <div>PO Arrival Date</div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center ">
+            <div>111111</div>
+            <div>1</div>
+            <div>BELOW 10</div>
+            <div>IN STOCK - NOT STARTED</div>
           </div>
-          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
-            <div>LOW STOCK</div>
-            <div>#</div>
-            <div>PO Arrival Date</div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>222222</div>
+            <div>2</div>
+            <div>BACKSTOCK TRANSFER SUGGESTED</div>
+            <div>IN STOCK - IN PROGRESS</div>
           </div>
-          <div className="grid grid-cols-3 p-2 border-b gap-6 items-center">
-            <div>EMPTY LOCATIONS</div>
-            <div>#</div>
-            <div></div>
+          <div className="grid grid-cols-4 p-2 border-b gap-6 items-center">
+            <div>333333</div>
+            <div>4</div>
+            <div>ZERO STOCK IN PICKING LOCATION</div>
+            <div>PENDING PO ARRIVAL</div>
           </div>
         </div>
       </div>

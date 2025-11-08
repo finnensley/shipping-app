@@ -34,7 +34,7 @@ const UsersPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8 ">
-        <div className="grid grid-cols-4 gap-12 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+        <div className="grid grid-cols-4 gap-12 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
           <div>USERNAME</div>
           <div>EMAIL</div>
           <div>PERMISSIONS</div>

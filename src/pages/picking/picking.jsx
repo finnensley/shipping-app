@@ -238,7 +238,16 @@ const PickingPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="m-5">
-        <div className="flex items-center justify-center">
+      {/* <div className="w-full max-w-3xl mx-auto mt-8">
+        <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10"> */}
+          <div className="flex items-center justify-center">
+          {/* <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10"> */}
+            {/* <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div className="overflow-y-auto max-h-[60vh]"> */}
+
           {!pickListGenerated && (
             <>
               {/* Show resume option if there is a last generated pick list */}
@@ -282,102 +291,108 @@ const PickingPage = () => {
         {/* Picklist UI */}
         {pickListGenerated && pickList.length > 0 && items.length > 0 && (
           <>
-             <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-    >
-            <button
-              className="text-xl mb-4"
-              onClick={handleBack}
-
-              // setPickListGenerated(false);
-              // setSelectedOrders([]);
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
             >
-              Back
-            </button>
-            <ul>
-              {pickList.map((item) => {
-                // Find the matching inventory item by SKU
-                const inventoryItem = items.find((inv) => inv.sku === item.sku);
+              <button
+                className="text-xl mb-4"
+                onClick={handleBack}
 
-                // Filter locations with enough quantity
-                const eligibleLocations = inventoryItem
-                  ? inventoryItem.locations.filter(
-                      (loc) => loc.quantity >= item.quantity
-                    )
-                  : [];
-
-                // Choose location logic
-                let chosenLocation = null;
-                if (locationOverrides[item.sku]) {
-                  chosenLocation = {
-                    location_number: locationOverrides[item.sku],
-                  };
-                } else if (eligibleLocations.length === 1) {
-                  chosenLocation = eligibleLocations[0];
-                } else if (eligibleLocations.length > 1) {
-                  // Sort by quantity ascending, then by location number ascending
-                  eligibleLocations.sort((a, b) =>
-                    a.quantity !== b.quantity
-                      ? a.quantity - b.quantity
-                      : a.location_number - b.location_number
+                // setPickListGenerated(false);
+                // setSelectedOrders([]);
+              >
+                Back
+              </button>
+              <ul>
+                {pickList.map((item) => {
+                  // Find the matching inventory item by SKU
+                  const inventoryItem = items.find(
+                    (inv) => inv.sku === item.sku
                   );
-                  chosenLocation = eligibleLocations[0];
-                }
 
-                return (
-                  <div className="flex justify-center items-center" key={item.id}>
-                    <li className="flex border-y text-white font-semibold rounded-lg m-1 p-1 w-3/4 text-xl items-center justify-center">
-                      <ItemPicture
-                        sku={item.sku}
-                        description={item.description}
-                        image_path={item.image_path}
-                      />
-                      Order #: {item.order_numbers.join(", ")} | Location:{" "}
-                      {chosenLocation && typeof chosenLocation === "object"
-                        ? chosenLocation.location_number || "N/A"
-                        : "N/A"}{" "}
-                      | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-                      {item.quantity} |{" "}
-                      <label
-                        htmlFor={`locationTransfer-${item.sku}`}
-                        className="ml-2"
-                      >
-                        Picked From Location:{" "}
-                      </label>
-                      <input
-                        id={`locationTransfer-${item.sku}`}
-                        type="text"
-                        // placeholder={chosenLocation.location_number}
-                        placeholder={
-                          chosenLocation && typeof chosenLocation === "object"
-                            ? chosenLocation.location_number || "N/A"
-                            : "N/A"
-                        }
-                        className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
-                        value={locationOverrides[item.sku] || ""}
-                        onChange={(e) =>
-                          handleLocationChange(item.sku, e.target.value)
-                        }
-                      />
-                    </li>
-                  </div>
-                );
-              })}
-            </ul>
-            <button className="text-xl mb-4" onClick={handlePickListTransfer}>
-              Transfer
-            </button>
-            <div className="flex justify-end">
-              <div className="inline-block text-xl rounded-lg px-1">
-                Pick List #: {pickListId}{" "}
+                  // Filter locations with enough quantity
+                  const eligibleLocations = inventoryItem
+                    ? inventoryItem.locations.filter(
+                        (loc) => loc.quantity >= item.quantity
+                      )
+                    : [];
+
+                  // Choose location logic
+                  let chosenLocation = null;
+                  if (locationOverrides[item.sku]) {
+                    chosenLocation = {
+                      location_number: locationOverrides[item.sku],
+                    };
+                  } else if (eligibleLocations.length === 1) {
+                    chosenLocation = eligibleLocations[0];
+                  } else if (eligibleLocations.length > 1) {
+                    // Sort by quantity ascending, then by location number ascending
+                    eligibleLocations.sort((a, b) =>
+                      a.quantity !== b.quantity
+                        ? a.quantity - b.quantity
+                        : a.location_number - b.location_number
+                    );
+                    chosenLocation = eligibleLocations[0];
+                  }
+
+                  return (
+                    <div
+                      className="flex justify-center items-center"
+                      key={item.id}
+                    >
+                      <li className="flex border-y text-white font-semibold rounded-lg m-1 p-1 w-3/4 text-xl items-center justify-center">
+                        <ItemPicture
+                          sku={item.sku}
+                          description={item.description}
+                          image_path={item.image_path}
+                        />
+                        Order #: {item.order_numbers.join(", ")} | Location:{" "}
+                        {chosenLocation && typeof chosenLocation === "object"
+                          ? chosenLocation.location_number || "N/A"
+                          : "N/A"}{" "}
+                        | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
+                        {item.quantity} |{" "}
+                        <label
+                          htmlFor={`locationTransfer-${item.sku}`}
+                          className="ml-2"
+                        >
+                          Picked From Location:{" "}
+                        </label>
+                        <input
+                          id={`locationTransfer-${item.sku}`}
+                          type="text"
+                          // placeholder={chosenLocation.location_number}
+                          placeholder={
+                            chosenLocation && typeof chosenLocation === "object"
+                              ? chosenLocation.location_number || "N/A"
+                              : "N/A"
+                          }
+                          className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
+                          value={locationOverrides[item.sku] || ""}
+                          onChange={(e) =>
+                            handleLocationChange(item.sku, e.target.value)
+                          }
+                        />
+                      </li>
+                    </div>
+                  );
+                })}
+              </ul>
+              <button className="text-xl mb-4" onClick={handlePickListTransfer}>
+                Transfer
+              </button>
+              <div className="flex justify-end">
+                <div className="inline-block text-xl rounded-lg px-1">
+                  Pick List #: {pickListId}{" "}
+                </div>
               </div>
-            </div>
             </motion.div>
           </>
         )}
-      </div>
+        </div>
+      {/* </div> */}
     </motion.div>
   );
 };
