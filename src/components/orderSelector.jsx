@@ -71,7 +71,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
         <div className="grid grid-cols-4 border-b border-gray-700 py-2 text-white">
           <div className="flex items-center justify-center">
             <input
-              className="border w-16 text-xl text-center rounded-lg text-white"
+              className="border w-16 text-xl text-center rounded text-white"
               id="orderQuantity"
               type="number"
               min={1}
@@ -85,7 +85,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
-              className="border text-xl rounded-lg "
+              className="border text-xl rounded "
             >
               <option value="ship-by-date">Ship By Date</option>
               <option value="oldest-order-number">Oldest Order</option>
@@ -137,7 +137,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
                   value={inputValue}
                   onChange={handleInputChange}
                   id="singleOrderPacking"
-                  className="border rounded-lg text-xl text-white text-center w-40"
+                  className="border rounded text-xl text-white text-center w-40"
                   placeholder="enter order #"
                 ></input>
               </div>

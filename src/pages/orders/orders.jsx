@@ -87,7 +87,7 @@ const OrdersPage = () => {
                   {/* View/Edit */}
                   <div>
                     <button
-                      className="mr-2 text-blue-400 underline"
+                      className="mr-2 text-blue-400 underline px-2 py-1 bg-gray-700 rounded"
                       onClick={() => {
                         setSelectedOrder(order);
                         setShowOrderEdit(true);
