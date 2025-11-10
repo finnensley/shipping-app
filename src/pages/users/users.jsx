@@ -49,7 +49,7 @@ const UsersPage = () => {
               <div>{user.username} </div>
               <div>{user.email}</div>
               <div>{user.permissions}</div>
-              <button className="rounded" onClick={handlePasswordReset}>
+              <button className="rounded-lg" onClick={handlePasswordReset}>
                 Reset
               </button>
             </li>

@@ -22,7 +22,7 @@
 :root {
   @apply w-full bg-[url('assets/pexels-david-bartus-43782-2290438.jpg')] bg-cover bg-bottom bg-no-repeat
   /* @apply w-full bg-black */
-  /* @apply w-full bg-white text-black */
+  /* @apply w-full bg-white text-black */;
 }
 
 a {
@@ -52,29 +52,44 @@ h1 {
   /* background-color: rgba(0,0,0,0.38); */
 }
 
-button {
+/* button {
   @apply bg-gray-700 text-white border-white rounded-lg px-2 py-1;
+} */
+input {
+  border-radius: 0.5em;
+  width: 5em;
+  border: 1px solid white;
+  /* @apply rounded-lg; */
+}
+
+select {
+  border-radius: 0.5em;
+  border: 1px solid white;
+  background-color: rgba(0, 0, 0, 0.38);
+  @apply px-3 text-lg;
+  color: white;
+  /* appearance: none; Add to override browser using native styles 
+  -webkit-appearance: none;  For Safari/Chrome 
+  -moz-appearance: none;  For Firefox */
 }
 
 button {
-  border-radius: 10px;
+  @apply bg-gray-700 text-white px-2;
+  border-radius: 0.5em;
   border: 1px solid white;
-  padding: 0.1em 0.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
-  /* background-color: #1a1a1a; */
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
-  border-color: #646cff;
+  /* border-color: #646cff; */
+  border-color: darkgreen;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-
 
 /* @media (prefers-color-scheme: light) {
   :root {

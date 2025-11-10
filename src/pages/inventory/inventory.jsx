@@ -46,61 +46,63 @@ const InventoryPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8 ">
-        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
-          <div>SKU</div>
-          <div>ITEM</div>
-          <div>TOTAL OH</div>
-          <div>LOCATIONS</div>
-          <div>QUANTITY</div>
-          <div>ACTIONS</div>
+        <div className="grid grid-cols-7 gap-4 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
+          <div className="text-center">SKU</div>
+          <div className="text-center">ITEM</div>
+          <div className="text-center">TOTAL</div>
+          <div className="text-center">LOC</div>
+          <div className="text-center">QUANTITY</div>
+          <div className="text-center">SAVE</div>
+          <div className="text-center">UNDO</div>
         </div>
-        <ul>
-          {inventory.map((item) => (
-            <li
-              key={item.id}
-              className="border-b border-gray-700 px-4 py-2 text-white"
-            >
-              <div className="grid grid-cols-6 gap-6 items-center">
-                <div>{item.sku}</div>
-                <div>{item.description}</div>
-                <div>{item.total_quantity} </div>
-                {/* LOCATIONS column */}
-                <div>
-                  <div className="flex flex-col gap-2">
-                    {(item.locations || []).map((location) => (
-                      <span key={location.id} className="font-semibold">
-                        {location.location_number} {location.location_name}
-                      </span>
-                    ))}
+        <div className="overflow-y-auto max-h-[60vh]">
+          <ul>
+            {inventory.map((item) => (
+              <li
+                key={item.id}
+                className="border-b border-gray-700 px-4 py-2 text-white"
+              >
+                <div className="grid grid-cols-7 gap-4 items-center">
+                  <div>{item.sku}</div>
+                  <div>{item.description}</div>
+                  <div>{item.total_quantity} </div>
+                  {/* LOCATIONS column */}
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      {(item.locations || []).map((location) => (
+                        <span key={location.id} className="font-semibold">
+                          {location.location_number} {location.location_name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {/* QUANTITY column */}
-                <div>
-                  <div className="flex flex-col items-center  gap-2">
-                    {(item.locations || []).map((location) => (
-                      <input
-                        key={location.id}
-                        type="number"
-                        className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
-                        value={quantities[location.id] ?? location.quantity} // ?? is nullish coalescing operator. if left side is null or undefined use right side
-                        min={0}
-                        onChange={(e) => {
-                          setQuantities((q) => ({
-                            ...q, // spread operator allows update only to the current location
-                            [location.id]: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    ))}
+                  {/* QUANTITY column */}
+                  <div>
+                    <div className="flex flex-col items-center gap-2">
+                      {(item.locations || []).map((location) => (
+                        <input
+                          key={location.id}
+                          type="number"
+                          className="text-center bg-[rgba(0,0,0,0.38)]"
+                          value={quantities[location.id] ?? location.quantity} // ?? is nullish coalescing operator. if left side is null or undefined use right side
+                          min={0}
+                          onChange={(e) => {
+                            setQuantities((q) => ({
+                              ...q, // spread operator allows update only to the current location
+                              [location.id]: Number(e.target.value),
+                            }));
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {/* ACTIONS column */}
-                <div>
-                  <div className="flex flex-col gap-2">
-                    {(item.locations || []).map((location) => (
-                      <div key={location.id} className="flex gap-2">
+                  {/* Save column */}
+                  <div>
+                    <div className="flex flex-col items-center gap-2">
+                      {(item.locations || []).map((location) => (
                         <button
-                          className="px-2 py-1 bg-green-900 rounded"
+                          key={location.id}
+                          className="bg-green-900"
                           onClick={async () => {
                             const newQuantity =
                               quantities[location.id] ?? location.quantity;
@@ -121,10 +123,18 @@ const InventoryPage = () => {
                             );
                           }}
                         >
-                          Save
+                          SAVE
                         </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Undo column */}
+                  <div>
+                    <div className="flex flex-col items-center gap-2">
+                      {(item.locations || []).map((location) => (
                         <button
-                          className="px-2 py-1 bg-gray-700 rounded"
+                          key={location.id}
                           onClick={async () => {
                             await axios.post(
                               `http://localhost:3000/item_locations/${location.id}/undo`
@@ -137,16 +147,16 @@ const InventoryPage = () => {
                             dispatch(setInventory(data.items));
                           }}
                         >
-                          Undo
+                          UNDO
                         </button>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </motion.div>
   );

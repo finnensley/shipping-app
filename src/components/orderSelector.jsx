@@ -58,20 +58,20 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <div className="w-full max-w-3xl mt-8 text-lg">
+      <div className="w-full max-w-3xl mx-auto mt-8">
         {/* Header of "table" */}
-        <div className="grid grid-cols-4 items-end border-b-4 rounded-t-lg py-2 text-white font-bold">
+        <div className="grid grid-cols-[2fr_2fr_2fr_2fr] items-end border-b-4 rounded-t-lg px-4 py-2 text-lg">
           <div className="flex items-center justify-center">ORDERS </div>
           <div className="flex items-center justify-center">PRIORITY</div>
           <div className="flex items-center justify-center">BATCH</div>
           <div className="flex items-center justify-center">PICK LIST</div>
         </div>
 
-        {/* Multi Pick */}
-        <div className="grid grid-cols-4 border-b border-gray-700 py-2 text-white">
+        {/* # of Orders to Pick */}
+        <div className="grid grid-cols-[2fr_2fr_2fr_2fr] border-b border-gray-700 px-4 py-2">
           <div className="flex items-center justify-center">
             <input
-              className="border w-16 text-xl text-center rounded text-white"
+              className="text-lg text-center"
               id="orderQuantity"
               type="number"
               min={1}
@@ -81,11 +81,10 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
             />
           </div>
           {/* Pick Priority */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center mr-1">
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
-              className="border text-xl rounded "
             >
               <option value="ship-by-date">Ship By Date</option>
               <option value="oldest-order-number">Oldest Order</option>
@@ -93,20 +92,19 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
           </div>
 
           {/* Batch Type */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center ml-3 justify-center">
             <select
               value={selectedBatch}
               onChange={(e) => setSelectedBatch(e.target.value)}
-              className="border text-xl m-4 rounded"
             >
-              <option value="multi-item">Multi-item</option>
-              <option value="single-item">Single-item</option>
+              <option value="multi-item">Multi-Item</option>
+              <option value="single-item">Single-Item</option>
             </select>
           </div>
           {/* Create Pick List Button */}
           <div className="flex items-center justify-center">
             <button
-              className=" bg-green-900 rounded text-white font-bold"
+              className="bg-green-900"
               onClick={() => {
                 const filteredOrders = applyPriorityAndBatchType(
                   orders,
@@ -117,34 +115,34 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
                 onCreatePickList(filteredOrders);
               }}
             >
-              Create
+              CREATE
             </button>
           </div>
         </div>
 
         {/* Single Order */}
-        <div className="flex justify-center mt-8">
-          <div className="w-full max-w-md">
-            <div className="grid grid-cols-2 items-end border-b-4 rounded-t-lg px-4 py-2 text-white font-bold">
+        <div className="flex items-center justify-center mt-8">
+          <div>
+            <div className="grid grid-cols-2 items-end border-b-4 rounded-t-lg px-4 py-2 text-lg">
               <div>SINGLE ORDER</div>
               <div>PICK LIST</div>
             </div>
 
-            <div className="grid grid-cols-2 border-b border-gray-700 py-2 text-white ">
+            <div className="grid grid-cols-2 border-b border-gray-700 px-4 py-2">
               <div className="flex items-center justify-center">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={handleInputChange}
                   id="singleOrderPacking"
-                  className="border rounded text-xl text-white text-center w-40"
+                  className="text-lg text-center w-40"
                   placeholder="enter order #"
                 ></input>
               </div>
 
               <div className="flex items-center justify-center">
                 <button
-                  className=" bg-green-900 rounded text-white font-bold"
+                  className=" bg-green-900"
                   onClick={() => {
                     const orderToPick = orders.find(
                       (order) => order.order_number === Number(inputValue)
@@ -157,7 +155,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
                     }
                   }}
                 >
-                  Create
+                  CREATE
                 </button>
               </div>
             </div>

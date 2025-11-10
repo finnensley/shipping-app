@@ -45,6 +45,7 @@ const PickingPage = () => {
   const orders = useSelector((state) => state.picking.orders);
   const items = useSelector((state) => state.picking.items) || [];
   const [locationOverrides, setLocationOverrides] = useState({});
+  
 
   // When API data loads, update Redux state
 
@@ -228,26 +229,26 @@ const PickingPage = () => {
   if (error) return <div>Error loading picklist.</div>;
   if (loading) return <div>Loading inventory...</div>;
 
-  console.log("pickListGenerated:", pickListGenerated);
-  console.log("pickList:", pickList);
-  console.log("items:", items);
+  // console.log("pickListGenerated:", pickListGenerated);
+  // console.log("pickList:", pickList);
+  // console.log("items:", items);
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <div className="m-5">
-      {/* <div className="w-full max-w-3xl mx-auto mt-8">
-        <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10"> */}
-          <div className="flex items-center justify-center">
-          {/* <div className="grid grid-cols-3 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10"> */}
-            {/* <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <div className="overflow-y-auto max-h-[60vh]"> */}
-
+      <div className="w-full max-w-3xl mx-auto mt-8">
+        <div className="grid grid-cols-7 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
+          <div>IMAGE</div>
+          <div>ORDERS</div>
+          <div>SKU</div>
+          <div>ITEM</div>
+          <div>QTY</div>
+          <div>LOC</div>
+          <div>ALT LOC</div>
+        </div>
+        <div className="overflow-y-auto max-h-[60vh]">
           {!pickListGenerated && (
             <>
               {/* Show resume option if there is a last generated pick list */}
@@ -296,15 +297,6 @@ const PickingPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
             >
-              <button
-                className="text-xl mb-4"
-                onClick={handleBack}
-
-                // setPickListGenerated(false);
-                // setSelectedOrders([]);
-              >
-                Back
-              </button>
               <ul>
                 {pickList.map((item) => {
                   // Find the matching inventory item by SKU
@@ -338,60 +330,131 @@ const PickingPage = () => {
                   }
 
                   return (
-                    <div
-                      className="flex justify-center items-center"
-                      key={item.id}
-                    >
-                      <li className="flex border-y text-white font-semibold rounded-lg m-1 p-1 w-3/4 text-xl items-center justify-center">
-                        <ItemPicture
-                          sku={item.sku}
-                          description={item.description}
-                          image_path={item.image_path}
-                        />
-                        Order #: {item.order_numbers.join(", ")} | Location:{" "}
-                        {chosenLocation && typeof chosenLocation === "object"
-                          ? chosenLocation.location_number || "N/A"
-                          : "N/A"}{" "}
-                        | Sku: {item.sku} | Item: {item.description} | Quantity:{" "}
-                        {item.quantity} |{" "}
-                        <label
-                          htmlFor={`locationTransfer-${item.sku}`}
-                          className="ml-2"
-                        >
-                          Picked From Location:{" "}
-                        </label>
-                        <input
-                          id={`locationTransfer-${item.sku}`}
-                          type="text"
-                          // placeholder={chosenLocation.location_number}
-                          placeholder={
-                            chosenLocation && typeof chosenLocation === "object"
-                              ? chosenLocation.location_number || "N/A"
-                              : "N/A"
-                          }
-                          className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
-                          value={locationOverrides[item.sku] || ""}
-                          onChange={(e) =>
-                            handleLocationChange(item.sku, e.target.value)
-                          }
-                        />
+                    <div>
+                      <li
+                        key={item.id}
+                        className="border-b border-gray-700 px-4 py-2"
+                      >
+                        <div className="grid grid-cols-7 gap-6 items-center">
+                          <div className="flex items-center justify-center">
+                            <ItemPicture
+                              sku={item.sku}
+                              description={item.description}
+                              image_path={item.image_path}
+                            />
+                          </div>
+                          {/* Add dropdown to show all order numbers or modal */}
+                          <div>
+                            <div className="flex flex-col gap-2">
+                              {item.order_numbers.join(" , ")}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div>{item.sku} </div>
+                          </div>
+
+                          <div>
+                            <div>{item.description}</div>
+                          </div>
+
+                          {/* Create input that shows quantity like locations
+                          - Can be adjusted and that quantity is stored/removed 
+                          - If adjusted to less that order is transfered to a hold status within staged (?)*/}
+                          <div>
+                            <div>{item.quantity}</div>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor={`locationTransfer-${item.sku}`}
+                              className="ml-2"
+                            ></label>
+                            <input
+                              id={`locationTransfer-${item.sku}`}
+                              type="text"
+                              placeholder={
+                                chosenLocation &&
+                                typeof chosenLocation === "object"
+                                  ? chosenLocation.location_number || "N/A"
+                                  : "N/A"
+                              }
+                              className="ml-1 w-16 text-center text-white bg-[rgba(0,0,0,0.38)] placeholder-white"
+                              value={locationOverrides[item.sku] || ""}
+                              onChange={(e) =>
+                                handleLocationChange(item.sku, e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            {inventoryItem &&
+                              inventoryItem.locations.length > 0 && (
+                                <select
+                                  value={
+                                    locationOverrides[item.sku] ||
+                                    chosenLocation?.location_number ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    handleLocationChange(
+                                      item.sku,
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-full text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
+                                >
+                                  <option value="">Select Location</option>
+                                  {inventoryItem.locations.map((location) => (
+                                    <option
+                                      key={location.location_id}
+                                      value={location.location_number}
+                                      disabled={
+                                        location.quantity < item.quantity
+                                      }
+                                    >
+                                      Loc {location.location_number} (Qty:{" "}
+                                      {location.quantity})
+                                      {location.quantity < item.quantity
+                                        ? " - Insufficient"
+                                        : ""}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                          </div>
+
+                          {/* {item.item_locations.map((item_location) => {
+                              <li key={item.location_id}>
+                                <select>
+                                  <option value={item_location}>{item_location}</option>
+                                  </select>
+                                  </li>
+                })}
+                          </ul>
+                          </div> */}
+                        </div>
                       </li>
                     </div>
                   );
                 })}
               </ul>
-              <button className="text-xl mb-4" onClick={handlePickListTransfer}>
-                Transfer
-              </button>
               <div className="flex justify-end">
-                <div className="inline-block text-xl rounded-lg px-1">
-                  Pick List #: {pickListId}{" "}
-                </div>
+                <div className="text-lg mt-4">Pick List #: {pickListId} </div>
+              </div>
+              <div className="flex justify-between items-center mt-2 mb-4">
+                <button onClick={handleBack}>ⓧ Close</button>
+                <button
+                  className="bg-green-700"
+                  onClick={handlePickListTransfer}
+                >
+                  Transfer
+                </button>
               </div>
             </motion.div>
           </>
         )}
-        </div>
+      </div>
       {/* </div> */}
     </motion.div>
   );

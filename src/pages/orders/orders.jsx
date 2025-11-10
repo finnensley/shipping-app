@@ -55,26 +55,14 @@ const OrdersPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8">
-        {/* <div
-          className={`flex ${
-            !orderNumber ? "justify-center items-center" : ""
-          }`} 
-        >*/}
-        {/* Animate orders list width */}
-        {/* Orders list/main content */}
-        {/* <motion.div
-            className={`p-6 ${!orderNumber ? "mx-auto" : ""}`}
-            initial={false}
-            animate={{ width: orderNumber ? "66.6667%" : "auto" }} // 2/3 = 66.6667%
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          > */}
-        <div className="grid grid-cols-6 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
+        <div className="grid grid-cols-7 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
           <div>EDIT</div>
           <div>ORDER #</div>
           <div>SKU</div>
           <div>ITEM</div>
           <div>QUANTITY</div>
-          <div>ACTIONS</div>
+          <div>SAVE</div>
+          <div>UNDO</div>
         </div>
         <div className="overflow-y-auto max-h-[60vh]">
           <ul>
@@ -83,17 +71,17 @@ const OrdersPage = () => {
                 key={order.order_number}
                 className="border-b border-gray-700 px-4 py-2 text-white"
               >
-                <div className="grid grid-cols-6 gap-6 items-center">
+                <div className="grid grid-cols-7 gap-6 items-center">
                   {/* View/Edit */}
                   <div>
                     <button
-                      className="mr-2 text-blue-400 underline px-2 py-1 bg-gray-700 rounded"
+                      className="text-blue-400 underline"
                       onClick={() => {
                         setSelectedOrder(order);
                         setShowOrderEdit(true);
                       }}
                     >
-                      View/Edit
+                      VIEW/EDIT
                     </button>
                   </div>
                   {/* Order Number */}
@@ -123,7 +111,7 @@ const OrdersPage = () => {
                         <input
                           key={item.id}
                           type="number"
-                          className="w-16 text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
+                          className="text-center bg-[rgba(0,0,0,0.38)]"
                           value={quantities[item.id] ?? item.quantity}
                           min={0}
                           onChange={(e) => {
@@ -136,13 +124,13 @@ const OrdersPage = () => {
                       ))}
                     </div>
                   </div>
-                  {/* Actions */}
+                  {/* Save */}
                   <div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col items-center gap-2">
                       {order.items.map((item) => (
                         <div key={item.id} className="flex gap-2">
                           <button
-                            className="px-2 py-1 bg-green-900 rounded"
+                            className="bg-green-900"
                             onClick={async () => {
                               dispatch(
                                 updateItemQuantity({
@@ -162,21 +150,29 @@ const OrdersPage = () => {
                               await fetchOrders();
                             }}
                           >
-                            Save
-                          </button>
-                          <button
-                            className="px-2 py-1 bg-gray-700 rounded"
-                            onClick={() => {
-                              axios
-                                .post(
-                                  `http://localhost:3000/order_items/${item.id}/undo`
-                                )
-                                .then(fetchOrders);
-                            }}
-                          >
-                            Undo
+                            SAVE
                           </button>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex flex-col gap-2">
+                      {order.items.map((item) => (
+                        <button
+                          key={item.id}
+                          className="bg-gray-700"
+                          onClick={() => {
+                            axios
+                              .post(
+                                `http://localhost:3000/order_items/${item.id}/undo`
+                              )
+                              .then(fetchOrders);
+                          }}
+                        >
+                          UNDO
+                        </button>
                       ))}
                     </div>
                   </div>
