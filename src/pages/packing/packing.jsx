@@ -15,10 +15,10 @@ import {
 } from "../../features/packing/packingSlice";
 import useFetchData from "../../components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
-import SingleOrderPacking from "../../components/singleOrderPacking";
-import PickListSelector from "../../components/pickListSelector";
+import SingleOrderPacking from "./components/singleOrderPacking";
+import PickListSelector from "./components/pickListSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import CarrierDropdown from "../../components/carrierDropdown";
+import CarrierDropdown from "./components/carrierDropdown";
 // import { Link, Outlet } from "react-router-dom";
 // import { useParams } from "react-router-dom";
 import AddressEditModal from "./AddressEditModal";

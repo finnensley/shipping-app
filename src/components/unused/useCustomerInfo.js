@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import useFetchData from "./useFetchData";
+import useFetchData from "../useFetchData";
 
 const useCustomerInfo = (orderNumber) => {
   const {

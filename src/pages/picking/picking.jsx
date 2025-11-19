@@ -10,8 +10,8 @@ import {
 import useFetchData from "@/components/useFetchData";
 import ItemPicture from "../../components/itemPicture";
 import axios from "axios";
-import usePickListCreator from "../../components/usePickListCreator";
-import OrderSelector from "../../components/orderSelector";
+import usePickListCreator from "./components/usePickListCreator";
+import OrderSelector from "./components/orderSelector";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper function for unique pickListId

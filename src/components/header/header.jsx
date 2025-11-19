@@ -1,8 +1,8 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setAuthenticated } from "../features/auth/authSlice";
-import Navbar from "../components/navBar";
+import { setAuthenticated } from "../../features/auth/authSlice";
+import Navbar from "./navBar";
 
 const Header = () => {
   // initializes dispatch
@@ -45,11 +45,7 @@ const Header = () => {
       <div>
         <div className="flex justify-end text-sm">
           {showSignOut && (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="m-2"
-            >
+            <button type="button" onClick={handleSignOut} className="m-2">
               SIGN OUT
             </button>
           )}

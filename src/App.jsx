@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import "./App.css";
 import "./index.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/header";
+import Header from "./components/header/header";
 import AuthPage from "./pages/auth/auth";
 import DashboardPage from "./pages/dashboard/dashboard";
 import InventoryPage from "./pages/inventory/inventory";
@@ -15,7 +15,6 @@ import UsersPage from "./pages/users/users";
 import OrderDetailsPage from "./pages/orders/orderDetails";
 // import AddressDetailsPage from "./pages/packing/addressDetails";
 import { setAuthenticated } from "./features/auth/authSlice";
-
 
 function App() {
   const dispatch = useDispatch();
@@ -40,23 +39,25 @@ function App() {
           </h1>
         </div>
         <div className="flex-1 flex-col items-center justify-center">
-        <Routes>
-          <Route path="/" element={<AuthPage />} />
-          <Route
-            path="/dashboard"
-            element={isAuthenticated ? <DashboardPage /> : <Navigate to="/" />}
-          />
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/orders" element={<OrdersPage />}>
-            <Route path=":orderNumber" element={<OrderDetailsPage />} />
-          </Route>
-          <Route path="/picking" element={<PickingPage />} />
-          <Route path="/packing" element={<PackingPage />} />
+          <Routes>
+            <Route path="/" element={<AuthPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                isAuthenticated ? <DashboardPage /> : <Navigate to="/" />
+              }
+            />
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/orders" element={<OrdersPage />}>
+              <Route path=":orderNumber" element={<OrderDetailsPage />} />
+            </Route>
+            <Route path="/picking" element={<PickingPage />} />
+            <Route path="/packing" element={<PackingPage />} />
             {/* <Route path="/packing/orders/:orderNumber/address" element={<AddressDetailsPage />} />
           </Route> */}
-          <Route path="/store" element={<StoreFrontPage />} />
-          <Route path="/users" element={<UsersPage />} />
-        </Routes>
+            <Route path="/store" element={<StoreFrontPage />} />
+            <Route path="/users" element={<UsersPage />} />
+          </Routes>
         </div>
         <div className="flex text-sm items-center justify-center font-semibold text-white bottom-0 p-2 bg-[rgba(13, 110, 8, 0.38)] rounded-lg ">
           <p>&copy; 2025 soloSoftwareDev</p>

@@ -5,7 +5,7 @@ import {
   updateItemQuantity,
 } from "/src/features/inventory/inventorySlice";
 import useFetchData from "../../components/useFetchData";
-import useUpdateInventoryData from "../../components/useUpdateInventoryData";
+import useUpdateInventoryData from "./components/useUpdateInventoryData";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 

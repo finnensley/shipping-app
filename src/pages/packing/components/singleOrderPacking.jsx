@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useFetchData from "../components/useFetchData";
+import useFetchData from "../../../components/useFetchData";
 
 const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
   const { data, loading, error } = useFetchData("orders_with_items");
@@ -38,7 +38,6 @@ const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
             Enter
           </button>
         </div>
-       
       </div>
     </>
   );

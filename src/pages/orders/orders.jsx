@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
 import useFetchData from "../../components/useFetchData";
-import useUpdateOrderData from "../../components/useUpdateOrderData";
+import useUpdateOrderData from "./components/useUpdateOrderData";
 import axios from "axios";
 // import { Link, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";

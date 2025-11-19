@@ -184,7 +184,7 @@ const OrderEditModal = ({ order, onClose }) => {
                     Customer:
                   </label>
                   <input
-                    className="border rounded-lg px-3 py-2 flex-1"
+                    className="border rounded-lg px-3 py-2 flex-1 w-full"
                     placeholder={order.customer_name}
                     value={orderEdits.customer_name ?? ""}
                     onChange={(e) =>
