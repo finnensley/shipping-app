@@ -1,6 +1,9 @@
 # Build a shipping and inventory management app
 
-# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion, easyship (requred install of api@6.1.3,https://npm.im/oas), nodemon
+# Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion, easyship (requred install of api@6.1.3,https://npm.im/oas), nodemon,
+testing installs:  
+1. npm install --save-dev jest supertest @types/jest jest-environment-node
+2. npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event
 
 # Tables for testing,
 

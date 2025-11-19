@@ -1,0 +1,18 @@
+Running commands:
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage
+npm run test:coverage
+
+# Run only API tests
+npm run test:api
+
+# Run only component tests
+npm run test:components
+
+# Run only integration tests
+npm run test:integration

@@ -6,6 +6,7 @@ import { body, validationResult } from "express-validator";
 //Auth
 import AuthRoutes from "./routes/AuthRoutes.js";
 import { authenticateToken } from "./middleware/authMiddleware.js";
+import { validateInventoryAvailability } from "./utils/inventory-validator.js";
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ app.use((req, res, next) => {
 
 // Log errors
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error("Error:", err);
   next(err);
 });
 
@@ -927,6 +928,10 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
 app.post("/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const { pickListId, order_numbers, items, createdAt, status } = req.body;
+
+    // Validate inventory using extracted function
+    await validateInventoryAvailability(pool, items);
+
     // Insert into your new table
     await pool.query(
       "INSERT INTO picked_orders_staged_for_packing (pick_list_id, order_numbers, items, created_at, status) VALUES ($1, $2, $3, $4, $5)",
@@ -947,6 +952,9 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
 
     res.status(201).send("Pick list staged for packing");
   } catch (err) {
+    if (err.message.includes("Insufficient inventory")) {
+      return res.status(400).json({ error: err.message });
+    }
     console.error(err);
     res.status(500).send("Server Error");
   }
@@ -1107,5 +1115,7 @@ app.listen(port, () => {
   console.log(`Backend server running on port ${port}`);
 });
 
+export default app;
+export { pool };
 // In terminal to run server:
 // node src/server.js
