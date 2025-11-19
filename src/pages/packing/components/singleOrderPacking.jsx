@@ -18,26 +18,18 @@ const SingleOrderPacking = ({ setSelectedOrder, selectedOrder }) => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center m-4 font-medium">
-        <div className="m-4">
-          <label
-            htmlFor="singleOrderPacking"
-            className="text-xl text-white font-semibold "
-          >
-            Order number:
-          </label>
-          <input
-            type="text"
-            value={inputValue}
-            id="singleOrderPacking"
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="enter order number"
-            className="pl-1 text-center border ml-2 rounded-lg text-xl text-white font-semibold placeholder-gray-400"
-          />
-          <button type="button" onClick={handleClick} className="ml-2">
-            Enter
-          </button>
-        </div>
+      <div>
+        <input
+          type="text"
+          value={inputValue}
+          id="singleOrderPacking"
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="enter order #"
+          className="w-fit text-center"
+        />
+        <button type="button" onClick={handleClick} className="mt-2 w-fit">
+          Pack Order
+        </button>
       </div>
     </>
   );

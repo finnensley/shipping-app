@@ -351,19 +351,66 @@ const PackingPage = () => {
     >
       {/* Header - only show when not in pick list selector */}
       {!showPickListSelector && !selectedOrder && (
-        <div className="flex items-center mt-4 justify-center">
-          <p className="text-xl text-white font-semibold">
-            Select Pick List To Pack
-          </p>
-          <button
-            type="button"
-            onClick={() => dispatch(setShowPickListSelector(true))}
-            className="ml-2"
-          >
-            Click Here
-          </button>
+        <div className="w-full max-w-3xl mx-auto mt-8">
+          <div className="grid grid-cols-[1fr_1fr_1fr] gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg">
+            <div>PICKLISTS</div>
+            <div>PICKLIST #</div>
+            <div>ORDER #</div>
+          </div>
+          <div className="grid grid-cols-[1fr_1fr_1fr] py-2">
+            <div>
+              <button
+                type="button"
+                onClick={() => dispatch(setShowPickListSelector(true))}
+                className="ml-2"
+              >
+                View/Select
+              </button>
+            </div>
+            <div>
+              <label></label>
+              <input
+                className="w-fit text-center"
+                placeholder="enter picklist #"
+              ></input>
+              <button
+                type="button"
+                // onClick={() => dispatch(setShowPickList)}
+                className="mt-2"
+              >
+                Show Picklist
+              </button>
+            </div>
+            <SingleOrderPacking
+              selectedOrder={selectedOrder}
+              setSelectedOrder={(order) =>
+                dispatch(
+                  setSelectedOrder({
+                    ...order,
+                    original_carrier: order?.carrier,
+                    original_carrier_speed: order?.carrier_speed,
+                  })
+                )
+              }
+            />
+          </div>
         </div>
       )}
+      {/* <div className="flex items-center mt-8 justify-center "> */}
+      {/* <div className="flex m-4 border-b-4 rounded-b-md px-4 py-2">
+            <p className="text-xl text-white font-semibold">
+              Select/View Pick Lists
+            </p>
+            <button
+              type="button"
+              onClick={() => dispatch(setShowPickListSelector(true))}
+              className="ml-2"
+            >
+              Click Here
+            </button>
+          </div>
+        </div>
+      )} */}
       <div className="flex flex-col font-medium">
         {/* Step 1: Select Pick List */}
         {showPickListSelector && !selectedPickList && (
@@ -419,7 +466,7 @@ const PackingPage = () => {
             </div>
           </div>
         )}
-        {!selectedPickList && !selectedOrder && !showPickListSelector && (
+        {/* {!selectedPickList && !selectedOrder && !showPickListSelector && (
           <SingleOrderPacking
             selectedOrder={selectedOrder}
             setSelectedOrder={(order) =>
@@ -432,7 +479,7 @@ const PackingPage = () => {
               )
             }
           />
-        )}
+        )} */}
         {/* Step 4: Packing interface */}
         {selectedOrder && (
           <div>
