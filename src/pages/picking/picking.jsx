@@ -45,7 +45,6 @@ const PickingPage = () => {
   const orders = useSelector((state) => state.picking.orders);
   const items = useSelector((state) => state.picking.items) || [];
   const [locationOverrides, setLocationOverrides] = useState({});
-  
 
   // When API data loads, update Redux state
 
@@ -239,15 +238,6 @@ const PickingPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8">
-        <div className="grid grid-cols-7 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
-          <div>IMAGE</div>
-          <div>ORDERS</div>
-          <div>SKU</div>
-          <div>ITEM</div>
-          <div>QTY</div>
-          <div>LOC</div>
-          <div>ALT LOC</div>
-        </div>
         <div className="overflow-y-auto max-h-[60vh]">
           {!pickListGenerated && (
             <>
@@ -297,6 +287,15 @@ const PickingPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
             >
+              <div className="grid grid-cols-7 gap-6 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
+                <div>IMAGE</div>
+                <div>ORDERS</div>
+                <div>SKU</div>
+                <div>ITEM</div>
+                <div>QTY</div>
+                <div>LOC</div>
+                <div>ALT LOC</div>
+              </div>
               <ul>
                 {pickList.map((item) => {
                   // Find the matching inventory item by SKU

@@ -88,12 +88,13 @@ const AuthPage = () => {
   };
 
   return (
-    <motion.div className="flex flex-col min-h-screen items-center justify-center"
-      initial={{ opacity: 0 }} 
+    <motion.div
+      className="flex flex-col min-h-screen items-center justify-center"
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-       > 
-       <h1>Let's get started! </h1>
+    >
+      <h1>Let's get started! </h1>
       <h1 className="text-2xl m-2">Returning Users Log In Below: </h1>
       <form
         className="flex flex-col m-2 p-2 items-center"
@@ -101,7 +102,7 @@ const AuthPage = () => {
       >
         <label>Email</label>
         <input
-          className="ml-2 pl-2 border rounded-lg"
+          className="ml-2 w-full pl-2 border rounded-lg"
           value={logInEmail}
           onChange={(e) => setLogInEmail(e.target.value)}
           type="email"
@@ -109,7 +110,7 @@ const AuthPage = () => {
         ></input>
         <label>Password</label>
         <input
-          className="ml-2 pl-2 border rounded-lg"
+          className="ml-2 w-full pl-2 border rounded-lg"
           value={logInPassword}
           onChange={(e) => setLogInPassword(e.target.value)}
           type="password"
@@ -128,7 +129,7 @@ const AuthPage = () => {
         >
           <label>User Name</label>
           <input
-            className="ml-2 pl-2 border rounded-lg"
+            className="ml-2 w-fit pl-2 border rounded-lg"
             value={signUpUserName}
             onChange={(e) => setSignUpUserName(e.target.value)}
             type="text"
@@ -136,7 +137,7 @@ const AuthPage = () => {
           ></input>
           <label>Email</label>
           <input
-            className="ml-2 pl-2 border rounded-lg"
+            className="ml-2 w-fit pl-2 border rounded-lg"
             value={signUpEmail}
             onChange={(e) => setSignUpEmail(e.target.value)}
             type="email"
@@ -144,7 +145,7 @@ const AuthPage = () => {
           ></input>
           <label>Password</label>
           <input
-            className="ml-2 pl-2  border rounded-lg"
+            className="ml-2 w-fit pl-2  border rounded-lg"
             value={signUpPassword}
             onChange={(e) => setSignUpPassword(e.target.value)}
             type="password"

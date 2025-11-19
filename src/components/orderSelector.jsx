@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 
 const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
   console.log("orders in selector:", orders);
-  const [quantity, setQuantity] = useState(0);
-  const [selectedPriority, setSelectedPriority] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const [quantity, setQuantity] = useState(1); // was 0 before test
+  const [selectedPriority, setSelectedPriority] = useState("ship-by-date");// was "" before test
+  const [selectedBatch, setSelectedBatch] = useState("multi-item");// was "" before test
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [inputValue, setInputValue] = useState("");
 
