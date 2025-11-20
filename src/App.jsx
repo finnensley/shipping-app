@@ -15,6 +15,7 @@ import UsersPage from "./pages/users/users";
 import OrderDetailsPage from "./pages/orders/orderDetails";
 // import AddressDetailsPage from "./pages/packing/addressDetails";
 import { setAuthenticated } from "./features/auth/authSlice";
+import CheckOut from "./pages/storeFront/components/checkOut";
 
 function App() {
   const dispatch = useDispatch();
@@ -56,6 +57,7 @@ function App() {
             {/* <Route path="/packing/orders/:orderNumber/address" element={<AddressDetailsPage />} />
           </Route> */}
             <Route path="/store" element={<StoreFrontPage />} />
+            <Route path="/checkout" element={<CheckOut />} />
             <Route path="/users" element={<UsersPage />} />
           </Routes>
         </div>

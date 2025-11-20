@@ -396,21 +396,6 @@ const PackingPage = () => {
           </div>
         </div>
       )}
-      {/* <div className="flex items-center mt-8 justify-center "> */}
-      {/* <div className="flex m-4 border-b-4 rounded-b-md px-4 py-2">
-            <p className="text-xl text-white font-semibold">
-              Select/View Pick Lists
-            </p>
-            <button
-              type="button"
-              onClick={() => dispatch(setShowPickListSelector(true))}
-              className="ml-2"
-            >
-              Click Here
-            </button>
-          </div>
-        </div>
-      )} */}
       <div className="flex flex-col font-medium">
         {/* Step 1: Select Pick List */}
         {showPickListSelector && !selectedPickList && (

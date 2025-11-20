@@ -7,12 +7,15 @@ import { body, validationResult } from "express-validator";
 import AuthRoutes from "./routes/AuthRoutes.js";
 import { authenticateToken } from "./middleware/authMiddleware.js";
 import { validateInventoryAvailability } from "./utils/inventory-validator.js";
+import Stripe from 'stripe';
 
 dotenv.config();
 
 const { Pool } = pkg; // to use database
 const app = express();
 const port = 3000; //port for backend
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // secret key sk_test
+
 
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
@@ -46,6 +49,55 @@ const pool = new Pool({
 
 // API endpoint for CRUD (Create, Read, Update, Delete).
 //items
+
+// Stripe .post
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: req.body.items.map(item => ({
+        price_data: {
+            currency: 'usd',
+            product_data: { name: item.name },
+            unit_amount: item.price * 100, 
+        },
+        quantity: item.quantity,
+    })),
+    mode: 'payment',
+    // Enable automatic tax calculations
+    automatic_tax: {
+      enabled: true,
+    },
+    //Add shipping options
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: { amount: 500, currency: 'usd' }, //$5.00
+          display_name: 'Standard Shipping',
+          delivery_estimate: {
+            minimum: { unit: 'business_day', value: 5 },
+            maximum: { unit: 'business_day', value: 7 },
+          },
+        },
+      },
+    {
+      shipping_rate_data: {
+        type: 'fixed_amount',
+        fixed_amount: { amount: 1500, currency: 'usd' }, //$15.00
+        display_name: 'Express shipping',
+        delivery_estimate: {
+          minimum: { unit: 'business_day', value: 1 },
+          maximum: { unit: 'business_day', value: 2 },
+        },
+      },
+    },
+  ],
+    success_url: 'http://localhost:5173/success',
+    cancel_url: 'http://localhost:5173/checkout',
+  });
+  res.json({ url: session.url });
+});
+
 // Get all items joined with locations
 app.get("/items", async (req, res) => {
   try {
