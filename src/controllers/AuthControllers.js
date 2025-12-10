@@ -107,3 +107,40 @@ export const Login = async (req, res, next) => {
     next(err);
   }
 };
+
+export const DevLogin = async (req, res, next) => {
+  try {
+    if (process.env.NODE_ENV !== "development") {
+      return res
+        .status(403)
+        .json({
+          success: false,
+          error: "Dev login only allowed in development mode.",
+        });
+    }
+    // Use a fixed test user email
+    const testEmail = "devuser@example.com";
+    let user = await prisma.users.findUnique({ where: { email: testEmail } });
+    if (!user) {
+      // Create the test user if not exists
+      user = await prisma.users.create({
+        data: {
+          username: "devuser",
+          email: testEmail,
+          password_hash: "dev-no-password", // Not used
+          permissions: "admin",
+        },
+      });
+    }
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+    const { password_hash: _, ...safeUser } = user;
+    return res.status(200).json({ success: true, data: safeUser, token });
+  } catch (err) {
+    next(err);
+  }
+};

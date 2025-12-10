@@ -9,6 +9,7 @@ import { authenticateToken } from "./middleware/authMiddleware.js";
 import { validateInventoryAvailability } from "./utils/inventory-validator.js";
 import Stripe from 'stripe';
 
+
 dotenv.config();
 
 const { Pool } = pkg; // to use database
