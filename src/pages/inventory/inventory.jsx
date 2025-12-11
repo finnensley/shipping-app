@@ -46,10 +46,11 @@ const InventoryPage = () => {
       transition={{ duration: 1 }}
     >
       <div className="w-full max-w-3xl mx-auto mt-8 ">
-        <div className="grid grid-cols-7 gap-4 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
+        <div className="grid grid-cols-8 gap-4 border-b-4 rounded-t-lg px-4 py-2 text-white font-bold text-lg sticky top-0 z-10">
           <div className="text-center">SKU</div>
           <div className="text-center">ITEM</div>
           <div className="text-center">TOTAL</div>
+          <div className="text-center">AVAILABLE</div>
           <div className="text-center">LOC</div>
           <div className="text-center">QUANTITY</div>
           <div className="text-center">SAVE</div>
@@ -58,14 +59,16 @@ const InventoryPage = () => {
         <div className="overflow-y-auto max-h-[60vh]">
           <ul>
             {inventory.map((item) => (
+              console.log(item),
               <li
                 key={item.id}
                 className="border-b border-gray-700 px-4 py-2 text-white"
               >
-                <div className="grid grid-cols-7 gap-4 items-center">
+                <div className="grid grid-cols-8 gap-4 items-center">
                   <div>{item.sku}</div>
                   <div>{item.description}</div>
                   <div>{item.total_quantity} </div>
+                  <div>{item.available_quantity}</div>
                   {/* LOCATIONS column */}
                   <div>
                     <div className="flex flex-col gap-2">

@@ -7,8 +7,7 @@ import { body, validationResult } from "express-validator";
 import AuthRoutes from "./routes/AuthRoutes.js";
 import { authenticateToken } from "./middleware/authMiddleware.js";
 import { validateInventoryAvailability } from "./utils/inventory-validator.js";
-import Stripe from 'stripe';
-
+import Stripe from "stripe";
 
 dotenv.config();
 
@@ -16,7 +15,6 @@ const { Pool } = pkg; // to use database
 const app = express();
 const port = 3000; //port for backend
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // secret key sk_test
-
 
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
@@ -39,7 +37,7 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-//Database connection pool
+//Database connection pool - need to place in .env
 const pool = new Pool({
   user: "finnensley",
   host: "localhost",
@@ -52,18 +50,18 @@ const pool = new Pool({
 //items
 
 // Stripe .post
-app.post('/create-checkout-session', async (req, res) => {
+app.post("/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: req.body.items.map(item => ({
-        price_data: {
-            currency: 'usd',
-            product_data: { name: item.name },
-            unit_amount: item.price * 100, 
-        },
-        quantity: item.quantity,
+    payment_method_types: ["card"],
+    line_items: req.body.items.map((item) => ({
+      price_data: {
+        currency: "usd",
+        product_data: { name: item.name },
+        unit_amount: item.price * 100,
+      },
+      quantity: item.quantity,
     })),
-    mode: 'payment',
+    mode: "payment",
     // Enable automatic tax calculations
     automatic_tax: {
       enabled: true,
@@ -72,29 +70,29 @@ app.post('/create-checkout-session', async (req, res) => {
     shipping_options: [
       {
         shipping_rate_data: {
-          type: 'fixed_amount',
-          fixed_amount: { amount: 500, currency: 'usd' }, //$5.00
-          display_name: 'Standard Shipping',
+          type: "fixed_amount",
+          fixed_amount: { amount: 500, currency: "usd" }, //$5.00
+          display_name: "Standard Shipping",
           delivery_estimate: {
-            minimum: { unit: 'business_day', value: 5 },
-            maximum: { unit: 'business_day', value: 7 },
+            minimum: { unit: "business_day", value: 5 },
+            maximum: { unit: "business_day", value: 7 },
           },
         },
       },
-    {
-      shipping_rate_data: {
-        type: 'fixed_amount',
-        fixed_amount: { amount: 1500, currency: 'usd' }, //$15.00
-        display_name: 'Express shipping',
-        delivery_estimate: {
-          minimum: { unit: 'business_day', value: 1 },
-          maximum: { unit: 'business_day', value: 2 },
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: { amount: 1500, currency: "usd" }, //$15.00
+          display_name: "Express shipping",
+          delivery_estimate: {
+            minimum: { unit: "business_day", value: 1 },
+            maximum: { unit: "business_day", value: 2 },
+          },
         },
       },
-    },
-  ],
-    success_url: 'http://localhost:5173/success',
-    cancel_url: 'http://localhost:5173/checkout',
+    ],
+    success_url: "http://localhost:5173/success",
+    cancel_url: "http://localhost:5173/checkout",
   });
   res.json({ url: session.url });
 });
@@ -108,6 +106,7 @@ app.get("/items", async (req, res) => {
         i.sku,
         i.description,
         i.total_quantity,
+        i.available_quantity,
         i.image_path,
         il.id AS item_location_id,
         il.location_id,
@@ -131,6 +130,7 @@ app.get("/items", async (req, res) => {
           sku: row.sku,
           description: row.description,
           total_quantity: row.total_quantity,
+          available_quantity: row.available_quantity, // may not need this
           locations: [],
         };
       }
@@ -392,7 +392,9 @@ app.get("/orders_with_items", async (req, res) => {
         oi.sku,
         oi.description,
         oi.quantity,
-        i.image_path
+        i.image_path,
+        i.total_quantity,
+        i.available_quantity
       FROM orders o
       LEFT JOIN customers c ON o.customer_id = c.id
        LEFT JOIN order_items oi ON o.id = oi.order_id AND oi.active = TRUE
@@ -713,6 +715,11 @@ app.post(
         "INSERT INTO order_items (order_id, item_id, sku, description, quantity ) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [order_id, item_id, sku, description, quantity]
       );
+      // Deduct from available_quantity
+      await pool.query(
+        "UPDATE items SET available_quantity = available_quantity - $1 WHERE id = $2",
+        [quantity, item_id]
+      );
       res.status(201).json({ order_items: result.rows[0] });
     } catch (err) {
       console.error(err);
@@ -752,17 +759,25 @@ app.put("/order_items/:id", async (req, res) => {
     const { id } = req.params;
     const { quantity } = req.body;
 
-    // Get the current quantity before updating
+    // Get the current quantity and item_id before updating
     const current = await pool.query(
-      "SELECT quantity FROM order_items WHERE id=$1",
+      "SELECT quantity, item_id FROM order_items WHERE id=$1",
       [id]
     );
     const oldQuantity = current.rows[0]?.quantity;
+    const itemId = current.rows[0]?.item_id;
 
     // Update the quantity
     const result = await pool.query(
       "UPDATE order_items SET quantity=$1 WHERE id=$2 RETURNING *",
       [quantity, id]
+    );
+
+    // Adjust available_quantity
+    const diff = quantity - oldQuantity;
+    await pool.query(
+      "UPDATE items SET available_quantity = available_quantity - $1 WHERE id = $2",
+      [diff, itemId]
     );
 
     // Log the change in history
@@ -781,7 +796,24 @@ app.put("/order_items/:id", async (req, res) => {
 app.delete("/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Get the quantity and item_id before deleting
+    const current = await pool.query(
+      "SELECT quantity, item_id FROM order_items WHERE id=$1",
+      [id]
+    );
+    const quantity = current.rows[0]?.quantity;
+    const itemId = current.rows[0]?.item_id;
+
+    // Delete the order item
     await pool.query("DELETE FROM order_items WHERE id=$1", [id]);
+
+    // Restore available_quantity
+    await pool.query(
+      "UPDATE items SET available_quantity = available_quantity + $1 WHERE id = $2",
+      [quantity, itemId]
+    );
+
     res.status(204).send();
   } catch (err) {
     console.error(err);

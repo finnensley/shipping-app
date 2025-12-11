@@ -198,3 +198,21 @@ WHERE id = 1;  -->
 - SDK (Software Development Kit) is a toolkit for developers to use an API/service easily and provides pre-built functions, handles authentication, and simplifies integration.
 - Use sandbox API key (stored in a .env file, access it via process.env.EASYSHIP_SAND)
 - Call the SDK methods to get carrier rates
+
+## Order Items deducting from available_quantity
+Step 1: Add "available_quantity" column to the items table 
+Step 2: Initialize available_quantity to match total quantity
+  - psql -U finnensley -d shipping_app -c "UPDATE items SET available_quantity = total_quantity;"
+Step 3: Deduct ordered quantity from available_quantity when an order is created.
+  - update /order_items POST endpoint to do the subtraction
+Step 4: Update available quantity when order is updated or deleted
+  - update /order_items/:id PUT endpoint
+  - udpate /order_items/:id DELETE endpoint
+Step 5: Re-sync order items and inventory availability_quantity, 
+  - shipping_app=#
+  - UPDATE items
+  - SET available_quantity = total_quantity - COALESCE((
+  - SELECT SUM(oi.quantity)
+  - FROM order_items oi
+  - WHERE oi.item_id = items.id AND oi.active = TRUE
+  - ), 0);

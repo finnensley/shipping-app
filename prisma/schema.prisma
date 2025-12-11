@@ -52,6 +52,7 @@ model Items {
   sku            BigInt?
   description    String?
   total_quantity Int?
+  available_quantity Int?
   item_locations ItemLocations[]
 
   @@map("items")
