@@ -5,7 +5,7 @@ const NavBar = () => {
   return (
     <>
       <div className="flex items-center justify-center">
-        <nav className="mt-2 text-xl font-extrabold border-b-2">
+        <nav className="mt-2 text-xl font-extrabold">
           <Link to="/dashboard">Dashboard</Link> - {" "}
           <Link to="/inventory">Inventory</Link> - {" "}
           <Link to="/orders">Orders</Link> - <Link to="/picking">Picking</Link> - {" "}
