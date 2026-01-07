@@ -23,6 +23,7 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@stripe/react-stripe-js": "^5.4.0",
     "@stripe/stripe-js": "^8.5.2",
+    "@supabase/supabase-js": "^2.90.0",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

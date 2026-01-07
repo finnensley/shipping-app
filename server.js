@@ -4,9 +4,9 @@ import pkg from "pg";
 import cors from "cors";
 import { body, validationResult } from "express-validator";
 //Auth
-import AuthRoutes from "./routes/AuthRoutes.js";
-import { authenticateToken } from "./middleware/authMiddleware.js";
-import { validateInventoryAvailability } from "./utils/inventory-validator.js";
+import AuthRoutes from "./src/routes/AuthRoutes.js";
+import { authenticateToken } from "./src/middleware/authMiddleware.js";
+import { validateInventoryAvailability } from "./src/utils/inventory-validator.js";
 import Stripe from "stripe";
 
 dotenv.config();
@@ -102,6 +102,16 @@ app.post("/create-checkout-session", async (req, res) => {
     cancel_url: "http://localhost:5173/checkout",
   });
   res.json({ url: session.url });
+});
+
+// Supabase test
+app.get("/test-supabase-connection", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json({ connected: true, time: result.rows[0].now });
+  } catch (err) {
+    res.status(500).json({ connected: false, error: err.message });
+  }
 });
 
 // Get all items joined with locations
@@ -1202,10 +1212,13 @@ app.delete("/users/:id", async (req, res) => {
   }
 });
 
-//Start the server
-app.listen(port, () => {
-  console.log(`Backend server running on port ${port}`);
-});
+//Start the server using express
+// app.listen(port, () => {
+//   console.log(`Backend server running on port ${port}`);
+// });
+
+//Start the server for Vercel
+module.exports = app;
 
 export default app;
 export { pool };
