@@ -1217,10 +1217,9 @@ app.delete("/users/:id", async (req, res) => {
 //   console.log(`Backend server running on port ${port}`);
 // });
 
-//Start the server for Vercel
-module.exports = app;
-
+//Start for Vercel
 export default app;
 export { pool };
+
 // In terminal to run server:
 // node src/server.js
