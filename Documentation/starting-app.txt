@@ -1,0 +1,15 @@
+1. Run Local Postgres: 
+- brew services start postgresql@15
+- to view/update tables: psql -U finnensley -d shipping_app
+*Current DB_URL in .env points to the tables and data here. 
+
+To complete docker/prisma setup, change db_url to match name of docker postgresql
+
+2. Run backend server:
+- node src/server.js
+
+3. Run frontend:
+-npm run dev
+
+Issue: docker/prisma not fully set up...in process. Works using local postgres. 
+Fix: finish migration of postgres, so data will appear on vercel 

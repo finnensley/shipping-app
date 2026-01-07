@@ -166,7 +166,9 @@ WHERE id = 1;  -->
 - prisma generate
 - npx prisma studio
 
-## For daily development, should only need to have these three running: frontend, backend, and docker
+## Access/Update docker psql:  docker exec -it shipping-app-postgres-1 psql -U finnensley -d shipping_app; update .env to database_url to match docker. 1/6/26 matches local postgres
+
+## For daily development, should only need to have these three running: frontend, backend, and docker or local postgres (if not using docker)
 ## Terminal 1: docker-compose up postgres, make sure docker desktop open/running
 
 ## Terminal 2: npm run dev
@@ -191,7 +193,7 @@ WHERE id = 1;  -->
 
 ## Solve permission issues: sudo chown -R finnensley:staff /Users/finnensley/Desktop/letPhil/React/shipping-app - didn't work still had to export DATABASE_URL directly in terminal.
 
-## Access tables: docker exec -it shipping-app-postgres-1 psql -U finnensley -d shipping_app
+## Access tables in docker: docker exec -it shipping-app-postgres-1 psql -U finnensley -d shipping_app
 
 ## Easyship:
 - Import the Easyship SDK (from index.js)

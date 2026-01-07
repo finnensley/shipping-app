@@ -37,15 +37,22 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-//Database connection pool - need to place in .env
-const pool = new Pool({
-  user: "finnensley",
-  host: "localhost",
-  database: "shipping_app",
-  password: "Finnigan2025",
-  port: 5432, //Default PostgreSQL port
-});
+//Database connection pool - local use
+// const pool = new Pool({
+//   user: process.env.LOCAL_USER,
+//   host: process.env.LOCAL_HOST,
+//   database: process.env.LOCAL_DATABASE,
+//   password: process.env.LOCAL_PASSWORD,
+//   port: process.env.LOCAL_PORT, //Default PostgreSQL port
+// });
 
+const pool = new Pool({
+  user: process.env.SUPABASE_USER,
+  host: process.env.SUPABASE_HOST,
+  database: process.env.SUPABASE_DATABASE,
+  password: process.env.SUPABASE_PASSWORD,
+  port: process.env.SUPABASE_PORT,
+});
 // API endpoint for CRUD (Create, Read, Update, Delete).
 //items
 
