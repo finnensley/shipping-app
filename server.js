@@ -1213,11 +1213,11 @@ app.delete("/users/:id", async (req, res) => {
 });
 
 //Start the server using express
-// app.listen(port, () => {
-//   console.log(`Backend server running on port ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Backend server running on port ${port}`);
+});
 
-//Start for Vercel
+//Start for Vercel only (remove app.listen above)
 export default app;
 export { pool };
 
