@@ -7,6 +7,7 @@ import {
 } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import API_URL from "../../utils/api";
 
 const AuthPage = () => {
   // Steps needed:
@@ -17,7 +18,7 @@ const AuthPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   ); // Gets state from Redux
 
   const [logInEmail, setLogInEmail] = useState("");
@@ -31,7 +32,7 @@ const AuthPage = () => {
     e.preventDefault();
     dispatch(setLoading(true));
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: logInEmail, password: logInPassword }),
@@ -58,7 +59,7 @@ const AuthPage = () => {
     dispatch(setLoading(true));
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/auth/signup", {
+      const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,15 +1,44 @@
-1. Run Local Postgres: 
-- brew services start postgresql@15
-- to view/update tables: psql -U finnensley -d shipping_app
-*Current DB_URL in .env points to the tables and data here. 
+Login: Email: test@example.com
+Password: Test@1234
 
-To complete docker/prisma setup, change db_url to match name of docker postgresql
+For future development:
+Terminal 1: docker-compose up postgres
+Terminal 2: npm run dev (frontend)
+Terminal 3: node server.js (backend)
 
-2. Run backend server:
-- node src/server.js
+For Supabase + Vercel:
+Production (Vercel): Just set VITE_API_URL=https://your-vercel-url.vercel.app and all API calls automatically switch
+Future flexibility: Easy to change API endpoints without touching co
 
-3. Run frontend:
--npm run dev
+For Vercel deployment:
 
-Issue: docker/prisma not fully set up...in process. Works using local postgres. 
-Fix: finish migration of postgres, so data will appear on vercel 
+Set these environment variables in Vercel:
+NODE_ENV=production
+VITE_API_URL=https://your-vercel-url.vercel.app
+All SUPABASE_* credentials
+
+On Vercel, you can update environment variables here:
+
+Go to your project on vercel.com
+Click Settings (top navigation)
+Select "Environment Variables" (left sidebar)
+Add your variables:
+Click "Add New"
+Enter the variable name (e.g., VITE_API_URL)
+Enter the value
+Select which environment(s): Production, Preview, Development
+Click "Save"
+For your shipping app, add these:
+
+Variable	Value	Environment
+NODE_ENV	production	Production
+VITE_API_URL	https://your-vercel-url.vercel.app	Production, Preview
+SUPABASE_USER	Your Supabase user	Production
+SUPABASE_HOST	Your Supabase host	Production
+SUPABASE_DATABASE	Your Supabase database	Production
+SUPABASE_PASSWORD	Your Supabase password	Production
+SUPABASE_PORT	5432	Production
+JWT_SECRET	Your JWT secret	Production
+STRIPE_SECRET_KEY	Your Stripe key	Production
+VITE_EASYSHIP_SAND	Your Easyship key	Production
+Pro tip: You can copy your .env values and paste them directly into Vercel's environment variables form.

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../utils/api";
 
 const CheckOut = () => {
   const navigate = useNavigate();
@@ -7,14 +8,11 @@ const CheckOut = () => {
   const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
 
   const handleCheckOut = async () => {
-    const response = await fetch(
-      "http://localhost:3000/create-checkout-session",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cartItems }),
-      }
-    );
+    const response = await fetch(`${API_URL}/create-checkout-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cartItems }),
+    });
     const data = await response.json();
     if (data.url) {
       window.location = data.url; // Redirect to Stripe Checkout
@@ -26,9 +24,8 @@ const CheckOut = () => {
   return (
     <div>
       <div className="flex justify-center item-center rounded-lg mt-8">
-                <div className="flex flex-col border-b shadow-md shadow-white rounded-xl p-10">
-
-        {/* <div className="flex flex-col justify-evenly shadow-2xl shadow-black-950 bg-blue-200/40 rounded-xl drop-shadow-lg p-10"> */}
+        <div className="flex flex-col border-b shadow-md shadow-white rounded-xl p-10">
+          {/* <div className="flex flex-col justify-evenly shadow-2xl shadow-black-950 bg-blue-200/40 rounded-xl drop-shadow-lg p-10"> */}
           <h2 className="flex justify-center text-3xl border-b-4 px-4 py-2">
             Shopping Cart Summary
           </h2>

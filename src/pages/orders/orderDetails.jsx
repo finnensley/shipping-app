@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateOrder, fetchOrders } from "../../features/orders/orderSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import API_URL from "../../utils/api";
 
 const OrderDetailsPage = () => {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ const OrderDetailsPage = () => {
   const navigate = useNavigate();
   const orders = useSelector((state) => state.order);
   const order = orders.find(
-    (o) => String(o.order_number) === String(orderNumber)
+    (o) => String(o.order_number) === String(orderNumber),
   );
   const orderId = order?.id;
   const [newItem, setNewItem] = useState(null);
@@ -64,9 +65,7 @@ const OrderDetailsPage = () => {
 
   const handleAddingASku = async (sku) => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/items/by_sku/${sku}`
-      );
+      const response = await axios.get(`${API_URL}/items/by_sku/${sku}`);
       console.log("API RESPONSE:", response.data);
       const { id, description } = response.data;
       setNewItem((item) => ({
@@ -127,18 +126,15 @@ const OrderDetailsPage = () => {
     };
     console.log(
       "Saving orderEdits:",
-      JSON.stringify(orderEditsToSend, null, 2)
+      JSON.stringify(orderEditsToSend, null, 2),
     );
     dispatch(updateOrder(orderEditsToSend)); // redux state
     try {
-      const response = await fetch(
-        `http://localhost:3000/orders/${orderEdits.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderEditsToSend),
-        }
-      );
+      const response = await fetch(`${API_URL}/orders/${orderEdits.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderEditsToSend),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -384,7 +380,7 @@ const OrderDetailsPage = () => {
                               itm.item_id === item.item_id &&
                               itm.sku === item.sku &&
                               i === idx
-                            )
+                            ),
                         ),
                       }));
                     }}

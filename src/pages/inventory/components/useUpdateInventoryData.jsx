@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_URL from "../../../utils/api";
 
 const useUpdateInventoryData = () => {
   const [loading, setLoading] = useState(false);
@@ -10,8 +11,8 @@ const useUpdateInventoryData = () => {
     setError(null);
     try {
       const response = await axios.put(
-        `http://localhost:3000/item_locations/${locationId}`,
-        { item_id: itemId, location_id: locationIdDb, quantity: quantity }
+        `${API_URL}/item_locations/${locationId}`,
+        { item_id: itemId, location_id: locationIdDb, quantity: quantity },
       );
       setLoading(false);
       return response.data;

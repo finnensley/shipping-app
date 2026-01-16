@@ -4,10 +4,9 @@ import { setOrder, updateItemQuantity } from "../../features/orders/orderSlice";
 import useFetchData from "../../components/useFetchData";
 import useUpdateOrderData from "./components/useUpdateOrderData";
 import axios from "axios";
-// import { Link, Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-// import { useParams } from "react-router-dom";
 import OrderEditModal from "./orderEditModal";
+import API_URL from "../../utils/api";
 
 const OrdersPage = () => {
   const { data, loading, error } = useFetchData("orders_with_items");
@@ -43,7 +42,7 @@ const OrdersPage = () => {
 
   // fetch the latest orders and update Redux
   const fetchOrders = async () => {
-    const response = await fetch("http://localhost:3000/orders_with_items");
+    const response = await fetch(`${API_URL}/orders_with_items`);
     const data = await response.json();
     dispatch(setOrder(data.orders));
   };
@@ -139,13 +138,13 @@ const OrdersPage = () => {
                                   delta:
                                     (quantities[item.id] ?? item.quantity) -
                                     item.quantity,
-                                })
+                                }),
                               );
                               await updateData(
                                 item.id,
                                 order.order_id || order.id,
                                 item.item_id,
-                                quantities[item.id] ?? item.quantity
+                                quantities[item.id] ?? item.quantity,
                               );
                               await fetchOrders();
                             }}
@@ -165,9 +164,7 @@ const OrdersPage = () => {
                           className="bg-gray-700"
                           onClick={() => {
                             axios
-                              .post(
-                                `http://localhost:3000/order_items/${item.id}/undo`
-                              )
+                              .post(`${API_URL}/order_items/${item.id}/undo`)
                               .then(fetchOrders);
                           }}
                         >
