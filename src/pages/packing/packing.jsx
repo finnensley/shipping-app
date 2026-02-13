@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CarrierDropdown from "./components/carrierDropdown";
 // import { Link, Outlet } from "react-router-dom";
 // import { useParams } from "react-router-dom";
-import AddressEditModal from "./AddressEditModal";
+import AddressEditModal from "./addressEditModal";
 
 const EASYSHIP_API_KEY = import.meta.env.VITE_EASYSHIP_SAND;
 
@@ -87,7 +87,7 @@ const PackingPage = () => {
       });
       if (Object.keys(initial).length > 0) {
         dispatch(
-          setRemainingQuantities({ ...remainingQuantities, ...initial })
+          setRemainingQuantities({ ...remainingQuantities, ...initial }),
         );
       }
     }
@@ -103,7 +103,7 @@ const PackingPage = () => {
         ...orderData,
         original_carrier: orderData.carrier,
         original_carrier_speed: orderData.carrier_speed,
-      })
+      }),
     );
   };
 
@@ -223,7 +223,7 @@ const PackingPage = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
       if (!response.ok) {
         const errorText = await response.text();
@@ -280,7 +280,7 @@ const PackingPage = () => {
           Authorization: `Bearer ${EASYSHIP_API_KEY}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     if (response.status === 429) {
       setLabelLoading(false);
@@ -308,7 +308,7 @@ const PackingPage = () => {
     try {
       console.log(
         "Easyship Shipment Payload:",
-        JSON.stringify(shipmentPayload, null, 2)
+        JSON.stringify(shipmentPayload, null, 2),
       );
       const response = await fetch(
         "https://public-api.easyship.com/2024-09/shipments",
@@ -319,7 +319,7 @@ const PackingPage = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(shipmentPayload),
-        }
+        },
       );
       if (!response.ok) {
         const errorText = await response.text();
@@ -389,7 +389,7 @@ const PackingPage = () => {
                     ...order,
                     original_carrier: order?.carrier,
                     original_carrier_speed: order?.carrier_speed,
-                  })
+                  }),
                 )
               }
             />
@@ -420,11 +420,11 @@ const PackingPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedPickList.order_numbers.map((orderNum) => {
                 const fullOrderData = selectedPickList.orders?.find(
-                  (order) => order.order_number === orderNum
+                  (order) => order.order_number === orderNum,
                 );
                 // Debug each order's items
                 const orderItems = selectedPickList.items.filter((item) =>
-                  item.order_numbers?.includes(orderNum)
+                  item.order_numbers?.includes(orderNum),
                 );
 
                 return (
@@ -526,7 +526,7 @@ const PackingPage = () => {
                                   id: item.id,
                                   sku: item.sku,
                                   description: item.description,
-                                })
+                                }),
                               )
                             }
                             disabled={remainingQty === 0}
@@ -632,7 +632,7 @@ const PackingPage = () => {
                         dispatch(
                           setPackageDimensions({
                             weight: Number(e.target.value),
-                          })
+                          }),
                         )
                       }
                       className="border rounded-lg text-center w-20 h-10"
@@ -645,7 +645,7 @@ const PackingPage = () => {
                         dispatch(
                           setPackageDimensions({
                             length: Number(e.target.value),
-                          })
+                          }),
                         )
                       }
                       className="border rounded-lg text-center w-20 h-10"
@@ -658,7 +658,7 @@ const PackingPage = () => {
                         dispatch(
                           setPackageDimensions({
                             width: Number(e.target.value),
-                          })
+                          }),
                         )
                       }
                       className="border rounded-lg text-center w-20 h-10"
@@ -671,7 +671,7 @@ const PackingPage = () => {
                         dispatch(
                           setPackageDimensions({
                             height: Number(e.target.value),
-                          })
+                          }),
                         )
                       }
                       className="border rounded-lg text-center w-20 h-10"
@@ -681,7 +681,7 @@ const PackingPage = () => {
                     Packed Items:{" "}
                     {packedItems.reduce(
                       (total, item) => total + item.quantity,
-                      0
+                      0,
                     )}
                   </p>
                   {/* Display packed items */}
@@ -716,7 +716,7 @@ const PackingPage = () => {
                                   carrier: selectedOrder.original_carrier,
                                   carrier_speed:
                                     selectedOrder.original_carrier_speed,
-                                })
+                                }),
                               );
                             }}
                           >
@@ -764,7 +764,7 @@ const PackingPage = () => {
                               carrier:
                                 carrierRate.courier_service.umbrella_name,
                               carrier_speed: carrierRate.courier_service.name,
-                            })
+                            }),
                           );
                         }
 
@@ -797,7 +797,7 @@ const PackingPage = () => {
 
                           if (!carrierToUse) {
                             alert(
-                              "No valid carrier info available. Please select a carrier."
+                              "No valid carrier info available. Please select a carrier.",
                             );
                             return;
                           }
