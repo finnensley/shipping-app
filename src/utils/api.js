@@ -1,5 +1,9 @@
 // Centralized API utility for all backend calls
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// On Vercel, use relative URLs (same domain). Locally, use localhost:3000
+const API_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+    ? "http://localhost:3000" 
+    : "");
 
 export const apiCall = {
   // GET request
