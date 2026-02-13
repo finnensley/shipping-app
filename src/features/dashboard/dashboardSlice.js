@@ -31,7 +31,12 @@ export const fetchOrderTotal = () => async (dispatch) => {
   dispatch(setLoading(true));
     try {
     const response = await axios.get(`${API_URL}/orders`);
-    const orders = response.data.orders ?? response.data;
+    console.log("Dashboard fetchOrderTotal response:", response.data);
+    const orders = Array.isArray(response.data) ? response.data : (response.data.orders ?? []);
+    console.log("Orders after processing:", orders);
+    if (!Array.isArray(orders)) {
+      throw new Error("Expected orders to be an array");
+    }
     const openOrders = orders.filter(order => order.status === "open");
     // Only sum orders with status 'open'
     const total = openOrders.reduce((acc, order) => acc + Number(order.total), 0);
@@ -39,6 +44,7 @@ export const fetchOrderTotal = () => async (dispatch) => {
     dispatch(setOpenOrderCount(openOrders.length));
     dispatch(setLoading(false));
   } catch (err) {
+    console.error("Error fetching order total:", err);
     dispatch(setError(err.message));
     dispatch(setLoading(false));
   }

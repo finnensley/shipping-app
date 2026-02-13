@@ -47,9 +47,25 @@ export const orderSlice = createSlice({
 
 // Fetch orders from backend and update Redux state
 export const fetchOrders = () => async (dispatch) => {
-  const response = await fetch(`${API_URL}/orders_with_items`);
-  const data = await response.json();
-  dispatch(setOrder(data.orders ?? data));
+  try {
+    const response = await fetch(`${API_URL}/orders_with_items`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Order fetchOrders response:", data);
+    const orders = Array.isArray(data) ? data : (data.orders ?? []);
+    if (!Array.isArray(orders)) {
+      console.warn(
+        "Expected orders to be an array, got:",
+        typeof orders,
+        orders,
+      );
+    }
+    dispatch(setOrder(orders));
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+  }
 };
 
 export const {
