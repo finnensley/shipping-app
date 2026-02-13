@@ -1239,8 +1239,12 @@ const __dirname = dirname(__filename);
 
 app.use(express.static(join(__dirname, 'dist')));
 
-// React Router fallback - serve index.html for all non-API routes
+// React Router fallback - serve index.html for non-API routes only
 app.get('*', (req, res) => {
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
+    return res.status(404).json({ error: 'Not Found' });
+  }
   res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
