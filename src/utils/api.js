@@ -1,5 +1,7 @@
 // Centralized API utility for all backend calls
 // Determine API URL at runtime: localhost:3000 for local dev, /api for Vercel
+import axios from 'axios';
+
 function getApiUrl() {
   if (typeof window === "undefined") return ""; // SSR fallback
   if (
@@ -19,10 +21,34 @@ console.log(
   typeof window !== "undefined" ? window.location.hostname : "N/A",
 );
 
+// Configure axios to include authorization token in all requests
+axios.interceptors.request.use(
+  (config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Helper to get authorization headers with JWT token
+function getAuthHeaders() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export const apiCall = {
   // GET request
   get: async (endpoint) => {
-    const response = await fetch(`${API_URL}${endpoint}`);
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      headers: getAuthHeaders(),
+    });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
     return response.json();
   },
@@ -31,7 +57,7 @@ export const apiCall = {
   post: async (endpoint, data) => {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -42,7 +68,7 @@ export const apiCall = {
   put: async (endpoint, data) => {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -53,6 +79,7 @@ export const apiCall = {
   delete: async (endpoint) => {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
     return response.json();
