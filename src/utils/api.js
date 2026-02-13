@@ -1,9 +1,16 @@
 // Centralized API utility for all backend calls
-// On Vercel, use relative URLs (same domain). Locally, use localhost:3000
-const API_URL = import.meta.env.VITE_API_URL || 
-  (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-    ? "http://localhost:3000" 
-    : "");
+// Determine API URL at runtime: localhost:3000 for local dev, relative URLs for Vercel
+function getApiUrl() {
+  if (typeof window === "undefined") return ""; // SSR fallback
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  ) {
+    return "http://localhost:3000";
+  }
+  return ""; // Use relative URLs on production (Vercel)
+}
+const API_URL = getApiUrl();
 
 export const apiCall = {
   // GET request
