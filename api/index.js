@@ -1240,7 +1240,7 @@ const __dirname = dirname(__filename);
 app.use(express.static(join(__dirname, "dist")));
 
 // React Router fallback - serve index.html for non-API routes only
-app.get("*", (req, res) => {
+app.get(/.*/, (req, res) => {
   // Don't serve index.html for API routes
   if (req.path.startsWith("/api") || req.path.startsWith("/auth")) {
     return res.status(404).json({ error: "Not Found" });
@@ -1248,14 +1248,13 @@ app.get("*", (req, res) => {
   res.sendFile(join(__dirname, "dist", "index.html"));
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// // Start the server
+// app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
 
 // Export for Vercel
 export default app;
 export { pool };
 
-// In terminal to run server:
-// node src/server.js
+
