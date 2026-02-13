@@ -1230,6 +1230,23 @@ app.delete("/users/:id", async (req, res) => {
   }
 });
 
+// Serve static files from dist folder
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use(express.static(join(__dirname, 'dist')));
+
+// React Router fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
 //Start the server using express
 app.listen(port, () => {
   console.log(`Backend server running on port ${port}`);
