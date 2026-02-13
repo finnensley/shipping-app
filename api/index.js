@@ -4,9 +4,9 @@ import pkg from "pg";
 import cors from "cors";
 import { body, validationResult } from "express-validator";
 //Auth
-import AuthRoutes from "./src/routes/AuthRoutes.js";
-import { authenticateToken } from "./src/middleware/authMiddleware.js";
-import { validateInventoryAvailability } from "./src/utils/inventory-validator.js";
+import AuthRoutes from "../src/routes/AuthRoutes.js";
+import { authenticateToken } from "../src/middleware/authMiddleware.js";
+import { validateInventoryAvailability } from "../src/utils/inventory-validator.js";
 import Stripe from "stripe";
 
 dotenv.config();
@@ -1237,7 +1237,7 @@ import { dirname, join } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use(express.static(join(__dirname, "dist")));
+app.use(express.static(join(__dirname, "..", "dist")));
 
 // React Router fallback - serve index.html for non-API routes only
 app.get(/.*/, (req, res) => {
@@ -1245,7 +1245,7 @@ app.get(/.*/, (req, res) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/auth")) {
     return res.status(404).json({ error: "Not Found" });
   }
-  res.sendFile(join(__dirname, "dist", "index.html"));
+  res.sendFile(join(__dirname, "..", "dist", "index.html"));
 });
 
 // // Start the server
@@ -1256,5 +1256,3 @@ app.get(/.*/, (req, res) => {
 // Export for Vercel
 export default app;
 export { pool };
-
-
