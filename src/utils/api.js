@@ -11,6 +11,7 @@ function getApiUrl() {
   return ""; // Use relative URLs on production (Vercel)
 }
 const API_URL = getApiUrl();
+console.log("API_URL initialized:", API_URL, "hostname:", typeof window !== 'undefined' ? window.location.hostname : "N/A");
 
 export const apiCall = {
   // GET request

@@ -48,8 +48,13 @@ export const orderSlice = createSlice({
 // Fetch orders from backend and update Redux state
 export const fetchOrders = () => async (dispatch) => {
   try {
-    const response = await fetch(`${API_URL}/orders_with_items`);
+    const url = `${API_URL}/orders_with_items`;
+    console.log("Fetching orders from URL:", url);
+    const response = await fetch(url);
+    console.log("Response status:", response.status, "ok:", response.ok);
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Response error:", errorText);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
@@ -64,7 +69,7 @@ export const fetchOrders = () => async (dispatch) => {
     }
     dispatch(setOrder(orders));
   } catch (err) {
-    console.error("Error fetching orders:", err);
+    console.error("Error fetching orders:", err.message, err.stack);
   }
 };
 
