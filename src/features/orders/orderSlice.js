@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import API_URL from "../../utils/api";
 
 export const orderSlice = createSlice({
   name: "order",
@@ -8,7 +9,7 @@ export const orderSlice = createSlice({
     updateItemQuantity: (state, action) => {
       const { orderId, itemId, delta } = action.payload;
       const order = state.find(
-        (order) => order.id === orderId || order.order_id === orderId
+        (order) => order.id === orderId || order.order_id === orderId,
       );
       if (order && order.items) {
         const item = order.items.find((item) => item.id === itemId);
@@ -34,7 +35,7 @@ export const orderSlice = createSlice({
       const idx = state.findIndex(
         (order) =>
           order.id === updatedOrder.id ||
-          order.order_id === updatedOrder.order_id
+          order.order_id === updatedOrder.order_id,
       );
       if (idx !== -1) {
         // findIndex() returns an index of the matching order or -1 if not found
@@ -42,12 +43,11 @@ export const orderSlice = createSlice({
       }
     },
   },
-  
 });
 
 // Fetch orders from backend and update Redux state
 export const fetchOrders = () => async (dispatch) => {
-  const response = await fetch("http://localhost:3000/orders_with_items");
+  const response = await fetch(`${API_URL}/orders_with_items`);
   const data = await response.json();
   dispatch(setOrder(data.orders ?? data));
 };

@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
+import API_URL from '../../utils/api';
 
 export const dashboardSlice = createSlice({
   name: "dashboard",
@@ -29,7 +30,7 @@ export const dashboardSlice = createSlice({
 export const fetchOrderTotal = () => async (dispatch) => {
   dispatch(setLoading(true));
     try {
-    const response = await axios.get("http://localhost:3000/orders");
+    const response = await axios.get(`${API_URL}/orders`);
     const orders = response.data.orders ?? response.data;
     const openOrders = orders.filter(order => order.status === "open");
     // Only sum orders with status 'open'

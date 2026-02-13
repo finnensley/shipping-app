@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_URL from "../utils/api";
 
 const useFetchData = (endpoint) => {
   const [data, setData] = useState(null);
@@ -8,7 +9,7 @@ const useFetchData = (endpoint) => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/${endpoint}`)
+      .get(`${API_URL}/${endpoint}`)
       .then((res) => {
         setData(res.data);
         setLoading(false);
