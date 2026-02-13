@@ -37,14 +37,27 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+//Database connection detecting the environment
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL } // Production (Supabase)
+    : {
+        user: process.env.LOCAL_USER,
+        host: process.env.LOCAL_HOST,
+        database: process.env.LOCAL_DATABASE,
+        password: process.env.LOCAL_PASSWORD,
+        port: process.env.LOCAL_PORT,
+      }, // Local Docker
+);
+
 //Database connection pool - local use
-const pool = new Pool({
-  user: process.env.LOCAL_USER,
-  host: process.env.LOCAL_HOST,
-  database: process.env.LOCAL_DATABASE,
-  password: process.env.LOCAL_PASSWORD,
-  port: process.env.LOCAL_PORT, //Default PostgreSQL port
-});
+// const pool = new Pool({
+//   user: process.env.LOCAL_USER,
+//   host: process.env.LOCAL_HOST,
+//   database: process.env.LOCAL_DATABASE,
+//   password: process.env.LOCAL_PASSWORD,
+//   port: process.env.LOCAL_PORT, //Default PostgreSQL port
+// });
 
 // const pool = new Pool({
 //   user: process.env.SUPABASE_USER,
@@ -55,6 +68,11 @@ const pool = new Pool({
 // });
 // API endpoint for CRUD (Create, Read, Update, Delete).
 //items
+
+// Stripe baseUrl detecting the environment
+const baseUrl = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}` 
+  : process.env.BASE_URL || "http://localhost:5173";
 
 // Stripe .post
 app.post("/create-checkout-session", async (req, res) => {
@@ -98,8 +116,8 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       },
     ],
-    success_url: "http://localhost:5173/success",
-    cancel_url: "http://localhost:5173/checkout",
+    success_url: `${baseUrl}/success`,
+    cancel_url: `${baseUrl}/checkout`,
   });
   res.json({ url: session.url });
 });
@@ -178,7 +196,7 @@ app.get("/items/by_sku/:sku", async (req, res) => {
     const { sku } = req.params;
     const result = await pool.query(
       "SELECT id, sku, description FROM items WHERE sku = $1 LIMIT 1",
-      [sku]
+      [sku],
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Item not found" });
@@ -207,14 +225,14 @@ app.post(
       const { image_path, sku, description, total_quantity } = req.body;
       const result = await pool.query(
         "INSERT INTO items (image_path, sku, description, total_quantity) VALUES ($1, $2, $3, $4) RETURNING *",
-        [image_path, sku, description, total_quantity]
+        [image_path, sku, description, total_quantity],
       );
       res.status(201).json({ items: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 //Update an item
@@ -224,7 +242,7 @@ app.put("/items/:id", async (req, res) => {
     const { image_path, sku, description, total_quantity } = req.body;
     const result = await pool.query(
       "UPDATE items SET image_path=$1, sku=$2, description=$3, total_quantity=$4 WHERE id=$5 RETURNING *",
-      [image_path, sku, description, total_quantity, id]
+      [image_path, sku, description, total_quantity, id],
     );
     res.json({ item: result.rows[0] });
   } catch (err) {
@@ -272,14 +290,14 @@ app.post(
       const { item_id, location_id, quantity } = req.body;
       const result = await pool.query(
         "INSERT INTO item_locations (item_id, location_id, quantity) VALUES ($1, $2, $3) RETURNING *",
-        [item_id, location_id, quantity]
+        [item_id, location_id, quantity],
       );
       res.status(201).json({ item_location: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 app.post("/item_locations/:id/undo", async (req, res) => {
@@ -289,7 +307,7 @@ app.post("/item_locations/:id/undo", async (req, res) => {
     // Get the last history entry for this item location
     const history = await pool.query(
       "SELECT * FROM item_location_history WHERE item_location_id=$1 ORDER BY changed_at DESC LIMIT 1",
-      [id]
+      [id],
     );
     const lastChange = history.rows[0];
     if (!lastChange) return res.status(404).send("No history found");
@@ -297,7 +315,7 @@ app.post("/item_locations/:id/undo", async (req, res) => {
     // Revert the quantity
     const result = await pool.query(
       "UPDATE item_locations SET quantity=$1 WHERE id=$2 RETURNING id, item_id, location_id, quantity",
-      [lastChange.old_quantity, id]
+      [lastChange.old_quantity, id],
     );
 
     console.log("Undo results:", result.rows[0]);
@@ -312,7 +330,7 @@ app.post("/item_locations/:id/undo", async (req, res) => {
     // Recalculate and update total_quantity for the item
     await pool.query(
       "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity),0) FROM item_locations WHERE item_id = $1) WHERE id = $1",
-      [result.rows[0].item_id]
+      [result.rows[0].item_id],
     );
 
     res.json({ item_location: result.rows[0] });
@@ -330,26 +348,26 @@ app.put("/item_locations/:id", async (req, res) => {
     // Get the current quantity before updating
     const current = await pool.query(
       "SELECT quantity FROM item_locations WHERE id=$1",
-      [id]
+      [id],
     );
     const oldQuantity = current.rows[0]?.quantity;
 
     // Update the quantity
     const result = await pool.query(
       "UPDATE item_locations SET item_id=$1, location_id=$2, quantity=$3 WHERE id=$4 RETURNING *",
-      [item_id, location_id, quantity, id]
+      [item_id, location_id, quantity, id],
     );
 
     // Log the change in history
     await pool.query(
       "INSERT INTO item_location_history (item_location_id, old_quantity, new_quantity) VALUES ($1, $2, $3)",
-      [id, oldQuantity, quantity]
+      [id, oldQuantity, quantity],
     );
 
     // Recalculates the total for the item based on all its locations
     await pool.query(
       "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity),0) FROM item_locations WHERE item_id = $1) WHERE id= $1",
-      [item_id]
+      [item_id],
     );
 
     res.json({ item_locations: result.rows[0] });
@@ -523,14 +541,14 @@ app.post(
           carrier,
           carrier_speed,
           customer_id,
-        ]
+        ],
       );
       res.status(201).json({ orders: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 app.put("/orders/:id", async (req, res) => {
@@ -610,13 +628,13 @@ app.put("/orders/:id", async (req, res) => {
         customer_id,
         updated_at,
         id,
-      ]
+      ],
     );
 
     // Get current active items for this order
     const { rows: currentItems } = await client.query(
       "SELECT id FROM order_items WHERE order_id=$1 AND active=TRUE",
-      [id]
+      [id],
     );
 
     // Get IDs of items sent from frontend
@@ -638,7 +656,7 @@ app.put("/orders/:id", async (req, res) => {
           // Existing item: update quantity and description if needed
           await client.query(
             "UPDATE order_items SET quantity=$1, description=$2 WHERE id=$3",
-            [Number(item.quantity), item.description, item.id]
+            [Number(item.quantity), item.description, item.id],
           );
         } else {
           // New item: insert
@@ -650,7 +668,7 @@ app.put("/orders/:id", async (req, res) => {
               item.sku,
               item.description,
               Number(item.quantity),
-            ]
+            ],
           );
         }
       }
@@ -659,7 +677,7 @@ app.put("/orders/:id", async (req, res) => {
 
     const itemsResult = await pool.query(
       "SELECT * FROM order_items WHERE order_id=$1 AND active=TRUE",
-      [id]
+      [id],
     );
 
     res.json({ order: result.rows[0], items: itemsResult.rows });
@@ -681,7 +699,7 @@ app.put("/api/orders/:order_number/carrier", async (req, res) => {
     const { carrier, carrier_speed } = req.body;
     const result = await pool.query(
       "UPDATE orders SET carrier=$1, carrier_speed=$2 WHERE order_number=$3 RETURNING *",
-      [carrier, carrier_speed, order_number]
+      [carrier, carrier_speed, order_number],
     );
     res.json({ order: result.rows[0] });
   } catch (err) {
@@ -730,19 +748,19 @@ app.post(
       const { order_id, item_id, sku, description, quantity } = req.body;
       const result = await pool.query(
         "INSERT INTO order_items (order_id, item_id, sku, description, quantity ) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [order_id, item_id, sku, description, quantity]
+        [order_id, item_id, sku, description, quantity],
       );
       // Deduct from available_quantity
       await pool.query(
         "UPDATE items SET available_quantity = available_quantity - $1 WHERE id = $2",
-        [quantity, item_id]
+        [quantity, item_id],
       );
       res.status(201).json({ order_items: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 // Revert last change, order item change undo button
@@ -753,7 +771,7 @@ app.post("/order_items/:id/undo", async (req, res) => {
     // Get the last history entry for this order item
     const history = await pool.query(
       "SELECT * FROM order_item_history WHERE order_item_id=$1 ORDER BY changed_at DESC LIMIT 1",
-      [id]
+      [id],
     );
     const lastChange = history.rows[0];
     if (!lastChange) return res.status(404).send("No history found");
@@ -761,7 +779,7 @@ app.post("/order_items/:id/undo", async (req, res) => {
     // Revert the quantity
     const result = await pool.query(
       "UPDATE order_items SET quantity=$1 WHERE id=$2 RETURNING *",
-      [lastChange.old_quantity, id]
+      [lastChange.old_quantity, id],
     );
 
     res.json({ order_item: result.rows[0] });
@@ -779,7 +797,7 @@ app.put("/order_items/:id", async (req, res) => {
     // Get the current quantity and item_id before updating
     const current = await pool.query(
       "SELECT quantity, item_id FROM order_items WHERE id=$1",
-      [id]
+      [id],
     );
     const oldQuantity = current.rows[0]?.quantity;
     const itemId = current.rows[0]?.item_id;
@@ -787,20 +805,20 @@ app.put("/order_items/:id", async (req, res) => {
     // Update the quantity
     const result = await pool.query(
       "UPDATE order_items SET quantity=$1 WHERE id=$2 RETURNING *",
-      [quantity, id]
+      [quantity, id],
     );
 
     // Adjust available_quantity
     const diff = quantity - oldQuantity;
     await pool.query(
       "UPDATE items SET available_quantity = available_quantity - $1 WHERE id = $2",
-      [diff, itemId]
+      [diff, itemId],
     );
 
     // Log the change in history
     await pool.query(
       "INSERT INTO order_item_history (order_item_id, old_quantity, new_quantity) VALUES ($1, $2, $3)",
-      [id, oldQuantity, quantity]
+      [id, oldQuantity, quantity],
     );
 
     res.json({ order_items: result.rows[0] });
@@ -817,7 +835,7 @@ app.delete("/order_items/:id", async (req, res) => {
     // Get the quantity and item_id before deleting
     const current = await pool.query(
       "SELECT quantity, item_id FROM order_items WHERE id=$1",
-      [id]
+      [id],
     );
     const quantity = current.rows[0]?.quantity;
     const itemId = current.rows[0]?.item_id;
@@ -828,7 +846,7 @@ app.delete("/order_items/:id", async (req, res) => {
     // Restore available_quantity
     await pool.query(
       "UPDATE items SET available_quantity = available_quantity + $1 WHERE id = $2",
-      [quantity, itemId]
+      [quantity, itemId],
     );
 
     res.status(204).send();
@@ -865,14 +883,14 @@ app.post(
       const { location_number, location_name, description } = req.body;
       const result = await pool.query(
         "INSERT INTO locations (location_number, location_name, description) VALUES ($1, $2, $3) RETURNING *",
-        [location_number, location_name, description]
+        [location_number, location_name, description],
       );
       res.status(201).json({ locations: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 app.put("/locations/:id", async (req, res) => {
@@ -881,7 +899,7 @@ app.put("/locations/:id", async (req, res) => {
     const { location_number, location_name, description } = req.body;
     const result = await pool.query(
       "UPDATE locations SET location_number=$1, location_name=$2, description=$3 WHERE id=$4 RETURNING *",
-      [location_number, location_name, description, id]
+      [location_number, location_name, description, id],
     );
     res.json({ locations: result.rows[0] });
   } catch (err) {
@@ -990,7 +1008,7 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
       // FIXED: Only add order info if it belongs to this picklist AND doesn't already exist
       if (row.order_id && row.order_numbers.includes(row.order_number)) {
         const existingOrder = picklistsMap[pickListId].orders.find(
-          (order) => order.order_number === row.order_number
+          (order) => order.order_number === row.order_number,
         );
 
         if (!existingOrder) {
@@ -1043,13 +1061,13 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
         JSON.stringify(items), // items is an array of objects with chosenLocation (set as a jsonb column)
         createdAt,
         status,
-      ]
+      ],
     );
 
     // Update order status to 'staged'
     await pool.query(
       "UPDATE orders SET status = 'staged' WHERE order_number = ANY($1)",
-      [order_numbers]
+      [order_numbers],
     );
 
     res.status(201).send("Pick list staged for packing");
@@ -1068,14 +1086,14 @@ app.post("/inventory/transfer", async (req, res) => {
     const { itemId, quantity, location } = req.body;
     const result = await pool.query(
       "UPDATE item_locations SET quantity = quantity - $1 WHERE item_id = $2 AND location_id = $3",
-      [quantity, itemId, location]
+      [quantity, itemId, location],
     );
     console.log("Transfer result:", result.rowCount, req.body);
 
     //Update total_quantity for the item (sum of all locations)
     await pool.query(
       "UPDATE items SET total_quantity = (SELECT COALESCE(SUM(quantity), 0) FROM item_locations WHERE item_id = $1) WHERE id = $1",
-      [itemId]
+      [itemId],
     );
 
     res.status(200).send("Inventory updated");
@@ -1112,14 +1130,14 @@ app.post(
       const { name, email, phone } = req.body;
       const result = await pool.query(
         "INSERT INTO customers (name, email, phone ) VALUES ($1, $2, $3) RETURNING *",
-        [name, email, phone]
+        [name, email, phone],
       );
       res.status(201).json({ customers: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 app.put("/customers/:id", async (req, res) => {
@@ -1128,7 +1146,7 @@ app.put("/customers/:id", async (req, res) => {
     const { name, email, phone } = req.body;
     const result = await pool.query(
       "UPDATE customers SET name=$1, email=$2, phone=$3 WHERE id=$4 RETURNING *",
-      [name, email, phone, id]
+      [name, email, phone, id],
     );
     res.json({ customers: result.rows[0] });
   } catch (err) {
@@ -1176,14 +1194,14 @@ app.post(
       const { username, email, password_hash, permissions } = req.body;
       const result = await pool.query(
         "INSERT INTO users (username, email, password_hash, permissions ) VALUES ($1, $2, $3, $4) RETURNING *",
-        [username, email, password_hash, permissions]
+        [username, email, password_hash, permissions],
       );
       res.status(201).json({ users: result.rows[0] });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 app.put("/users/:id", async (req, res) => {
@@ -1192,7 +1210,7 @@ app.put("/users/:id", async (req, res) => {
     const { username, email, password_hash, permissions } = req.body;
     const result = await pool.query(
       "UPDATE users SET username=$1, email=$2, password_hash=$3, permissions=$4 WHERE id=$5 RETURNING *",
-      [username, email, password_hash, permissions, id]
+      [username, email, password_hash, permissions, id],
     );
     res.json({ users: result.rows[0] });
   } catch (err) {

@@ -26,6 +26,7 @@ Store Page
 - review taxes displaying
 
 Next Steps:
+Run tests
 User permissions
 Automations
 Carrier Creation Page
