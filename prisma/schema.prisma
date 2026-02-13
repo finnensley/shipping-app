@@ -40,6 +40,7 @@ model OrderItems {
   sku                BigInt?
   description        String?
   quantity           Int
+  active             Boolean              @default(true)
   order_item_history order_item_history[]
   order              Orders?              @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 

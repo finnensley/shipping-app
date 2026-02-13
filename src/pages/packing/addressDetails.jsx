@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateOrder, fetchOrders } from "../../features/orders/orderSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import API_URL from "../../utils/api";
 
 const AddressDetailsPage = () => {
   const dispatch = useDispatch();
@@ -14,11 +15,12 @@ const AddressDetailsPage = () => {
 
   const selectedOrder = useSelector((state) => state.packing.selectedOrder);
   // Try to find the order from selectedOrder first, then from orders array
-  const order = selectedOrder && String(selectedOrder.order_number) === String(orderNumber) 
-    ? selectedOrder 
-    : orders?.find((o) => String(o.order_number) === String(orderNumber));
+  const order =
+    selectedOrder && String(selectedOrder.order_number) === String(orderNumber)
+      ? selectedOrder
+      : orders?.find((o) => String(o.order_number) === String(orderNumber));
 
- console.log("Selected order from packing:", selectedOrder);
+  console.log("Selected order from packing:", selectedOrder);
   console.log("Found order:", order);
   console.log("Order number from URL:", orderNumber);
 
@@ -70,18 +72,15 @@ const AddressDetailsPage = () => {
 
     console.log(
       "Saving orderEdits:",
-      JSON.stringify(orderEditsToSend, null, 2)
+      JSON.stringify(orderEditsToSend, null, 2),
     );
     dispatch(updateOrder(orderEditsToSend)); // redux state
     try {
-      const response = await fetch(
-        `http://localhost:3000/orders/${orderEdits.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderEditsToSend),
-        }
-      );
+      const response = await fetch(`${API_URL}/orders/${orderEdits.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderEditsToSend),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();

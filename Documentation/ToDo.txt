@@ -1,0 +1,34 @@
+1/16/26:
+Orders Page:
+-update to have one save/undo button for page, at bottom
+-replace them with a delete order button.
+-create an add new button, and csv upload
+- fix where first upload of orders deducts from available
+
+Inventory Page:
+-update to have one save/undo button for page, at bottom
+-replace them with a delete item button. - only allowed with permissions
+-create an add new button, and csv upload
+
+Picking Page:
+- if multiple orders, have the word "multiple" as a link that shows a list of orders, qtys
+
+Packing Page:
+- add functionality to add package button
+- make a list of packages with edit access to each
+- fix the bug in customer selected line after choosing a new carrier method.
+  - it changes to the new method or glitches 
+- finish creation of label
+- adjust address edit verification to not be so redundant
+
+Store Page
+- link with actual inventory data, may need to add price to inventory table ?
+- review taxes displaying
+
+Next Steps:
+Run tests
+User permissions
+Automations
+Carrier Creation Page
+Admin settings/choices
+Dashboard linked to actual data

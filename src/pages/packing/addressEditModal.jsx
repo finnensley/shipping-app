@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateOrder, fetchOrders } from "../../features/orders/orderSlice";
 import { motion } from "framer-motion";
 import { setSelectedOrder } from "../../features/packing/packingSlice";
+import API_URL from "../../utils/api";
 
 const EASYSHIP_API_KEY = import.meta.env.VITE_EASYSHIP_SAND;
 
@@ -55,7 +56,7 @@ const AddressEditModal = ({ order, onClose }) => {
       normalizedCountry.length !== 2
     ) {
       setValidationError(
-        "Please fill all required fields with valid values (2-letter country/state codes, address < 35 chars, city < 200 chars)."
+        "Please fill all required fields with valid values (2-letter country/state codes, address < 35 chars, city < 200 chars).",
       );
       setValidating(false);
       return false;
@@ -110,7 +111,7 @@ const AddressEditModal = ({ order, onClose }) => {
     // Log payload for debugging
     console.log(
       "Validating address payload:",
-      JSON.stringify(payload, null, 2)
+      JSON.stringify(payload, null, 2),
     );
 
     try {
@@ -123,11 +124,11 @@ const AddressEditModal = ({ order, onClose }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
       if (!response.ok) {
         setValidationError(
-          "Address validation failed. Please check the details."
+          "Address validation failed. Please check the details.",
         );
         setValidating(false);
         return false;
@@ -179,23 +180,20 @@ const AddressEditModal = ({ order, onClose }) => {
 
     console.log(
       "Saving orderEdits:",
-      JSON.stringify(orderEditsToSend, null, 2)
+      JSON.stringify(orderEditsToSend, null, 2),
     );
 
     // Debugging logs
-    console.log("API URL:", `http://localhost:3000/orders/${orderEdits.id}`);
+    console.log("API URL:", `${API_URL}/orders/${orderEdits.id}`);
     console.log("Request body:", JSON.stringify(orderEditsToSend, null, 2));
     console.log("Order ID being used:", orderEdits.id);
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/orders/${orderEdits.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderEditsToSend),
-        }
-      );
+      const response = await fetch(`${API_URL}/orders/${orderEdits.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderEditsToSend),
+      });
 
       // Logs to see response data
       console.log("Response status:", response.status);
@@ -206,7 +204,7 @@ const AddressEditModal = ({ order, onClose }) => {
         console.error("Server error response:", errorText);
         console.error("Response headers:", [...response.headers.entries()]);
         console.error("Request that failed:", {
-          url: `http://localhost:3000/orders/${orderEdits.id}`,
+          url: `${API_URL}/orders/${orderEdits.id}`,
           method: "PUT",
           body: orderEditsToSend,
         });

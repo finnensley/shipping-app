@@ -13,6 +13,7 @@ import axios from "axios";
 import usePickListCreator from "./components/usePickListCreator";
 import OrderSelector from "./components/orderSelector";
 import { motion, AnimatePresence } from "framer-motion";
+import API_URL from "../../utils/api";
 
 // Helper function for unique pickListId
 const generateRandomId = (max = 1000000) => Math.floor(Math.random() * max) + 1;
@@ -59,7 +60,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
-      axios.get("http://localhost:3000/items").then((res) => {
+      axios.get(`${API_URL}/items`).then((res) => {
         console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));
@@ -85,7 +86,7 @@ const PickingPage = () => {
         pickList: generatedPickList,
         selectedOrders: ordersArray,
         pickListId: pickListId, // Use current ID
-      })
+      }),
     );
   };
 
@@ -140,14 +141,14 @@ const PickingPage = () => {
           const overrideLocation = inventoryItem.location.find(
             (loc) =>
               String(loc.location_number) ===
-              String(locationOverrides[item.sku])
+              String(locationOverrides[item.sku]),
           );
           if (overrideLocation) {
             chosenLocation = overrideLocation;
           }
         } else if (inventoryItem) {
           const eligibleLocations = inventoryItem.locations.filter(
-            (loc) => loc.quantity >= item.quantity
+            (loc) => loc.quantity >= item.quantity,
           );
           // recalculates chosenLocation before transfer and makes changes if no longer enough inventory there, will take inventory from lowest qty site or lowest location number
           // Is this the logic I want to use? It could keep from having inv issues and allow changes during picking (like cyclecounts)
@@ -157,7 +158,7 @@ const PickingPage = () => {
             eligibleLocations.sort((a, b) =>
               a.quantity !== b.quantity
                 ? a.quantity - b.quantity
-                : a.location - b.location
+                : a.location - b.location,
             );
             chosenLocation = eligibleLocations[0]; // saves the entire location object to use in transfer
           }
@@ -201,8 +202,8 @@ const PickingPage = () => {
       const inventoryRes = await axios.get("/items");
       dispatch(
         setItems(
-          inventoryRes.data.items ? inventoryRes.data.items : inventoryRes.data
-        )
+          inventoryRes.data.items ? inventoryRes.data.items : inventoryRes.data,
+        ),
       );
 
       alert("Pick list transferred and inventory updated!");
@@ -300,13 +301,13 @@ const PickingPage = () => {
                 {pickList.map((item) => {
                   // Find the matching inventory item by SKU
                   const inventoryItem = items.find(
-                    (inv) => inv.sku === item.sku
+                    (inv) => inv.sku === item.sku,
                   );
 
                   // Filter locations with enough quantity
                   const eligibleLocations = inventoryItem
                     ? inventoryItem.locations.filter(
-                        (loc) => loc.quantity >= item.quantity
+                        (loc) => loc.quantity >= item.quantity,
                       )
                     : [];
 
@@ -323,7 +324,7 @@ const PickingPage = () => {
                     eligibleLocations.sort((a, b) =>
                       a.quantity !== b.quantity
                         ? a.quantity - b.quantity
-                        : a.location_number - b.location_number
+                        : a.location_number - b.location_number,
                     );
                     chosenLocation = eligibleLocations[0];
                   }
@@ -398,7 +399,7 @@ const PickingPage = () => {
                                   onChange={(e) =>
                                     handleLocationChange(
                                       item.sku,
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                   className="w-full text-center text-white bg-[rgba(0,0,0,0.38)] border rounded"
