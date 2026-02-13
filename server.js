@@ -70,8 +70,8 @@ const pool = new Pool(
 //items
 
 // Stripe baseUrl detecting the environment
-const baseUrl = process.env.VERCEL_URL 
-  ? `https://${process.env.VERCEL_URL}` 
+const baseUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
   : process.env.BASE_URL || "http://localhost:5173";
 
 // Stripe .post
@@ -1231,32 +1231,29 @@ app.delete("/users/:id", async (req, res) => {
 });
 
 // Serve static files from dist folder
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use(express.static(join(__dirname, 'dist')));
+app.use(express.static(join(__dirname, "dist")));
 
 // React Router fallback - serve index.html for non-API routes only
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
   // Don't serve index.html for API routes
-  if (req.path.startsWith('/api') || req.path.startsWith('/auth')) {
-    return res.status(404).json({ error: 'Not Found' });
+  if (req.path.startsWith("/api") || req.path.startsWith("/auth")) {
+    return res.status(404).json({ error: "Not Found" });
   }
-  res.sendFile(join(__dirname, 'dist', 'index.html'));
+  res.sendFile(join(__dirname, "dist", "index.html"));
 });
 
+// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-//Start the server using express
-app.listen(port, () => {
-  console.log(`Backend server running on port ${port}`);
-});
 
-//Start for Vercel
+// Export for Vercel
 export default app;
 export { pool };
 
