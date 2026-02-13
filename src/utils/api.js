@@ -1,5 +1,5 @@
 // Centralized API utility for all backend calls
-// Determine API URL at runtime: localhost:3000 for local dev, relative URLs for Vercel
+// Determine API URL at runtime: localhost:3000 for local dev, /api for Vercel
 function getApiUrl() {
   if (typeof window === "undefined") return ""; // SSR fallback
   if (
@@ -8,7 +8,8 @@ function getApiUrl() {
   ) {
     return "http://localhost:3000";
   }
-  return ""; // Use relative URLs on production (Vercel)
+  // On Vercel, use /api prefix for all API routes
+  return "/api";
 }
 const API_URL = getApiUrl();
 console.log(

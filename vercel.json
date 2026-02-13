@@ -3,15 +3,15 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:path*",
       "destination": "/api"
     },
     {
-      "source": "/auth(.*)",
+      "source": "/auth/:path*",
       "destination": "/api"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
