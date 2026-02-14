@@ -44,6 +44,23 @@ const pool = new Pool(
       }, // Local Docker
 );
 
+// Log connection configuration on startup
+console.log("=== DB Connection Config ===");
+console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+if (process.env.DATABASE_URL) {
+  // Mask password for security
+  const maskedUrl = process.env.DATABASE_URL.replace(/:([^@]+)@/, ":****@");
+  console.log("Using DATABASE_URL:", maskedUrl);
+} else {
+  console.log("Using LOCAL connection:");
+  console.log("- HOST:", process.env.LOCAL_HOST);
+  console.log("- USER:", process.env.LOCAL_USER);
+  console.log("- DATABASE:", process.env.LOCAL_DATABASE);
+  console.log("- PORT:", process.env.LOCAL_PORT);
+}
+console.log("=============================");
+
 //Database connection pool - local use
 // const pool = new Pool({
 //   user: process.env.LOCAL_USER,
@@ -71,17 +88,30 @@ const baseUrl = process.env.VERCEL_URL
 // Public diagnostic endpoint (no auth required)
 app.get("/test-supabase-connection", async (req, res) => {
   try {
-    console.log(
-      "Testing DB connection - DATABASE_URL set:",
-      !!process.env.DATABASE_URL,
-    );
+    console.log("=== TEST ENDPOINT CALLED ===");
+    console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
+    console.log("Attempting query...");
+
     const result = await pool.query("SELECT NOW()");
-    res.json({ connected: true, time: result.rows[0].now });
+    console.log("Query successful!");
+
+    res.json({
+      connected: true,
+      time: result.rows[0].now,
+      timestamp: new Date().toISOString(),
+    });
   } catch (err) {
-    console.error("DB Connection Error:", err.message, err.code);
-    res
-      .status(500)
-      .json({ connected: false, error: err.message, code: err.code });
+    console.error("=== DB CONNECTION ERROR ===");
+    console.error("Error message:", err.message);
+    console.error("Error code:", err.code);
+    console.error("Error details:", err);
+
+    res.status(500).json({
+      connected: false,
+      error: err.message,
+      code: err.code,
+      hint: "Check DATABASE_URL in Vercel environment variables",
+    });
   }
 });
 
