@@ -25,7 +25,12 @@ app.use("/auth", AuthRoutes); // changed from /protected to /auth
 //Database connection detecting the environment
 const pool = new Pool(
   process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL } // Production (Supabase)
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false, // Allow self-signed certificates
+        },
+      } // Production (Supabase)
     : {
         user: process.env.LOCAL_USER,
         host: process.env.LOCAL_HOST,
