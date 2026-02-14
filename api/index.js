@@ -19,15 +19,6 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // secret key sk_test
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
 
-// Strip /api prefix from incoming requests (Vercel serverless routing)
-app.use((req, res, next) => {
-  if (req.path.startsWith("/api/") && req.path !== "/api/") {
-    req.path = req.path.slice(4); // Remove /api prefix
-    req.url = req.url.slice(4);
-  }
-  next();
-});
-
 //Public routes (no auth needed)
 app.use("/auth", AuthRoutes); // changed from /protected to /auth
 
