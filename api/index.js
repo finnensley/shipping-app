@@ -88,8 +88,10 @@ const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.BASE_URL || "http://localhost:5173";
 
-// Health check endpoint (no DB required)
-app.get("/health", (req, res) => {
+// PUBLIC ENDPOINTS - MUST BE BEFORE AUTH MIDDLEWARE
+
+// Health check endpoint (no DB required, no auth required)
+app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -99,7 +101,7 @@ app.get("/health", (req, res) => {
 });
 
 // Public diagnostic endpoint (no auth required)
-app.get("/test-supabase-connection", async (req, res) => {
+app.get("/api/test-supabase-connection", async (req, res) => {
   try {
     console.log("=== TEST ENDPOINT CALLED ===");
     console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
@@ -128,8 +130,8 @@ app.get("/test-supabase-connection", async (req, res) => {
   }
 });
 
-// Stripe .post (public route for checkout)
-app.post("/create-checkout-session", async (req, res) => {
+// Stripe checkout (public route)
+app.post("/api/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: req.body.items.map((item) => ({
@@ -175,6 +177,8 @@ app.post("/create-checkout-session", async (req, res) => {
   });
   res.json({ url: session.url });
 });
+
+// PROTECTED ROUTES - AUTH MIDDLEWARE APPLIES BELOW
 
 // Protected routes (auth required); add app.get("/api/items"..to all protected routes
 app.use("/api", authenticateToken); // This protects all /api routes
