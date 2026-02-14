@@ -71,10 +71,17 @@ const baseUrl = process.env.VERCEL_URL
 // Public diagnostic endpoint (no auth required)
 app.get("/test-supabase-connection", async (req, res) => {
   try {
+    console.log(
+      "Testing DB connection - DATABASE_URL set:",
+      !!process.env.DATABASE_URL,
+    );
     const result = await pool.query("SELECT NOW()");
     res.json({ connected: true, time: result.rows[0].now });
   } catch (err) {
-    res.status(500).json({ connected: false, error: err.message });
+    console.error("DB Connection Error:", err.message, err.code);
+    res
+      .status(500)
+      .json({ connected: false, error: err.message, code: err.code });
   }
 });
 
@@ -144,6 +151,7 @@ app.use((err, req, res, next) => {
 // Get all items joined with locations
 app.get("/items", async (req, res) => {
   try {
+    console.log("GET /items - DATABASE_URL set:", !!process.env.DATABASE_URL);
     const result = await pool.query(`
       SELECT
         i.id AS item_id,
@@ -194,8 +202,8 @@ app.get("/items", async (req, res) => {
     const items = Object.values(itemsMap);
     res.json({ items });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
+    console.error("ERROR in GET /items:", err.message, err.code);
+    res.status(500).json({ error: err.message, code: err.code });
   }
 });
 
