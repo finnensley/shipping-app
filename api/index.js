@@ -61,6 +61,18 @@ if (process.env.DATABASE_URL) {
 }
 console.log("=============================");
 
+// Handle pool errors
+pool.on("error", (err) => {
+  console.error("=== POOL ERROR ===");
+  console.error("Error message:", err.message);
+  console.error("Error code:", err.code);
+  console.error("Full error:", err);
+});
+
+pool.on("connect", () => {
+  console.log("✓ Database pool connected successfully");
+});
+
 //Database connection pool - local use
 // const pool = new Pool({
 //   user: process.env.LOCAL_USER,
@@ -84,6 +96,16 @@ console.log("=============================");
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.BASE_URL || "http://localhost:5173";
+
+// Health check endpoint (no DB required)
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    hasDatabase: !!process.env.DATABASE_URL,
+  });
+});
 
 // Public diagnostic endpoint (no auth required)
 app.get("/test-supabase-connection", async (req, res) => {
