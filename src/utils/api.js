@@ -1,6 +1,6 @@
 // Centralized API utility for all backend calls
 // Determine API URL at runtime: localhost:3000 for local dev, /api for Vercel
-import axios from 'axios';
+import axios from "axios";
 
 function getApiUrl() {
   if (typeof window === "undefined") return ""; // SSR fallback
@@ -24,18 +24,20 @@ console.log(
 // Configure axios to include authorization token in all requests
 axios.interceptors.request.use(
   (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Helper to get authorization headers with JWT token
 function getAuthHeaders() {
-  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const headers = { "Content-Type": "application/json" };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -82,6 +84,26 @@ export const apiCall = {
       headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    return response.json();
+  },
+};
+
+// Public auth endpoints (no /api prefix needed)
+export const authCall = {
+  post: async (endpoint, data) => {
+    const url =
+      typeof window !== "undefined" && window.location.hostname !== "localhost"
+        ? `/auth${endpoint}` // On Vercel, use /auth directly
+        : `http://localhost:3000/auth${endpoint}`; // Locally, use full URL
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Auth Error: ${response.status} - ${error}`);
+    }
     return response.json();
   },
 };

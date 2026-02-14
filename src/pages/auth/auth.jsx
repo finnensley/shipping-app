@@ -7,7 +7,7 @@ import {
 } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import API_URL from "../../utils/api";
+import { authCall } from "../../utils/api";
 
 const AuthPage = () => {
   // Steps needed:
@@ -32,12 +32,10 @@ const AuthPage = () => {
     e.preventDefault();
     dispatch(setLoading(true));
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: logInEmail, password: logInPassword }),
+      const data = await authCall.post("/login", {
+        email: logInEmail,
+        password: logInPassword,
       });
-      const data = await res.json();
       if (data.success) {
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
@@ -48,8 +46,9 @@ const AuthPage = () => {
         dispatch(setError(data.error || "Login failed"));
       }
     } catch (err) {
+      console.error("Login error:", err);
       dispatch(setAuthenticated(false));
-      dispatch(setError("Network error"));
+      dispatch(setError(err.message || "Network error"));
     }
     dispatch(setLoading(false));
   };
@@ -58,20 +57,11 @@ const AuthPage = () => {
     e.preventDefault();
     dispatch(setLoading(true));
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          username: signUpUserName,
-          email: signUpEmail,
-          password: signUpPassword,
-        }),
+      const data = await authCall.post("/signup", {
+        username: signUpUserName,
+        email: signUpEmail,
+        password: signUpPassword,
       });
-      const data = await res.json();
       if (data.success) {
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
