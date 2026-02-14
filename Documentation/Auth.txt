@@ -77,3 +77,19 @@ Summary
 - Login and signup flows update Redux and localStorage, and redirect on success.
 - Logout clears authentication state and token.
 - UI reflects authentication, loading, and error states.
+
+
+Auth Flow:
+
+Login/Signup (public)
+    ↓
+/auth/login → no token needed → returns JWT
+    ↓
+Store token in localStorage
+    ↓
+Protected requests (need token)
+    ↓
+  /api/items
+  /api/orders_with_items
+  /api/orders
+  (all protected by authenticateToken middleware)

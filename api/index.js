@@ -19,23 +19,17 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // secret key sk_test
 app.use(cors()); // use as security to allow access or not to requests from other websites
 app.use(express.json()); // to parse JSON request bodies
 
-//Public routes (no auth needed)
-app.use("/auth", AuthRoutes); // changed from /protected to /auth
-
-// Protected routes (auth required); add app.get("/api/items"..to all protected routes
-app.use("/api", authenticateToken); // This protects all /api routes
-
-// Log every request
+// Strip /api prefix from incoming requests (Vercel serverless routing)
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  if (req.path.startsWith("/api/") && req.path !== "/api/") {
+    req.path = req.path.slice(4); // Remove /api prefix
+    req.url = req.url.slice(4);
+  }
   next();
 });
 
-// Log errors
-app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  next(err);
-});
+//Public routes (no auth needed)
+app.use("/auth", AuthRoutes); // changed from /protected to /auth
 
 //Database connection detecting the environment
 const pool = new Pool(
@@ -74,7 +68,17 @@ const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.BASE_URL || "http://localhost:5173";
 
-// Stripe .post
+// Public diagnostic endpoint (no auth required)
+app.get("/test-supabase-connection", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json({ connected: true, time: result.rows[0].now });
+  } catch (err) {
+    res.status(500).json({ connected: false, error: err.message });
+  }
+});
+
+// Stripe .post (public route for checkout)
 app.post("/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -122,14 +126,19 @@ app.post("/create-checkout-session", async (req, res) => {
   res.json({ url: session.url });
 });
 
-// Supabase test
-app.get("/test-supabase-connection", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ connected: true, time: result.rows[0].now });
-  } catch (err) {
-    res.status(500).json({ connected: false, error: err.message });
-  }
+// Protected routes (auth required); add app.get("/api/items"..to all protected routes
+app.use("/api", authenticateToken); // This protects all /api routes
+
+// Log every request
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Log errors
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  next(err);
 });
 
 // Get all items joined with locations
