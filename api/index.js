@@ -201,7 +201,7 @@ app.use((err, req, res, next) => {
 });
 
 // Get all items joined with locations
-app.get("/items", async (req, res) => {
+app.get("/api/items", async (req, res) => {
   try {
     console.log("GET /items - DATABASE_URL set:", !!process.env.DATABASE_URL);
     const result = await pool.query(`
@@ -260,7 +260,7 @@ app.get("/items", async (req, res) => {
 });
 
 // Get items by sku
-app.get("/items/by_sku/:sku", async (req, res) => {
+app.get("/api/items/by_sku/:sku", async (req, res) => {
   try {
     const { sku } = req.params;
     const result = await pool.query(
@@ -279,7 +279,7 @@ app.get("/items/by_sku/:sku", async (req, res) => {
 
 //Create a new item
 app.post(
-  "/items",
+  "/api/items",
   [
     body("sku").isNumeric(),
     body("description").isString().trim().notEmpty(),
@@ -305,7 +305,7 @@ app.post(
 );
 
 //Update an item
-app.put("/items/:id", async (req, res) => {
+app.put("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { image_path, sku, description, total_quantity } = req.body;
@@ -321,7 +321,7 @@ app.put("/items/:id", async (req, res) => {
 });
 
 //Delete an item
-app.delete("/items/:id", async (req, res) => {
+app.delete("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM items WHERE id=$1", [id]);
@@ -333,7 +333,7 @@ app.delete("/items/:id", async (req, res) => {
 });
 
 //item_locations
-app.get("/item_locations", async (req, res) => {
+app.get("/api/item_locations", async (req, res) => {
   try {
     const itemLocations = await pool.query("SELECT * FROM item_locations");
     res.json({ itemLocations: itemLocations.rows });
@@ -344,7 +344,7 @@ app.get("/item_locations", async (req, res) => {
 });
 
 app.post(
-  "/item_locations",
+  "/api/item_locations",
   [
     body("item_id").isNumeric(),
     body("location_id").isInt({ min: 0 }),
@@ -369,7 +369,7 @@ app.post(
   },
 );
 
-app.post("/item_locations/:id/undo", async (req, res) => {
+app.post("/api/item_locations/:id/undo", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -409,7 +409,7 @@ app.post("/item_locations/:id/undo", async (req, res) => {
   }
 });
 
-app.put("/item_locations/:id", async (req, res) => {
+app.put("/api/item_locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { item_id, location_id, quantity } = req.body;
@@ -446,7 +446,7 @@ app.put("/item_locations/:id", async (req, res) => {
   }
 });
 
-app.delete("/item_locations/:id", async (req, res) => {
+app.delete("/api/item_locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM item_locations WHERE id=$1", [id]);
@@ -458,7 +458,7 @@ app.delete("/item_locations/:id", async (req, res) => {
 });
 
 //Orders
-app.get("/orders", async (req, res) => {
+app.get("/api/orders", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM orders ORDER BY id DESC");
     res.json({ orders: result.rows });
@@ -468,7 +468,7 @@ app.get("/orders", async (req, res) => {
   }
 });
 
-app.get("/orders_with_items", async (req, res) => {
+app.get("/api/orders_with_items", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -554,7 +554,7 @@ app.get("/orders_with_items", async (req, res) => {
 });
 
 app.post(
-  "/orders",
+  "/api/orders",
   [
     body("order_number").isNumeric(),
     body("subtotal").isNumeric(),
@@ -620,7 +620,7 @@ app.post(
   },
 );
 
-app.put("/orders/:id", async (req, res) => {
+app.put("/api/orders/:id", async (req, res) => {
   console.log("PUT /orders/:id called");
   console.log("Request body:", req.body);
   const client = await pool.connect();
@@ -777,7 +777,7 @@ app.put("/api/orders/:order_number/carrier", async (req, res) => {
   }
 });
 
-app.delete("/orders/:id", async (req, res) => {
+app.delete("/api/orders/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM orders WHERE id=$1", [id]);
@@ -789,7 +789,7 @@ app.delete("/orders/:id", async (req, res) => {
 });
 
 //order-items
-app.get("/order_items", async (req, res) => {
+app.get("/api/order_items", async (req, res) => {
   try {
     const orderItems = await pool.query("SELECT * FROM order_items");
     res.json({ orderItems: orderItems.rows });
@@ -800,7 +800,7 @@ app.get("/order_items", async (req, res) => {
 });
 
 app.post(
-  "/order_items",
+  "/api/order_items",
   [
     body("order_id").isInt({ min: 0 }),
     body("item_id").isInt({ min: 0 }),
@@ -833,7 +833,7 @@ app.post(
 );
 
 // Revert last change, order item change undo button
-app.post("/order_items/:id/undo", async (req, res) => {
+app.post("/api/order_items/:id/undo", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -858,7 +858,7 @@ app.post("/order_items/:id/undo", async (req, res) => {
   }
 });
 
-app.put("/order_items/:id", async (req, res) => {
+app.put("/api/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { quantity } = req.body;
@@ -897,7 +897,7 @@ app.put("/order_items/:id", async (req, res) => {
   }
 });
 
-app.delete("/order_items/:id", async (req, res) => {
+app.delete("/api/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -926,7 +926,7 @@ app.delete("/order_items/:id", async (req, res) => {
 });
 
 //locations
-app.get("/locations", async (req, res) => {
+app.get("/api/locations", async (req, res) => {
   try {
     const locations = await pool.query("SELECT * FROM locations");
     res.json({ locations: locations.rows });
@@ -937,7 +937,7 @@ app.get("/locations", async (req, res) => {
 });
 
 app.post(
-  "/locations",
+  "/api/locations",
   [
     body("location_number").isNumeric(),
     body("location_name").isString().trim(),
@@ -962,7 +962,7 @@ app.post(
   },
 );
 
-app.put("/locations/:id", async (req, res) => {
+app.put("/api/locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { location_number, location_name, description } = req.body;
@@ -977,7 +977,7 @@ app.put("/locations/:id", async (req, res) => {
   }
 });
 
-app.delete("/locations/:id", async (req, res) => {
+app.delete("/api/locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM locations WHERE id=$1", [id]);
@@ -989,7 +989,7 @@ app.delete("/locations/:id", async (req, res) => {
 });
 
 // pickLists
-app.get("/picklists_with_order_info", async (req, res) => {
+app.get("/api/picklists_with_order_info", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -1012,7 +1012,7 @@ app.get("/picklists_with_order_info", async (req, res) => {
   }
 });
 
-app.get("/picked_orders_staged_for_packing", async (req, res) => {
+app.get("/api/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
@@ -1114,7 +1114,7 @@ app.get("/picked_orders_staged_for_packing", async (req, res) => {
   }
 });
 
-app.post("/picked_orders_staged_for_packing", async (req, res) => {
+app.post("/api/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const { pickListId, order_numbers, items, createdAt, status } = req.body;
 
@@ -1150,7 +1150,7 @@ app.post("/picked_orders_staged_for_packing", async (req, res) => {
 });
 
 // PickList items transferred out of chosen location, this is an action endpoint
-app.post("/inventory/transfer", async (req, res) => {
+app.post("/api/inventory/transfer", async (req, res) => {
   try {
     const { itemId, quantity, location } = req.body;
     const result = await pool.query(
@@ -1173,7 +1173,7 @@ app.post("/inventory/transfer", async (req, res) => {
 });
 
 //customers
-app.get("/customers", async (req, res) => {
+app.get("/api/customers", async (req, res) => {
   try {
     const customers = await pool.query("SELECT * FROM customers");
     res.json({ customers: customers.rows });
@@ -1184,7 +1184,7 @@ app.get("/customers", async (req, res) => {
 });
 
 app.post(
-  "/customers",
+  "/api/customers",
   [
     body("name").isString().trim().notEmpty(),
     body("email").isString().trim(),
@@ -1209,7 +1209,7 @@ app.post(
   },
 );
 
-app.put("/customers/:id", async (req, res) => {
+app.put("/api/customers/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, phone } = req.body;
@@ -1224,7 +1224,7 @@ app.put("/customers/:id", async (req, res) => {
   }
 });
 
-app.delete("/customers/:id", async (req, res) => {
+app.delete("/api/customers/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM customers WHERE id=$1", [id]);
@@ -1236,7 +1236,7 @@ app.delete("/customers/:id", async (req, res) => {
 });
 
 //users
-app.get("/users", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const users = await pool.query("SELECT * FROM users");
     res.json({ users: users.rows });
@@ -1247,7 +1247,7 @@ app.get("/users", async (req, res) => {
 });
 
 app.post(
-  "/users",
+  "/api/users",
   [
     body("username").isString().trim().notEmpty(),
     body("email").isString().trim().notEmpty(),
@@ -1273,7 +1273,7 @@ app.post(
   },
 );
 
-app.put("/users/:id", async (req, res) => {
+app.put("/api/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { username, email, password_hash, permissions } = req.body;
@@ -1288,7 +1288,7 @@ app.put("/users/:id", async (req, res) => {
   }
 });
 
-app.delete("/users/:id", async (req, res) => {
+app.delete("/api/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM users WHERE id=$1", [id]);
