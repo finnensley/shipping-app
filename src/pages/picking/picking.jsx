@@ -60,7 +60,7 @@ const PickingPage = () => {
   useEffect(() => {
     if (data && Array.isArray(data.orders)) {
       dispatch(setOrders(data.orders));
-      axios.get(`${API_URL}/items`).then((res) => {
+      axios.get(`${API_URL}/api/items`).then((res) => {
         console.log("Fetched inventory:", res.data);
 
         dispatch(setItems(Array.isArray(res.data.items) ? res.data.items : []));

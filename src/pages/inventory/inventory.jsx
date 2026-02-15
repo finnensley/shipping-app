@@ -160,11 +160,11 @@ const InventoryPage = () => {
                               key={location.id}
                               onClick={async () => {
                                 await axios.post(
-                                  `${API_URL}/item_locations/${location.id}/undo`,
+                                  `${API_URL}/api/item_locations/${location.id}/undo`,
                                 );
 
                                 const response = await fetch(
-                                  `${API_URL}/items`,
+                                  `${API_URL}/api/items`,
                                 );
                                 const data = await response.json();
                                 dispatch(setInventory(data.items));

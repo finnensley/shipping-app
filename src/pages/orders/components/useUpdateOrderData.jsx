@@ -19,7 +19,7 @@ const useUpdateOrderData = () => {
     setError(null);
     try {
       const response = await axios.put(
-        `${API_URL}/order_items/${orderItemId}`,
+        `${API_URL}/api/order_items/${orderItemId}`,
         { quantity },
       );
       return response.data;

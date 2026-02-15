@@ -42,7 +42,7 @@ const OrdersPage = () => {
 
   // fetch the latest orders and update Redux
   const fetchOrders = async () => {
-    const response = await fetch(`${API_URL}/orders_with_items`);
+    const response = await fetch(`${API_URL}/api/orders_with_items`);
     const data = await response.json();
     dispatch(setOrder(data.orders));
   };

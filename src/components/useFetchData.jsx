@@ -9,7 +9,7 @@ const useFetchData = (endpoint) => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/${endpoint}`)
+      .get(`${API_URL}/api/${endpoint}`)
       .then((res) => {
         setData(res.data);
         setLoading(false);

@@ -56,7 +56,7 @@ const OrderEditModal = ({ order, onClose }) => {
 
   const handleAddingASku = async (sku) => {
     try {
-      const response = await axios.get(`${API_URL}/items/by_sku/${sku}`);
+      const response = await axios.get(`${API_URL}/api/items/by_sku/${sku}`);
       console.log("API RESPONSE:", response.data);
       const { id, description } = response.data;
       setNewItem((item) => ({

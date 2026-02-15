@@ -11,7 +11,7 @@ const useUpdateInventoryData = () => {
     setError(null);
     try {
       const response = await axios.put(
-        `${API_URL}/item_locations/${locationId}`,
+        `${API_URL}/api/item_locations/${locationId}`,
         { item_id: itemId, location_id: locationIdDb, quantity: quantity },
       );
       setLoading(false);

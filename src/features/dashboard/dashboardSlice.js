@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from 'axios';
-import API_URL from '../../utils/api';
+import axios from "axios";
+import API_URL from "../../utils/api";
 
 export const dashboardSlice = createSlice({
   name: "dashboard",
@@ -17,29 +17,34 @@ export const dashboardSlice = createSlice({
     setOpenOrderCount: (state, action) => {
       state.openOrderCount = action.payload;
     },
-  
+
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
     setError: (state, action) => {
       state.error = action.payload;
     },
-}
+  },
 });
 
 export const fetchOrderTotal = () => async (dispatch) => {
   dispatch(setLoading(true));
-    try {
-    const response = await axios.get(`${API_URL}/orders`);
+  try {
+    const response = await axios.get(`${API_URL}/api/orders`);
     console.log("Dashboard fetchOrderTotal response:", response.data);
-    const orders = Array.isArray(response.data) ? response.data : (response.data.orders ?? []);
+    const orders = Array.isArray(response.data)
+      ? response.data
+      : (response.data.orders ?? []);
     console.log("Orders after processing:", orders);
     if (!Array.isArray(orders)) {
       throw new Error("Expected orders to be an array");
     }
-    const openOrders = orders.filter(order => order.status === "open");
+    const openOrders = orders.filter((order) => order.status === "open");
     // Only sum orders with status 'open'
-    const total = openOrders.reduce((acc, order) => acc + Number(order.total), 0);
+    const total = openOrders.reduce(
+      (acc, order) => acc + Number(order.total),
+      0,
+    );
     dispatch(setOrderTotal(total));
     dispatch(setOpenOrderCount(openOrders.length));
     dispatch(setLoading(false));
@@ -50,7 +55,7 @@ export const fetchOrderTotal = () => async (dispatch) => {
   }
 };
 
-
-export const { setOrderTotal, setOpenOrderCount, setLoading, setError } = dashboardSlice.actions;
+export const { setOrderTotal, setOpenOrderCount, setLoading, setError } =
+  dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

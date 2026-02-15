@@ -48,7 +48,7 @@ export const orderSlice = createSlice({
 // Fetch orders from backend and update Redux state
 export const fetchOrders = () => async (dispatch) => {
   try {
-    const url = `${API_URL}/orders_with_items`;
+    const url = `${API_URL}/api/orders_with_items`;
     console.log("Fetching orders from URL:", url);
     const response = await fetch(url);
     console.log("Response status:", response.status, "ok:", response.ok);
