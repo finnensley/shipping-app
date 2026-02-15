@@ -37,10 +37,11 @@ const AuthPage = () => {
         password: logInPassword,
       });
       if (data.success) {
+        // Store token FIRST, then navigate
+        localStorage.setItem("token", data.token);
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
         navigate("/dashboard");
-        localStorage.setItem("token", data.token);
       } else {
         dispatch(setAuthenticated(false));
         dispatch(setError(data.error || "Login failed"));
@@ -63,10 +64,11 @@ const AuthPage = () => {
         password: signUpPassword,
       });
       if (data.success) {
+        // Store token FIRST, then navigate
+        localStorage.setItem("token", data.token);
         dispatch(setAuthenticated(true));
         dispatch(setError(null));
         navigate("/dashboard");
-        localStorage.setItem("token", data.token);
       } else {
         dispatch(setAuthenticated(false));
         dispatch(setError(data.error) || "Sign Up failed");

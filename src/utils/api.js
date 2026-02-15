@@ -27,7 +27,16 @@ axios.interceptors.request.use(
     const token =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (token) {
+      // Debug: log token format
+      console.log(
+        "Token stored in localStorage:",
+        token.substring(0, 20) + "...",
+        "Length:",
+        token.length,
+      );
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("No token found in localStorage");
     }
     return config;
   },
