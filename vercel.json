@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && npx prisma generate",
   "functions": {
     "api/index.js": {
       "memory": 1024,
@@ -11,7 +11,7 @@
   },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api|auth).)*$",
       "destination": "/index.html"
     }
   ]
