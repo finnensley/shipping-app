@@ -42,23 +42,38 @@ const __dirname = dirname(__filename);
 app.use(express.static(join(__dirname, "..", "dist")));
 
 //Database connection detecting the environment
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        // SSL for remote connections (Supabase and other cloud providers)
-        ssl: {
-          rejectUnauthorized: false, // Skip certificate validation for cloud DB connections
-        },
-      } // Supabase or other remote DB
-    : {
-        user: process.env.LOCAL_USER,
-        host: process.env.LOCAL_HOST,
-        database: process.env.LOCAL_DATABASE,
-        password: process.env.LOCAL_PASSWORD,
-        port: process.env.LOCAL_PORT,
-      }, // Local Docker
-);
+// For remote connections (Supabase, etc), we need SSL with proper settings
+const getPoolConfig = () => {
+  if (process.env.DATABASE_URL) {
+    // Remote database connection
+    let connectionString = process.env.DATABASE_URL;
+
+    // Add SSL parameters to connection string if not already present
+    if (!connectionString.includes("sslmode")) {
+      connectionString += connectionString.includes("?")
+        ? "&sslmode=require"
+        : "?sslmode=require";
+    }
+
+    return {
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false, // Accept self-signed certificates
+      },
+    };
+  } else {
+    // Local database connection
+    return {
+      user: process.env.LOCAL_USER,
+      host: process.env.LOCAL_HOST,
+      database: process.env.LOCAL_DATABASE,
+      password: process.env.LOCAL_PASSWORD,
+      port: process.env.LOCAL_PORT,
+    };
+  }
+};
+
+const pool = new Pool(getPoolConfig());
 
 // Log connection configuration on startup
 console.log("=== DB Connection Config ===");
