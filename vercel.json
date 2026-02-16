@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build && npx prisma generate",
+  "buildCommand": "vite build && npx prisma generate",
   "functions": {
     "api/index.js": {
       "memory": 1024,
