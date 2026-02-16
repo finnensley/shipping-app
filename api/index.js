@@ -129,10 +129,48 @@ app.get("/health", (req, res) => {
   });
 });
 
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    hasDatabase: !!process.env.DATABASE_URL,
+  });
+});
+
 // Public diagnostic endpoint (no auth required)
 app.get("/test-supabase-connection", async (req, res) => {
   try {
     console.log("=== TEST ENDPOINT CALLED ===");
+    console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
+    console.log("Attempting query...");
+
+    const result = await pool.query("SELECT NOW()");
+    console.log("Query successful!");
+
+    res.json({
+      connected: true,
+      time: result.rows[0].now,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("=== DB CONNECTION ERROR ===");
+    console.error("Error message:", err.message);
+    console.error("Error code:", err.code);
+    console.error("Error details:", err);
+
+    res.status(500).json({
+      connected: false,
+      error: err.message,
+      code: err.code,
+      hint: "Check DATABASE_URL in Vercel environment variables",
+    });
+  }
+});
+
+app.get("/api/test-supabase-connection", async (req, res) => {
+  try {
+    console.log("=== TEST ENDPOINT CALLED (/api version) ===");
     console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
     console.log("Attempting query...");
 
