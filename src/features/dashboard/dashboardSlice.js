@@ -10,7 +10,8 @@ function getApiUrl() {
   ) {
     return "http://localhost:3000";
   }
-  return "/api";
+  // On Vercel: return empty string so API_URL/api/orders becomes /api/orders (relative URL)
+  return "";
 }
 
 export const dashboardSlice = createSlice({

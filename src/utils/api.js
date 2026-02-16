@@ -10,8 +10,8 @@ function getApiUrl() {
   ) {
     return "http://localhost:3000";
   }
-  // On Vercel, use /api prefix for all API routes
-  return "/api";
+  // On Vercel: return empty string so API_URL/api/orders becomes /api/orders (relative URL)
+  return "";
 }
 const API_URL = getApiUrl();
 console.log(
