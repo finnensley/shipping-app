@@ -64,6 +64,7 @@ export const SignUp = async (req, res, next) => {
 
     return res.status(201).json({ success: true, data: safeUser, token });
   } catch (err) {
+    console.error("SignUp Error:", err);
     next(err);
   }
 };
@@ -124,6 +125,7 @@ export const Login = async (req, res, next) => {
       token,
     });
   } catch (err) {
+    console.error("Login Error:", err.message, err);
     next(err);
   }
 };
@@ -169,6 +171,7 @@ export const DevLogin = async (req, res, next) => {
     const { password_hash: _, ...safeUser } = user;
     return res.status(200).json({ success: true, data: safeUser, token });
   } catch (err) {
+    console.error("DevLogin Error:", err.message, err);
     next(err);
   }
 };
