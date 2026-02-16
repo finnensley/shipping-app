@@ -5,14 +5,7 @@
     "api/index.js": {
       "memory": 1024,
       "maxDuration": 30,
-      "includeFiles": "src/**",
-      "excludeFiles": "node_modules/**"
+      "includeFiles": ["src/**", "prisma/**"]
     }
-  },
-  "rewrites": [
-    {
-      "source": "/((?!api|auth).)*$",
-      "destination": "/index.html"
-    }
-  ]
+  }
 }
