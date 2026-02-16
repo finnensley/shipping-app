@@ -46,15 +46,11 @@ const pool = new Pool(
   process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
-        // SSL for Supabase remote connections
-        ...(process.env.DATABASE_URL.includes("supabase")
-          ? {
-              ssl: {
-                rejectUnauthorized: false, // Skip certificate validation for Supabase
-              },
-            }
-          : {}),
-      } // Supabase or local
+        // SSL for remote connections (Supabase and other cloud providers)
+        ssl: {
+          rejectUnauthorized: false, // Skip certificate validation for cloud DB connections
+        },
+      } // Supabase or other remote DB
     : {
         user: process.env.LOCAL_USER,
         host: process.env.LOCAL_HOST,
