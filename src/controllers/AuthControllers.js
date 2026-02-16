@@ -7,6 +7,16 @@ const saltRounds = 12;
 
 export const SignUp = async (req, res, next) => {
   try {
+    // Check if JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("CRITICAL: JWT_SECRET environment variable is not set!");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error: JWT_SECRET not set",
+        environment: process.env.NODE_ENV,
+      });
+    }
+
     const { email, password, username } = req.body;
     if (!email || !password) {
       return res
@@ -47,7 +57,7 @@ export const SignUp = async (req, res, next) => {
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "24h" },
     );
 
     const { password_hash: _, ...safeUser } = newUser;
@@ -60,6 +70,16 @@ export const SignUp = async (req, res, next) => {
 
 export const Login = async (req, res, next) => {
   try {
+    // Check if JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("CRITICAL: JWT_SECRET environment variable is not set!");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error: JWT_SECRET not set",
+        environment: process.env.NODE_ENV,
+      });
+    }
+
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
@@ -94,7 +114,7 @@ export const Login = async (req, res, next) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "24h" },
     );
 
     const { password_hash: _, ...safeUser } = user;
@@ -110,13 +130,21 @@ export const Login = async (req, res, next) => {
 
 export const DevLogin = async (req, res, next) => {
   try {
+    // Check if JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("CRITICAL: JWT_SECRET environment variable is not set!");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error: JWT_SECRET not set",
+        environment: process.env.NODE_ENV,
+      });
+    }
+
     if (process.env.NODE_ENV !== "development") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          error: "Dev login only allowed in development mode.",
-        });
+      return res.status(403).json({
+        success: false,
+        error: "Dev login only allowed in development mode.",
+      });
     }
     // Use a fixed test user email
     const testEmail = "devuser@example.com";
@@ -136,7 +164,7 @@ export const DevLogin = async (req, res, next) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "24h" },
     );
     const { password_hash: _, ...safeUser } = user;
     return res.status(200).json({ success: true, data: safeUser, token });
