@@ -101,7 +101,7 @@ const baseUrl = process.env.VERCEL_URL
 // PUBLIC ENDPOINTS - MUST BE BEFORE AUTH MIDDLEWARE
 
 // Health check endpoint (no DB required, no auth required)
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -111,7 +111,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Public diagnostic endpoint (no auth required)
-app.get("/api/test-supabase-connection", async (req, res) => {
+app.get("/test-supabase-connection", async (req, res) => {
   try {
     console.log("=== TEST ENDPOINT CALLED ===");
     console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
@@ -141,7 +141,7 @@ app.get("/api/test-supabase-connection", async (req, res) => {
 });
 
 // Stripe checkout (public route)
-app.post("/api/create-checkout-session", async (req, res) => {
+app.post("/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: req.body.items.map((item) => ({
@@ -190,7 +190,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
 
 // PROTECTED ROUTES - AUTH MIDDLEWARE APPLIES BELOW
 
-// Protected routes (auth required); add app.get("/api/items"..to all protected routes
+// Protected routes (auth required); add app.get("/items"..to all protected routes
 app.use("/api", authenticateToken); // This protects all /api routes
 
 // Log every request
@@ -206,7 +206,7 @@ app.use((err, req, res, next) => {
 });
 
 // Get all items joined with locations
-app.get("/api/items", async (req, res) => {
+app.get("/items", async (req, res) => {
   try {
     console.log("GET /items - DATABASE_URL set:", !!process.env.DATABASE_URL);
     const result = await pool.query(`
@@ -265,7 +265,7 @@ app.get("/api/items", async (req, res) => {
 });
 
 // Get items by sku
-app.get("/api/items/by_sku/:sku", async (req, res) => {
+app.get("/items/by_sku/:sku", async (req, res) => {
   try {
     const { sku } = req.params;
     const result = await pool.query(
@@ -310,7 +310,7 @@ app.post(
 );
 
 //Update an item
-app.put("/api/items/:id", async (req, res) => {
+app.put("/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { image_path, sku, description, total_quantity } = req.body;
@@ -326,7 +326,7 @@ app.put("/api/items/:id", async (req, res) => {
 });
 
 //Delete an item
-app.delete("/api/items/:id", async (req, res) => {
+app.delete("/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM items WHERE id=$1", [id]);
@@ -338,7 +338,7 @@ app.delete("/api/items/:id", async (req, res) => {
 });
 
 //item_locations
-app.get("/api/item_locations", async (req, res) => {
+app.get("/item_locations", async (req, res) => {
   try {
     const itemLocations = await pool.query("SELECT * FROM item_locations");
     res.json({ itemLocations: itemLocations.rows });
@@ -374,7 +374,7 @@ app.post(
   },
 );
 
-app.post("/api/item_locations/:id/undo", async (req, res) => {
+app.post("/item_locations/:id/undo", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -414,7 +414,7 @@ app.post("/api/item_locations/:id/undo", async (req, res) => {
   }
 });
 
-app.put("/api/item_locations/:id", async (req, res) => {
+app.put("/item_locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { item_id, location_id, quantity } = req.body;
@@ -451,7 +451,7 @@ app.put("/api/item_locations/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/item_locations/:id", async (req, res) => {
+app.delete("/item_locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM item_locations WHERE id=$1", [id]);
@@ -463,7 +463,7 @@ app.delete("/api/item_locations/:id", async (req, res) => {
 });
 
 //Orders
-app.get("/api/orders", async (req, res) => {
+app.get("/orders", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM orders ORDER BY id DESC");
     res.json({ orders: result.rows });
@@ -473,7 +473,7 @@ app.get("/api/orders", async (req, res) => {
   }
 });
 
-app.get("/api/orders_with_items", async (req, res) => {
+app.get("/orders_with_items", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -625,7 +625,7 @@ app.post(
   },
 );
 
-app.put("/api/orders/:id", async (req, res) => {
+app.put("/orders/:id", async (req, res) => {
   console.log("PUT /orders/:id called");
   console.log("Request body:", req.body);
   const client = await pool.connect();
@@ -767,7 +767,7 @@ app.put("/api/orders/:id", async (req, res) => {
 });
 
 // Change carrier and _speed if packer selects from dropdown
-app.put("/api/orders/:order_number/carrier", async (req, res) => {
+app.put("/orders/:order_number/carrier", async (req, res) => {
   try {
     const { order_number } = req.params;
     const { carrier, carrier_speed } = req.body;
@@ -782,7 +782,7 @@ app.put("/api/orders/:order_number/carrier", async (req, res) => {
   }
 });
 
-app.delete("/api/orders/:id", async (req, res) => {
+app.delete("/orders/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM orders WHERE id=$1", [id]);
@@ -794,7 +794,7 @@ app.delete("/api/orders/:id", async (req, res) => {
 });
 
 //order-items
-app.get("/api/order_items", async (req, res) => {
+app.get("/order_items", async (req, res) => {
   try {
     const orderItems = await pool.query("SELECT * FROM order_items");
     res.json({ orderItems: orderItems.rows });
@@ -838,7 +838,7 @@ app.post(
 );
 
 // Revert last change, order item change undo button
-app.post("/api/order_items/:id/undo", async (req, res) => {
+app.post("/order_items/:id/undo", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -863,7 +863,7 @@ app.post("/api/order_items/:id/undo", async (req, res) => {
   }
 });
 
-app.put("/api/order_items/:id", async (req, res) => {
+app.put("/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { quantity } = req.body;
@@ -902,7 +902,7 @@ app.put("/api/order_items/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/order_items/:id", async (req, res) => {
+app.delete("/order_items/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -931,7 +931,7 @@ app.delete("/api/order_items/:id", async (req, res) => {
 });
 
 //locations
-app.get("/api/locations", async (req, res) => {
+app.get("/locations", async (req, res) => {
   try {
     const locations = await pool.query("SELECT * FROM locations");
     res.json({ locations: locations.rows });
@@ -967,7 +967,7 @@ app.post(
   },
 );
 
-app.put("/api/locations/:id", async (req, res) => {
+app.put("/locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { location_number, location_name, description } = req.body;
@@ -982,7 +982,7 @@ app.put("/api/locations/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/locations/:id", async (req, res) => {
+app.delete("/locations/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM locations WHERE id=$1", [id]);
@@ -994,7 +994,7 @@ app.delete("/api/locations/:id", async (req, res) => {
 });
 
 // pickLists
-app.get("/api/picklists_with_order_info", async (req, res) => {
+app.get("/picklists_with_order_info", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -1017,7 +1017,7 @@ app.get("/api/picklists_with_order_info", async (req, res) => {
   }
 });
 
-app.get("/api/picked_orders_staged_for_packing", async (req, res) => {
+app.get("/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
@@ -1119,7 +1119,7 @@ app.get("/api/picked_orders_staged_for_packing", async (req, res) => {
   }
 });
 
-app.post("/api/picked_orders_staged_for_packing", async (req, res) => {
+app.post("/picked_orders_staged_for_packing", async (req, res) => {
   try {
     const { pickListId, order_numbers, items, createdAt, status } = req.body;
 
@@ -1155,7 +1155,7 @@ app.post("/api/picked_orders_staged_for_packing", async (req, res) => {
 });
 
 // PickList items transferred out of chosen location, this is an action endpoint
-app.post("/api/inventory/transfer", async (req, res) => {
+app.post("/inventory/transfer", async (req, res) => {
   try {
     const { itemId, quantity, location } = req.body;
     const result = await pool.query(
@@ -1178,7 +1178,7 @@ app.post("/api/inventory/transfer", async (req, res) => {
 });
 
 //customers
-app.get("/api/customers", async (req, res) => {
+app.get("/customers", async (req, res) => {
   try {
     const customers = await pool.query("SELECT * FROM customers");
     res.json({ customers: customers.rows });
@@ -1214,7 +1214,7 @@ app.post(
   },
 );
 
-app.put("/api/customers/:id", async (req, res) => {
+app.put("/customers/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, phone } = req.body;
@@ -1229,7 +1229,7 @@ app.put("/api/customers/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/customers/:id", async (req, res) => {
+app.delete("/customers/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM customers WHERE id=$1", [id]);
@@ -1241,7 +1241,7 @@ app.delete("/api/customers/:id", async (req, res) => {
 });
 
 //users
-app.get("/api/users", async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const users = await pool.query("SELECT * FROM users");
     res.json({ users: users.rows });
@@ -1278,7 +1278,7 @@ app.post(
   },
 );
 
-app.put("/api/users/:id", async (req, res) => {
+app.put("/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { username, email, password_hash, permissions } = req.body;
@@ -1293,7 +1293,7 @@ app.put("/api/users/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/users/:id", async (req, res) => {
+app.delete("/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query("DELETE FROM users WHERE id=$1", [id]);
