@@ -16,11 +16,30 @@ const app = express();
 const port = 3000; //port for backend
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // secret key sk_test
 
-app.use(cors()); // use as security to allow access or not to requests from other websites
+// CORS configuration for security
+const corsOptions = {
+  origin: process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json()); // to parse JSON request bodies
 
 //Public routes (no auth needed)
 app.use("/auth", AuthRoutes); // changed from /protected to /auth
+
+// Serve static files from dist folder BEFORE auth middleware
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use(express.static(join(__dirname, "..", "dist")));
 
 //Database connection detecting the environment
 const pool = new Pool(
@@ -1303,15 +1322,6 @@ app.delete("/api/users/:id", async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
-
-// Serve static files from dist folder
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-app.use(express.static(join(__dirname, "..", "dist")));
 
 // React Router fallback - serve index.html for non-API routes only
 app.get(/.*/, (req, res) => {

@@ -7,11 +7,5 @@
       "maxDuration": 30,
       "includeFiles": "src/**"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/auth/:path*",
-      "destination": "/api"
-    }
-  ]
+  }
 }
