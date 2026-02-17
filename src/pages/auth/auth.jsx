@@ -117,7 +117,7 @@ const AuthPage = () => {
       <button
         type="button"
         onClick={() => setShowSignUp(!showSignUp)}
-        className="m-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        className="m-4" disabled hidden
       >
         {showSignUp ? "Back to Login" : "Sign Up"}
       </button>
