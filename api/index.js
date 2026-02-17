@@ -51,10 +51,10 @@ if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
 
 const getPoolConfig = () => {
   if (process.env.DATABASE_URL) {
-    // Remote database connection - use string "require" instead of object
+    // Remote database connection - use object format for ssl
     return {
       connectionString: process.env.DATABASE_URL,
-      ssl: "require",
+      ssl: { rejectUnauthorized: false },
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
     };
