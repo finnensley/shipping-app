@@ -43,23 +43,20 @@ app.use(express.static(join(__dirname, "..", "dist")));
 
 //Database connection detecting the environment
 // For remote connections (Supabase, etc), we need SSL with proper settings
+
+// Disable certificate validation for self-signed certs on Vercel
+if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 const getPoolConfig = () => {
   if (process.env.DATABASE_URL) {
-    // Remote database connection
-    let connectionString = process.env.DATABASE_URL;
-
-    // Add SSL parameters to connection string if not already present
-    if (!connectionString.includes("sslmode")) {
-      connectionString += connectionString.includes("?")
-        ? "&sslmode=require"
-        : "?sslmode=require";
-    }
-
+    // Remote database connection - use string "require" instead of object
     return {
-      connectionString,
-      ssl: {
-        rejectUnauthorized: false, // Accept self-signed certificates
-      },
+      connectionString: process.env.DATABASE_URL,
+      ssl: "require",
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     };
   } else {
     // Local database connection
