@@ -1,7 +1,7 @@
 export const items = [
   {
     id: 1,
-    picture: "src/assets/pexels-jamie-he-170821-563067.jpg",
+    picture: "/pexels-jamie-he-170821-563067.jpg",
     sku: 111111,
     description: "plate",
     total_quantity: 10,
@@ -9,7 +9,7 @@ export const items = [
   },
   {
     id: 2,
-    picture: "src/assets/pexels-pixabay-53588.jpg",
+    picture: "/pexels-pixabay-53588.jpg",
     sku: 222222,
     description: "bowl",
     total_quantity: 10,
@@ -20,7 +20,7 @@ export const items = [
   },
   {
     id: 3,
-    picture: "src/assets/pexels-ifreestock-585753.jpg",
+    picture: "/pexels-ifreestock-585753.jpg",
     sku: 333333,
     description: "mug",
     total_quantity: 10,
