@@ -1,9 +1,9 @@
 // __tests__/components/OrderSelector.test.jsx
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import OrderSelector from "../../../src/pages/picking/components/orderSelector.jsx";
+import OrderSelector from "../../src/pages/picking/components/orderSelector.jsx";
 
 describe("OrderSelector Component", () => {
   const mockOrders = [
@@ -30,7 +30,7 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
     const quantityInput = screen.getByDisplayValue("1");
@@ -44,7 +44,7 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
     const quantityInput = screen.getByDisplayValue("1");
@@ -61,10 +61,10 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
-    const prioritySelect = screen.getByDisplayValue("ship-by-date");
+    const prioritySelect = screen.getAllByRole("combobox")[0];
     await user.selectOptions(prioritySelect, "oldest-order-number");
 
     expect(prioritySelect).toHaveValue("oldest-order-number");
@@ -77,10 +77,10 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
-    const batchSelect = screen.getByDisplayValue("multi-item");
+    const batchSelect = screen.getAllByRole("combobox")[1];
     await user.selectOptions(batchSelect, "single-item");
 
     expect(batchSelect).toHaveValue("single-item");
@@ -93,10 +93,10 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
-    const createButton = screen.getByText("CREATE");
+    const createButton = screen.getAllByText("CREATE")[0];
     await user.click(createButton);
 
     expect(mockOnCreatePickList).toHaveBeenCalledTimes(1);
@@ -109,7 +109,7 @@ describe("OrderSelector Component", () => {
       <OrderSelector
         orders={mockOrders}
         onCreatePickList={mockOnCreatePickList}
-      />
+      />,
     );
 
     const singleOrderInput = screen.getByPlaceholderText("enter order #");

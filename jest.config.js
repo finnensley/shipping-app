@@ -1,6 +1,7 @@
 // jest.config.js
 export default {
   testEnvironment: "node",
+  maxWorkers: 1,
   setupFilesAfterEnv: ["<rootDir>/__tests__/setup/database.js"],
   testMatch: [
     "**/__tests__/**/*.test.{js,jsx}",

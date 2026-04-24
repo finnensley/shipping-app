@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
+const noop = () => {};
+
+const OrderSelector = ({ orders, onSelect = noop, onCreatePickList }) => {
   console.log("orders in selector:", orders);
   const [quantity, setQuantity] = useState(1); // was 0 before test
-  const [selectedPriority, setSelectedPriority] = useState("ship-by-date");// was "" before test
-  const [selectedBatch, setSelectedBatch] = useState("multi-item");// was "" before test
+  const [selectedPriority, setSelectedPriority] = useState("ship-by-date"); // was "" before test
+  const [selectedBatch, setSelectedBatch] = useState("multi-item"); // was "" before test
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [inputValue, setInputValue] = useState("");
 
   // Get the earliest orders by order_number
   const sortedOrders = [...orders].sort(
-    (a, b) => a.order_number - b.order_number
+    (a, b) => a.order_number - b.order_number,
   );
 
   // Notify parent when selection changes
@@ -29,22 +31,22 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
     orders,
     selectedPriority,
     selectedBatch,
-    quantity
+    quantity,
   ) => {
     let filtered = [...orders];
     if (selectedBatch === "single-item") {
       filtered = filtered.filter(
-        (order) => order.items && order.items.length === 1
+        (order) => order.items && order.items.length === 1,
       );
     } else if (selectedBatch === "multi-item") {
       filtered = filtered.filter(
-        (order) => order.items && order.items.length > 1
+        (order) => order.items && order.items.length > 1,
       );
     }
 
     if (selectedPriority === "ship-by-date") {
       filtered.sort(
-        (a, b) => new Date(a.ship_by_date) - new Date(b.ship_by_date)
+        (a, b) => new Date(a.ship_by_date) - new Date(b.ship_by_date),
       );
     } else {
       filtered.sort((a, b) => a.order_number - b.order_number);
@@ -110,7 +112,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
                   orders,
                   selectedPriority,
                   selectedBatch,
-                  quantity
+                  quantity,
                 );
                 onCreatePickList(filteredOrders);
               }}
@@ -145,7 +147,7 @@ const OrderSelector = ({ orders, onSelect, onCreatePickList }) => {
                   className=" bg-green-900"
                   onClick={() => {
                     const orderToPick = orders.find(
-                      (order) => order.order_number === Number(inputValue)
+                      (order) => order.order_number === Number(inputValue),
                     );
                     if (orderToPick) {
                       onCreatePickList([orderToPick]);

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import pkg from "pg";
 import cors from "cors";
+import { existsSync } from "fs";
 import { body, validationResult } from "express-validator";
 //Auth
 import AuthRoutes from "../src/routes/AuthRoutes.js";
@@ -33,13 +34,11 @@ app.use(express.json()); // to parse JSON request bodies
 app.use("/auth", AuthRoutes); // changed from /protected to /auth
 
 // Serve static files from dist folder BEFORE auth middleware
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { join } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const appRoot = process.cwd();
 
-app.use(express.static(join(__dirname, "..", "dist")));
+app.use(express.static(join(appRoot, "dist")));
 
 //Database connection detecting the environment
 // For remote connections (Supabase, etc), we need SSL with proper settings
@@ -50,6 +49,25 @@ if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
 }
 
 const getPoolConfig = () => {
+  const isDockerRuntime = existsSync("/.dockerenv");
+  const testDbHost = isDockerRuntime
+    ? "host.docker.internal"
+    : process.env.TEST_DB_HOST || process.env.LOCAL_HOST || "localhost";
+
+  if (process.env.NODE_ENV === "test") {
+    return {
+      user: process.env.TEST_DB_USER || process.env.LOCAL_USER || "finnensley",
+      host: testDbHost,
+      database:
+        process.env.TEST_DB_NAME ||
+        process.env.LOCAL_TEST_DATABASE ||
+        "shipping_app_test",
+      password:
+        process.env.TEST_DB_PASSWORD || process.env.LOCAL_PASSWORD || "",
+      port: Number(process.env.TEST_DB_PORT || process.env.LOCAL_PORT || 5432),
+    };
+  }
+
   if (process.env.DATABASE_URL) {
     // Remote database connection - use object format for ssl
     return {
@@ -1375,11 +1393,11 @@ app.get(/.*/, (req, res) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/auth")) {
     return res.status(404).json({ error: "Not Found" });
   }
-  res.sendFile(join(__dirname, "..", "dist", "index.html"));
+  res.sendFile(join(appRoot, "dist", "index.html"));
 });
 
 // Start server locally (Vercel ignores this and uses export instead)
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });

@@ -2,6 +2,9 @@
   "name": "shipping-app",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": "25.9.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
