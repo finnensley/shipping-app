@@ -1,0 +1,24 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: "0 9 */5 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: https://ngayddjwtdszjrdgrgrj.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nYXlkZGp3dGRzempyZGdyZ3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1NTk0NzIsImV4cCI6MjA3OTEzNTQ3Mn0.ewweJbnWT-oPxo_JGmcecyLlO2GWd8YdZTf9LK5xkXs
+        run: node scripts/ping-supabase.mjs
