@@ -21,7 +21,6 @@
     "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "dependencies": {
-    "@api/easyship": "file:.api/apis/easyship",
     "@prisma/client": "^6.19.1",
     "@reduxjs/toolkit": "^2.9.0",
     "@stripe/react-stripe-js": "^5.4.0",
@@ -31,7 +30,6 @@
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "easyship": "^1.0.0",
     "esbuild": "^0.25.11",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
