@@ -10,15 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
 
       - name: Ping Supabase
         env:
-          SUPABASE_URL: https://ngayddjwtdszjrdgrgrj.supabase.co
-          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nYXlkZGp3dGRzempyZGdyZ3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1NTk0NzIsImV4cCI6MjA3OTEzNTQ3Mn0.ewweJbnWT-oPxo_JGmcecyLlO2GWd8YdZTf9LK5xkXs
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
         run: node scripts/ping-supabase.mjs
