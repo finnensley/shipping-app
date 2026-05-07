@@ -1,7 +1,15 @@
 # Build a shipping and inventory management app
 
+## Workflow Docs
+
+- Preview database setup: [Documentation/Preview-Database-Runbook.md](Documentation/Preview-Database-Runbook.md)
+- Branch workflow: [Documentation/Branch-Workflow.md](Documentation/Branch-Workflow.md)
+- Vercel and Supabase deployment notes: [Documentation/Supabase-Vercel-Setup.md](Documentation/Supabase-Vercel-Setup.md)
+
 # Installed: react.js, vite, tailwindcss, axios, react-router-dom, redux, express, cors, pg, postgresql@15, dotenv, express-validator, prisma, bcrypt jsonwebtoken (https://jwtsecrets.com to generate random secret, 256), framer-motion, easyship (requred install of api@6.1.3,https://npm.im/oas), nodemon,
-testing installs:  
+
+testing installs:
+
 1. npm install --save-dev jest supertest @types/jest jest-environment-node
 2. npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event
 
