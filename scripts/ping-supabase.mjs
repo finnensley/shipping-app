@@ -8,7 +8,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 try {
   // Query the REST API to trigger actual database activity
-  const restEndpoint = new URL("/rest/v1/orders?limit=1", supabaseUrl).toString();
+  const restEndpoint = new URL(
+    "/rest/v1/orders?limit=1",
+    supabaseUrl,
+  ).toString();
 
   console.log("Pinging Supabase with database query...");
   console.log("Endpoint:", restEndpoint);
