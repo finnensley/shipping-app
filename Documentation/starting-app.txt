@@ -4,7 +4,7 @@ Password: Testing2!
 For future development:
 Terminal 1: docker-compose up postgres
 Terminal 2: npm run dev (frontend)
-Terminal 3: node server.js (backend)
+Terminal 3: node server.js (backend) * not needed if supabase is active
 
 For Supabase + Vercel:
 Production (Vercel): Just set VITE_API_URL=https://your-vercel-url.vercel.app and all API calls automatically switch
