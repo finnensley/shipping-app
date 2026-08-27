@@ -1,5 +1,5 @@
-Login: Email: test@example.com
-Password: Test@1234
+Login: Email: test2@gmail.com
+Password: Testing2!
 
 For future development:
 Terminal 1: docker-compose up postgres
